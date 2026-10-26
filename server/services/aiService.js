@@ -22,9 +22,9 @@
  * same result shape.
  */
 
-
 const { compareAnswers, displayAnswer, primaryAnswer } = require('./answerEvaluationService');
 const geminiProvider = require('./providers/geminiProvider');
+const { judgeAnswer } = require('./providers/geminiJudge');
 const groqClient = require('./providers/groqClient');
 
 const DISCLAIMER =
@@ -129,17 +129,45 @@ async function geminiFeedbackProvider(input) {
   if (base.verdict === 'unavailable') {
     return { ...base, notice: 'This case has no answer key yet, so no feedback was generated.' };
   }
+
+  let adjusted = {};
+  if (base.verdict === 'incorrect') {
+    try {
+      const j = await judgeAnswer({
+        caseData: input.caseData,
+        studentAnswer: input.studentAnswer,
+        apiKey: input.apiKey,
+        model: input.model,
+      });
+      if (j.verdict === 'correct') {
+        adjusted = {
+          verdict: 'correct',
+          headline: 'Correct diagnosis',
+          matchLabel: 'Accepted as equivalent to the recorded diagnosis (AI-checked)',
+        };
+      } else if (j.verdict === 'partial') {
+        adjusted = {
+          matchLabel: 'Close: partly correct, but not specific enough',
+        };
+      }
+    } catch (err) {
+      // Ignore error
+    }
+  }
+
+  const mergedBase = { ...base, ...adjusted };
+
   const fb = await geminiProvider.generateFeedback({
     caseData: input.caseData,
     studentAnswer: input.studentAnswer,
-    verdict: base.verdict,
+    verdict: mergedBase.verdict,
     apiKey: input.apiKey,
     model: input.model,
   });
   return {
-    ...base,
+    ...mergedBase,
     reasoning: fb.reasoning,
-    missedFindings: base.verdict === 'incorrect' ? fb.missedFindings : null,
+    missedFindings: mergedBase.verdict === 'incorrect' ? fb.missedFindings : null,
     notice:
       'AI-generated feedback, grounded only in this case\'s recorded information. The diagnosis, explanation and findings shown are the case author\'s own text. Always verify with your teaching materials.',
   };
