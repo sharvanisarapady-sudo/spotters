@@ -1,0 +1,66 @@
+[
+  {
+    "id": "case-001",
+    "system": "Chest X-ray",
+    "imageTitle": "Chest X-ray showing pneumonia",
+    "diagnosis": "Pneumonia",
+    "keyFindings": [
+      "Increased opacity in the right lower lobe",
+      "Air bronchograms in the affected area",
+      "Consolidation of lung tissue",
+      "Possible pleural effusion"
+    ],
+    "commonMistakes": [
+      "Misinterpreting atelectasis as pneumonia",
+      "Overlooking the extent of the infection"
+    ]
+  },
+  {
+    "id": "case-002",
+    "system": "Brain CT",
+    "imageTitle": "Brain CT showing ischaemic stroke",
+    "diagnosis": "Ischaemic Stroke",
+    "keyFindings": [
+      "Hyperdense middle cerebral artery sign",
+      "Cortical infarct in the right frontal lobe",
+      "Edema surrounding the infarct",
+      "Possible haemorrhagic transformation"
+    ],
+    "commonMistakes": [
+      "Misidentifying a haemorrhagic stroke as ischaemic",
+      "Underestimating the extent of the infarct"
+    ]
+  },
+  {
+    "id": "case-003",
+    "system": "Knee X-ray",
+    "imageTitle": "Knee X-ray showing fracture",
+    "diagnosis": "Fracture of the distal femur",
+    "keyFindings": [
+      "Linear fracture line through the distal femur",
+      "Possible displacement of the fracture fragments",
+      "Soft tissue swelling around the fracture site",
+      "Possible joint effusion"
+    ],
+    "commonMistakes": [
+      "Misinterpreting a stress fracture as a pathological fracture",
+      "Overlooking associated ligament injuries"
+    ]
+  },
+  {
+    "id": "case-004",
+    "system": "Abdominal CT",
+    "imageTitle": "Abdominal CT showing appendicitis",
+    "diagnosis": "Acute Appendicitis",
+    "keyFindings": [
+      "Thickened, dilated appendix",
+      "Periappendiceal fat stranding",
+      "Appendiceal wall enhancement",
+      "Appendicolith (calcified stone) in the lumen"
+    ],
+    "commonMistakes": [
+      "Misdiagnosing diverticulitis as appendicitis",
+      "Overlooking associated complications like perforation"
+    ]
+  }
+]
