@@ -1,0 +1,20 @@
+{
+  "_readme": "Fill in YOUR OWN verified cases. Blank rows are skipped. system_slug must match one of the 11 systems. correct_answer may list alternatives separated by |",
+  "cases": [
+    {
+      "system_slug": "",
+      "title": "",
+      "modality": "",
+      "difficulty": "",
+      "clinical_info": "",
+      "question_text": "",
+      "correct_answer": "",
+      "explanation": "",
+      "key_findings": "",
+      "learning_points": "",
+      "differential_diagnosis": "",
+      "images": [],
+      "videos": []
+    }
+  ]
+}
