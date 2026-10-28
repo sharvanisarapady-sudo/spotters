@@ -37,7 +37,9 @@ router.post(
   authController.login
 );
 
+router.get('/admin-status', authController.adminStatus);
 router.post('/logout', authController.logout);
 router.get('/me', requireAuth, authController.me);
+router.put('/profile', requireAuth, authController.updateProfile);
 
 module.exports = router;

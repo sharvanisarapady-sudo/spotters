@@ -8,7 +8,7 @@ const navigationAiModel = {
    */
   async listCases() {
     const [rows] = await pool.query(
-      `SELECT pc.id, pc.title, pc.modality, pc.difficulty,
+      `SELECT pc.id, pc.modality, pc.difficulty,
               s.id AS system_id, s.name AS system_name, s.slug AS system_slug,
               (SELECT ci.image_url FROM case_images ci
                 WHERE ci.case_id = pc.id
@@ -17,15 +17,28 @@ const navigationAiModel = {
        JOIN systems s ON s.id = pc.system_id
        WHERE pc.status = 'published'
          AND pc.correct_answer IS NOT NULL AND TRIM(pc.correct_answer) <> ''
-       ORDER BY s.display_order ASC, pc.created_at DESC`
+       ORDER BY pc.id ASC`
     );
-    return rows;
+    return rows.map((row, idx) => ({
+      ...row,
+      case_number: idx + 1,
+      title: `Case ${idx + 1}`,
+    }));
   },
 
   /** Student-safe case: NO answer, explanation, findings, learning points or differentials. */
   async getCaseForStudent(caseId) {
+    const [allIds] = await pool.query(
+      `SELECT pc.id
+       FROM practice_cases pc
+       WHERE pc.status = 'published'
+         AND pc.correct_answer IS NOT NULL AND TRIM(pc.correct_answer) <> ''
+       ORDER BY pc.id ASC`
+    );
+    const idx = allIds.findIndex((r) => Number(r.id) === Number(caseId));
+
     const [rows] = await pool.query(
-      `SELECT pc.id, pc.title, pc.modality, pc.difficulty, pc.clinical_info, pc.question_text,
+      `SELECT pc.id, pc.modality, pc.difficulty, pc.clinical_info, pc.question_text,
               s.name AS system_name, s.slug AS system_slug
        FROM practice_cases pc
        JOIN systems s ON s.id = pc.system_id
@@ -40,7 +53,13 @@ const navigationAiModel = {
       'SELECT id, image_url, display_order FROM case_images WHERE case_id = ? ORDER BY display_order ASC',
       [caseId]
     );
-    return { ...rows[0], images };
+    const caseNumber = idx >= 0 ? idx + 1 : Number(caseId);
+    return {
+      ...rows[0],
+      case_number: caseNumber,
+      title: `Case ${caseNumber}`,
+      images,
+    };
   },
 
   /** Full row, server-side only, for evaluation. */

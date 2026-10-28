@@ -22,7 +22,7 @@ const steps = [
   {
     n: '04',
     icon: IconSpark,
-    title: 'Navigation AI',
+    title: 'AI Case Mentor',
     desc: 'Answer cases by typing or voice and receive intelligent feedback.',
   },
 ];

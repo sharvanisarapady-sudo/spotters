@@ -8,12 +8,16 @@ const navItems = [
   { to: '/practice', label: 'Practice', icon: IconLayers },
   { to: '/tests', label: 'Tests', icon: IconTimer },
   { to: '/progress', label: 'Progress', icon: IconSpark },
-  { to: '/navigation-ai', label: 'Navigation AI', icon: IconCrosshair },
+  { to: '/navigation-ai', label: 'AI Case Mentor', icon: IconCrosshair },
   { to: '/profile', label: 'Profile', icon: IconGraduate },
 ];
 
 export default function DashboardLayout({ children }) {
   const { user, logout } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const visibleNavItems = isAdmin
+    ? [...navItems.slice(0, 5), { to: '/admin/cases', label: 'Content & Blocks', icon: IconLayers }, navItems[5]]
+    : navItems;
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -25,7 +29,7 @@ export default function DashboardLayout({ children }) {
         </div>
 
         <nav className="flex-1 px-3 py-6 space-y-1">
-          {(['admin', 'doctor'].includes(user?.role) ? [...navItems.slice(0, 5), { to: '/admin/cases', label: 'Content', icon: IconLayers }, navItems[5]] : navItems).map((item) => (
+          {visibleNavItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -46,7 +50,16 @@ export default function DashboardLayout({ children }) {
 
         <div className="px-3 py-4 border-t border-white/10">
           <div className="px-3 py-2 mb-1">
-            <p className="text-sm font-medium text-white truncate">{user?.full_name}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium text-white truncate">{user?.full_name || user?.fullName}</p>
+              <span
+                className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                  isAdmin ? 'bg-amber-400/20 text-amber-300' : 'bg-white/10 text-white/60'
+                }`}
+              >
+                {isAdmin ? 'Radiologist' : 'Student'}
+              </span>
+            </div>
             <p className="text-xs text-white/40 truncate">{user?.email}</p>
           </div>
           <button
@@ -88,7 +101,7 @@ export default function DashboardLayout({ children }) {
             }
           >
             <item.icon className="w-[18px] h-[18px]" />
-            <span className="truncate max-w-full px-0.5">{item.label.replace('Navigation AI', 'AI')}</span>
+            <span className="truncate max-w-full px-0.5">{item.label.replace('AI Case Mentor', 'AI Mentor')}</span>
           </NavLink>
         ))}
       </nav>

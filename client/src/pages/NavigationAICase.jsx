@@ -11,6 +11,7 @@ import { IconBack, IconMic, IconCheck } from '../components/icons';
 const VERDICT_STYLE = {
   correct: 'border-green-200 bg-green-50 text-green-800',
   incorrect: 'border-red-200 bg-red-50 text-red-800',
+  partial: 'border-amber-300 bg-amber-50 text-amber-900',
   unavailable: 'border-gray-200 bg-gray-50 text-gray-700',
 };
 
@@ -98,7 +99,9 @@ export default function NavigationAICase() {
           <div className="mt-6 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">{error}</div>
         ) : (
           <>
-            <h1 className="mt-4 font-display font-semibold text-2xl text-navy-950">{caseData.title}</h1>
+            <h1 className="mt-4 font-display font-semibold text-2xl text-navy-950">
+              {caseData.case_number ? `Case ${caseData.case_number}` : `Case ${caseData.id}`}
+            </h1>
             <div className="mt-2 flex items-center gap-2 flex-wrap text-xs">
               <span className="px-2 py-0.5 rounded border border-gray-200 text-gray-500">{caseData.system_name}</span>
               {caseData.modality && <span className="font-mono px-2 py-0.5 rounded border border-gray-200 text-gray-500">{caseData.modality}</span>}
@@ -176,16 +179,17 @@ export default function NavigationAICase() {
 
             {a && (
               <section className="mt-8" aria-live="polite">
-                <div className={`rounded-2xl border p-5 ${VERDICT_STYLE[a.verdict]}`}>
+                <div className={`rounded-2xl border p-5 ${VERDICT_STYLE[a.partial ? 'partial' : a.verdict]}`}>
                   <div className="flex items-center gap-2">
                     {a.verdict === 'correct' && <IconCheck className="w-5 h-5" />}
-                    <h2 className="font-display font-semibold text-lg">{a.verdict === 'correct' ? 'Correct' : a.verdict === 'incorrect' ? 'Incorrect' : 'Not evaluated'}</h2>
+                    {a.partial && <span aria-hidden="true" className="text-lg leading-none">◐</span>}
+                    <h2 className="font-display font-semibold text-lg">{a.verdict === 'correct' ? 'Correct' : a.partial ? 'Partially correct' : a.verdict === 'incorrect' ? 'Incorrect' : 'Not evaluated'}</h2>
                   </div>
-                  <p className="mt-1 text-sm">{a.headline !== 'Correct' && a.headline !== 'Incorrect' ? a.headline : null}</p>
+                  <p className="mt-1 text-sm">{a.headline !== 'Correct' && a.headline !== 'Incorrect' && !a.partial ? a.headline : null}</p>
                   {a.studentAnswer && <p className="mt-2 text-sm">Your answer: <span className="font-medium">{a.studentAnswer}</span></p>}
                   {a.correctDiagnosis && <p className="mt-1 text-sm">Recorded diagnosis: <span className="font-medium">{a.correctDiagnosis}</span></p>}
                   {a.matchLabel && a.verdict === 'incorrect' && <p className="mt-1 text-xs opacity-80">{a.matchLabel}</p>}
-                  {a.reasoning && <p className="mt-3 text-sm">{a.reasoning}</p>}
+                  {a.reasoning && <p className="mt-3 text-sm whitespace-pre-line">{a.reasoning}</p>}
                 </div>
 
                 <div className="mt-4 grid md:grid-cols-2 gap-4">
@@ -194,7 +198,7 @@ export default function NavigationAICase() {
                   <Block title="Learning Points">{a.learningPoints}</Block>
                   <Block title="Differential Diagnosis">{a.differentialDiagnosis}</Block>
                 </div>
-                {a.missedFindings && <p className="mt-3 text-sm text-gray-600">{a.missedFindings}</p>}
+                {a.missedFindings && <p className="mt-3 text-sm text-gray-600 whitespace-pre-line">{a.missedFindings}</p>}
 
                 <div className="mt-4">
                   <VideoPlayer videos={result.videos} />

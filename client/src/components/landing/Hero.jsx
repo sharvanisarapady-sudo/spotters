@@ -26,7 +26,7 @@ export default function Hero() {
           </h1>
           <p className="mt-5 text-lg text-white/60 max-w-lg leading-relaxed">
             Learn from radiology cases, test your diagnostic knowledge, track your progress, and
-            receive intelligent feedback with Navigation AI.
+            receive intelligent feedback with AI Case Mentor.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-4">

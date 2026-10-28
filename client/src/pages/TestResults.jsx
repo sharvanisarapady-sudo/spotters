@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { testService } from '../services/testService';
 import { IconCheck, IconBack } from '../components/icons';
 
 export default function TestResults() {
   const { attemptId } = useParams();
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [retaking, setRetaking] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -27,6 +29,22 @@ export default function TestResults() {
       cancelled = true;
     };
   }, [attemptId]);
+
+  const handleRetake = async () => {
+    if (!data) return;
+    setRetaking(true);
+    try {
+      const res = await testService.start(data.attempt.testId);
+      navigate(`/tests/${data.attempt.testId}/take`, {
+        state: { attempt: res.attempt, questions: res.questions },
+      });
+    } catch (err) {
+      setError(err.response?.data?.message || 'Could not start a new attempt.');
+      setRetaking(false);
+    }
+  };
+
+  const wrongCount = data?.review?.filter((r) => r.is_correct === 0).length ?? 0;
 
   return (
     <DashboardLayout>
@@ -66,6 +84,25 @@ export default function TestResults() {
                   </p>
                   <p className="text-white/40">Incorrect</p>
                 </div>
+              </div>
+
+              {/* Action buttons */}
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button
+                  onClick={handleRetake}
+                  disabled={retaking}
+                  className="rounded-lg bg-spotter-blue hover:bg-spotter-blue-dark text-white text-sm font-semibold px-6 py-2.5 transition disabled:opacity-60 w-full sm:w-auto"
+                >
+                  {retaking ? 'Starting…' : '↩ Take Again'}
+                </button>
+                {wrongCount > 0 && (
+                  <Link
+                    to="/revise"
+                    className="rounded-lg border border-white/20 hover:bg-white/5 text-white text-sm font-medium px-6 py-2.5 transition w-full sm:w-auto text-center"
+                  >
+                    📖 Revise {wrongCount} Missed Question{wrongCount > 1 ? 's' : ''}
+                  </Link>
+                )}
               </div>
             </div>
 

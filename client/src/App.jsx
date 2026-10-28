@@ -13,6 +13,7 @@ import Tests from './pages/Tests';
 import TestInterface from './pages/TestInterface';
 import TestResults from './pages/TestResults';
 import Progress from './pages/Progress';
+import ReviseBlock from './pages/ReviseBlock';
 import NavigationAI from './pages/NavigationAI';
 import NavigationAICase from './pages/NavigationAICase';
 import NotFound from './pages/NotFound';
@@ -40,10 +41,11 @@ export default function App() {
         <Route path="/tests/:testId/take" element={<Protected><TestInterface /></Protected>} />
         <Route path="/tests/attempts/:attemptId/results" element={<Protected><TestResults /></Protected>} />
         <Route path="/progress" element={<Protected><Progress /></Protected>} />
+        <Route path="/revise" element={<Protected><ReviseBlock /></Protected>} />
         <Route path="/navigation-ai" element={<Protected><NavigationAI /></Protected>} />
         <Route path="/navigation-ai/:caseId" element={<Protected><NavigationAICase /></Protected>} />
         <Route path="/profile" element={<Protected><Profile /></Protected>} />
-        <Route path="/admin/cases" element={<Protected><RoleRoute roles={['admin', 'doctor']}><AdminCases /></RoleRoute></Protected>} />
+        <Route path="/admin/cases" element={<Protected><RoleRoute roles={['admin']}><AdminCases /></RoleRoute></Protected>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>

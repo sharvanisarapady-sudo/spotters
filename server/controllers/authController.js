@@ -13,13 +13,23 @@ const cookieOptions = () => ({
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 });
 
+async function adminStatus(req, res) {
+  try {
+    const adminExists = await userModel.hasAdmin();
+    return res.json({ success: true, adminExists });
+  } catch (err) {
+    console.error('[auth] adminStatus error:', err.message);
+    return res.status(500).json({ success: false, message: 'Could not check admin status.' });
+  }
+}
+
 async function register(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ success: false, message: errors.array()[0].msg, errors: errors.array() });
   }
 
-  const { fullName, email, password } = req.body;
+  const { fullName, email, password, role } = req.body;
 
   try {
     const existing = await userModel.findByEmail(email.toLowerCase().trim());
@@ -27,15 +37,25 @@ async function register(req, res) {
       return res.status(409).json({ success: false, message: 'An account with this email already exists.' });
     }
 
+    let assignedRole = 'student';
+    if (role === 'admin') {
+      const adminAlreadyExists = await userModel.hasAdmin();
+      if (adminAlreadyExists) {
+        return res.status(403).json({
+          success: false,
+          message: 'An Admin (Radiologist) account has already been created. Only one Admin account is allowed — please register as a Student.',
+        });
+      }
+      assignedRole = 'admin';
+    }
+
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
-    // All new registrations are STUDENT accounts for now.
-    // The Doctor/Contributor role is provisioned separately (future feature).
     const user = await userModel.create({
       fullName: fullName.trim(),
       email: email.toLowerCase().trim(),
       passwordHash,
-      role: 'student',
+      role: assignedRole,
     });
 
     const token = signToken({ id: user.id, email: user.email, role: user.role, fullName: user.full_name });
@@ -44,7 +64,7 @@ async function register(req, res) {
     return res.status(201).json({
       success: true,
       message: 'Account created successfully.',
-      user: { id: user.id, fullName: user.full_name, email: user.email, role: user.role },
+      user: { id: user.id, fullName: user.full_name, full_name: user.full_name, email: user.email, role: user.role },
     });
   } catch (err) {
     console.error('[auth] register error:', err.message);
@@ -58,7 +78,7 @@ async function login(req, res) {
     return res.status(400).json({ success: false, message: errors.array()[0].msg, errors: errors.array() });
   }
 
-  const { email, password } = req.body;
+  const { email, password, loginType } = req.body;
 
   try {
     const user = await userModel.findByEmail(email.toLowerCase().trim());
@@ -71,13 +91,27 @@ async function login(req, res) {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
 
+    if (loginType === 'admin' && user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'This is a Student account without Admin (Radiologist) rights. Please switch to the Student Login tab.',
+      });
+    }
+
+    if (loginType === 'student' && user.role === 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'This is the Admin (Radiologist) account. Please switch to the Admin Login tab.',
+      });
+    }
+
     const token = signToken({ id: user.id, email: user.email, role: user.role, fullName: user.full_name });
     res.cookie(COOKIE_NAME, token, cookieOptions());
 
     return res.json({
       success: true,
       message: 'Logged in successfully.',
-      user: { id: user.id, fullName: user.full_name, email: user.email, role: user.role },
+      user: { id: user.id, fullName: user.full_name, full_name: user.full_name, email: user.email, role: user.role },
     });
   } catch (err) {
     console.error('[auth] login error:', err.message);
@@ -103,4 +137,22 @@ async function me(req, res) {
   }
 }
 
-module.exports = { register, login, logout, me };
+async function updateProfile(req, res) {
+  try {
+    const updated = await userModel.updateProfile(req.user.id, {
+      fullName: req.body.full_name || req.body.fullName,
+      institution: req.body.institution,
+      specialization: req.body.specialization,
+      phone: req.body.phone,
+      location: req.body.location,
+      dailyGoal: req.body.daily_goal ?? req.body.dailyGoal,
+      bio: req.body.bio,
+    });
+    return res.json({ success: true, message: 'Profile updated successfully.', user: updated });
+  } catch (err) {
+    console.error('[auth] updateProfile error:', err.message);
+    return res.status(500).json({ success: false, message: 'Could not update your profile.' });
+  }
+}
+
+module.exports = { adminStatus, register, login, logout, me, updateProfile };

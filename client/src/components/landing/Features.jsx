@@ -14,7 +14,7 @@ const features = [
   { icon: IconLayers, title: 'System-Wise Practice', desc: 'Work through 11 radiology systems at your own pace.' },
   { icon: IconTimer, title: 'Timed Spotter Tests', desc: '20-question blocks, 60 seconds per question, built like the real exam.' },
   { icon: IconChart, title: 'Performance Tracking', desc: 'See your accuracy, scores, and weak systems at a glance.' },
-  { icon: IconSpark, title: 'AI-Powered Feedback', desc: 'Navigation AI explains not just what you got wrong, but why.' },
+  { icon: IconSpark, title: 'AI-Powered Feedback', desc: 'AI Case Mentor explains not just what you got wrong, but why.' },
   { icon: IconMic, title: 'Voice-Based Answers', desc: 'Speak your diagnosis instead of typing it, when you want to move faster.' },
   { icon: IconBookOpen, title: 'Detailed Explanations', desc: 'Every case pairs findings with clear, structured teaching points.' },
   { icon: IconVideo, title: 'Video Case Solutions', desc: 'Walk through select cases with a recorded explanation.' },

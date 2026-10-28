@@ -1,0 +1,150 @@
+[1mdiff --git a/server/controllers/adminController.js b/server/controllers/adminController.js[m
+[1mindex c726bef..3410062 100644[m
+[1m--- a/server/controllers/adminController.js[m
+[1m+++ b/server/controllers/adminController.js[m
+[36m@@ -1,147 +1 @@[m
+[31m-const { validationResult } = require('express-validator');[m
+[31m-const model = require('../models/caseAdminModel');[m
+[31m-const testModel = require('../models/testModel');[m
+[31m-const storage = require('../services/imageStorageService');[m
+[31m-[m
+[31m-const wrap = (fn) => async (req, res) => {[m
+[31m-  const errors = validationResult(req);[m
+[31m-  if (!errors.isEmpty()) return res.status(400).json({ success: false, message: errors.array()[0].msg });[m
+[31m-  try {[m
+[31m-    await fn(req, res);[m
+[31m-  } catch (err) {[m
+[31m-    console.error('[admin] error:', err.message);[m
+[31m-    res.status(500).json({ success: false, message: 'Request failed.' });[m
+[31m-  }[m
+[31m-};[m
+[31m-const notFound = (res) => res.status(404).json({ success: false, message: 'Not found.' });[m
+[31m-[m
+[31m-exports.listCases = wrap(async (req, res) =>[m
+[31m-  res.json({ success: true, cases: await model.list({ status: req.query.status, systemId: req.query.systemId }) }));[m
+[31m-[m
+[31m-exports.getCase = wrap(async (req, res) => {[m
+[31m-  const c = await model.get(req.params.id);[m
+[31m-  return c ? res.json({ success: true, case: c }) : notFound(res);[m
+[31m-});[m
+[31m-[m
+[31m-exports.createCase = wrap(async (req, res) => {[m
+[31m-  const id = await model.create(req.body, req.user.id);[m
+[31m-  res.status(201).json({ success: true, id });[m
+[31m-});[m
+[31m-[m
+[31m-exports.updateCase = wrap(async (req, res) => {[m
+[31m-  if (!(await model.get(req.params.id))) return notFound(res);[m
+[31m-  await model.update(req.params.id, req.body);[m
+[31m-  res.json({ success: true });[m
+[31m-});[m
+[31m-[m
+[31m-exports.setStatus = wrap(async (req, res) => {[m
+[31m-  const { status } = req.body;[m
+[31m-  // Doctors may only move a case to review; only admins approve/publish.[m
+[31m-  if (req.user.role !== 'admin' && !['draft', 'pending_review'].includes(status)) {[m
+[31m-    return res.status(403).json({ success: false, message: 'Only an admin can approve or publish a case.' });[m
+[31m-  }[m
+[31m-  if (status === 'published') {[m
+[31m-    const c = await model.get(req.params.id);[m
+[31m-    if (!c) return notFound(res);[m
+[31m-    if (!c.correct_answer || !c.correct_answer.trim() || c.images.length === 0) {[m
+[31m-      return res.status(400).json({ success: false, message: 'A published case needs an answer key and at least one image.' });[m
+[31m-    }[m
+[31m-  }[m
+[31m-  return (await model.setStatus(req.params.id, status)) ? res.json({ success: true }) : notFound(res);[m
+[31m-});[m
+[31m-[m
+[31m-exports.deleteCase = wrap(async (req, res) => {[m
+[31m-  const urls = await model.listImageUrlsForCase(req.params.id);[m
+[31m-  if (!(await model.remove(req.params.id))) return notFound(res);[m
+[31m-  await Promise.all(urls.map((u) => storage.removeByUrl(u))); // rows are gone (cascade); drop the files too[m
+[31m-  return res.json({ success: true });[m
+[31m-});[m
+[31m-[m
+[31m-exports.addImage = wrap(async (req, res) =>[m
+[31m-  res.status(201).json({ success: true, id: await model.addImage(req.params.id, req.body.image_url) }));[m
+[31m-exports.deleteImage = wrap(async (req, res) => {[m
+[31m-  const img = await model.getImage(req.params.imageId);[m
+[31m-  if (!img || !(await model.removeImage(img.id))) return notFound(res);[m
+[31m-  await storage.removeByUrl(img.image_url); // only deletes files inside uploads/cases[m
+[31m-  return res.json({ success: true });[m
+[31m-});[m
+[31m-[m
+[31m-// Runs after multer. Validates file CONTENT, stores files, then records them in one transaction.[m
+[31m-exports.uploadImages = async (req, res) => {[m
+[31m-  const files = req.files || [];[m
+[31m-  if (files.length === 0) {[m
+[31m-    return res.status(400).json({ success: false, message: 'Choose at least one image to upload.' });[m
+[31m-  }[m
+[31m-[m
+[31m-  let urls;[m
+[31m-  try {[m
+[31m-    urls = await storage.finalizeUploads(files); // cleans up its own files on failure[m
+[31m-  } catch (err) {[m
+[31m-    if (err.status) return res.status(err.status).json({ success: false, message: err.message });[m
+[31m-    console.error('[admin] upload finalize error:', err.message);[m
+[31m-    return res.status(500).json({ success: false, message: 'The upload could not be stored.' });[m
+[31m-  }[m
+[31m-[m
+[31m-  try {[m
+[31m-    const images = await model.addImages(req.params.id, urls);[m
+[31m-    return res.status(201).json({ success: true, images });[m
+[31m-  } catch (err) {[m
+[31m-    await storage.removePaths(urls.map(storage.urlToPath)); // no orphaned files if the DB insert fails[m
+[31m-    console.error('[admin] upload DB error:', err.message);[m
+[31m-    return res.status(500).json({ success: false, message: 'The images could not be saved. Nothing was stored.' });[m
+[31m-  }[m
+[31m-};[m
+[31m-[m
+[31m-// Rejects before any file is written if the case does not exist or the id is invalid.[m
+[31m-exports.requireExistingCase = async (req, res, next) => {[m
+[31m-  const id = Number(req.params.id);[m
+[31m-  if (!Number.isInteger(id) || id < 1) return res.status(400).json({ success: false, message: 'Invalid id.' });[m
+[31m-  try {[m
+[31m-    if (!(await model.caseExists(id))) return res.status(404).json({ success: false, message: 'Not found.' });[m
+[31m-    return next();[m
+[31m-  } catch (err) {[m
+[31m-    console.error('[admin] case lookup error:', err.message);[m
+[31m-    return res.status(500).json({ success: false, message: 'Request failed.' });[m
+[31m-  }[m
+[31m-};[m
+[31m-exports.addVideo = wrap(async (req, res) =>[m
+[31m-  res.status(201).json({ success: true, id: await model.addVideo(req.params.id, req.body.video_url, req.body.title) }));[m
+[31m-exports.deleteVideo = wrap(async (req, res) =>[m
+[31m-  (await model.removeVideo(req.params.videoId)) ? res.json({ success: true }) : notFound(res));[m
+[31m-[m
+[31m-exports.setTestQuestions = wrap(async (req, res) => {[m
+[31m-  const test = await testModel.getBlockById(req.params.testId);[m
+[31m-  if (!test) return notFound(res);[m
+[31m-  const ids = req.body.caseIds;[m
+[31m-  if (new Set(ids).size !== ids.length) return res.status(400).json({ success: false, message: 'Duplicate cases in block.' });[m
+[31m-  if (ids.length > test.total_questions) {[m
+[31m-    return res.status(400).json({ success: false, message: `A block holds at most ${test.total_questions} questions.` });[m
+[31m-  }[m
+[31m-  await model.setTestQuestions(test.id, ids);[m
+[31m-  res.json({ success: true, count: ids.length });[m
+[31m-});[m
+[31m-[m
+[31m-exports.listTests = wrap(async (req, res) =>[m
+[31m-  res.json({ success: true, blocks: await model.listBlocksWithQuestions() }));[m
+[31m-[m
+[31m-const ADD_MESSAGES = {[m
+[31m-  block_not_found: [404, 'Test block not found.'],[m
+[31m-  case_not_found: [404, 'Case not found.'],[m
+[31m-  not_published: [400, 'Only published cases can be added to a test.'],[m
+[31m-  no_answer_key: [400, 'This case has no answer key, so it cannot be graded.'],[m
+[31m-  duplicate: [409, 'This case is already in the block.'],[m
+[31m-  block_full: [409, 'This block is already full.'],[m
+[31m-};[m
+[31m-[m
+[31m-exports.addTestQuestion = wrap(async (req, res) => {[m
+[31m-  const r = await model.addTestQuestion(req.params.testId, req.body.caseId);[m
+[31m-  if (!r.ok) { const [code, message] = ADD_MESSAGES[r.code]; return res.status(code).json({ success: false, message }); }[m
+[31m-  return res.status(201).json({ success: true, id: r.id, questionOrder: r.question_order });[m
+[31m-});[m
+[31m-[m
+[31m-exports.removeTestQuestion = wrap(async (req, res) => {[m
+[31m-  const r = await model.removeTestQuestion(req.params.testId, req.params.questionId);[m
+[31m-  if (r.ok) return res.json({ success: true });[m
+[31m-  if (r.code === '

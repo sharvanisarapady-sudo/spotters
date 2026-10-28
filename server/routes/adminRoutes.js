@@ -2,10 +2,10 @@ const express = require('express');
 const { body, param } = require('express-validator');
 const { requireAuth, requireRole } = require('../middleware/authMiddleware');
 const c = require('../controllers/adminController');
-const { handleImageUpload } = require('../middleware/upload');
+const { handleImageUpload, handleVideoUpload } = require('../middleware/upload');
 
 const router = express.Router();
-router.use(requireAuth, requireRole('doctor', 'admin'));
+router.use(requireAuth, requireRole('admin'));
 
 const text = (f, max) => body(f).optional({ nullable: true }).isString().isLength({ max }).withMessage(`${f} is too long.`);
 const caseBody = [
@@ -29,10 +29,14 @@ router.post('/cases/:id/images/upload', c.requireExistingCase, handleImageUpload
 router.post('/cases/:id/images', id, url('image_url'), c.addImage);
 router.delete('/images/:imageId', param('imageId').isInt({ min: 1 }), c.deleteImage);
 router.post('/cases/:id/videos', id, url('video_url'), text('title', 255), c.addVideo);
+router.post('/cases/:id/videos/upload', c.requireExistingCase, handleVideoUpload, c.uploadVideo);
 router.delete('/videos/:videoId', param('videoId').isInt({ min: 1 }), c.deleteVideo);
-router.get('/tests', requireRole('admin'), c.listTests);
-router.post('/tests/:testId/questions/add', requireRole('admin'), param('testId').isInt({ min: 1 }), body('caseId').isInt({ min: 1 }).withMessage('Choose a case.'), c.addTestQuestion);
-router.delete('/tests/:testId/questions/:questionId', requireRole('admin'), param('testId').isInt({ min: 1 }), param('questionId').isInt({ min: 1 }), c.removeTestQuestion);
-router.put('/tests/:testId/questions', requireRole('admin'), param('testId').isInt({ min: 1 }), body('caseIds').isArray({ max: 100 }).withMessage('caseIds must be an array.'), body('caseIds.*').isInt({ min: 1 }), c.setTestQuestions);
+router.get('/tests', c.listTests);
+router.post('/tests', c.createTest);
+router.post('/tests/shuffle', c.shuffleTests);
+router.delete('/tests/:testId', param('testId').isInt({ min: 1 }), c.deleteTest);
+router.post('/tests/:testId/questions/add', param('testId').isInt({ min: 1 }), body('caseId').isInt({ min: 1 }).withMessage('Choose a case.'), c.addTestQuestion);
+router.delete('/tests/:testId/questions/:questionId', param('testId').isInt({ min: 1 }), param('questionId').isInt({ min: 1 }), c.removeTestQuestion);
+router.put('/tests/:testId/questions', param('testId').isInt({ min: 1 }), body('caseIds').isArray({ max: 100 }).withMessage('caseIds must be an array.'), body('caseIds.*').isInt({ min: 1 }), c.setTestQuestions);
 
 module.exports = router;

@@ -36,10 +36,6 @@ exports.updateCase = wrap(async (req, res) => {
 
 exports.setStatus = wrap(async (req, res) => {
   const { status } = req.body;
-  // Doctors may only move a case to review; only admins approve/publish.
-  if (req.user.role !== 'admin' && !['draft', 'pending_review'].includes(status)) {
-    return res.status(403).json({ success: false, message: 'Only an admin can approve or publish a case.' });
-  }
   if (status === 'published') {
     const c = await model.get(req.params.id);
     if (!c) return notFound(res);
@@ -106,6 +102,16 @@ exports.requireExistingCase = async (req, res, next) => {
 };
 exports.addVideo = wrap(async (req, res) =>
   res.status(201).json({ success: true, id: await model.addVideo(req.params.id, req.body.video_url, req.body.title) }));
+
+exports.uploadVideo = wrap(async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: 'Choose a video file to upload.' });
+  }
+  const videoUrl = `/uploads/cases/${req.file.filename}`;
+  const id = await model.addVideo(req.params.id, videoUrl, req.body.title || null);
+  return res.status(201).json({ success: true, id, video_url: videoUrl });
+});
+
 exports.deleteVideo = wrap(async (req, res) =>
   (await model.removeVideo(req.params.videoId)) ? res.json({ success: true }) : notFound(res));
 
@@ -114,15 +120,37 @@ exports.setTestQuestions = wrap(async (req, res) => {
   if (!test) return notFound(res);
   const ids = req.body.caseIds;
   if (new Set(ids).size !== ids.length) return res.status(400).json({ success: false, message: 'Duplicate cases in block.' });
-  if (ids.length > test.total_questions) {
-    return res.status(400).json({ success: false, message: `A block holds at most ${test.total_questions} questions.` });
-  }
   await model.setTestQuestions(test.id, ids);
   res.json({ success: true, count: ids.length });
 });
 
-exports.listTests = wrap(async (req, res) =>
-  res.json({ success: true, blocks: await model.listBlocksWithQuestions() }));
+exports.listTests = wrap(async (req, res) => {
+  const data = await model.listBlocksWithQuestions();
+  return res.json({ success: true, blocks: data.blocks, questionsPerBlock: data.questionsPerBlock });
+});
+
+exports.shuffleTests = wrap(async (req, res) => {
+  await model.autoSyncBlocks({
+    reshuffleAll: true,
+    questionsPerBlock: req.body.questions_per_block,
+  });
+  const data = await model.listBlocksWithQuestions();
+  return res.json({ success: true, blocks: data.blocks, questionsPerBlock: data.questionsPerBlock });
+});
+
+exports.createTest = wrap(async (req, res) => {
+  const block = await model.createBlock({
+    blockNumber: req.body.block_number,
+    title: req.body.title,
+    secondsPerQuestion: req.body.seconds_per_question,
+  });
+  return res.status(201).json({ success: true, block });
+});
+
+exports.deleteTest = wrap(async (req, res) => {
+  const ok = await model.deleteBlock(req.params.testId);
+  return ok ? res.json({ success: true }) : notFound(res);
+});
 
 const ADD_MESSAGES = {
   block_not_found: [404, 'Test block not found.'],
@@ -142,6 +170,5 @@ exports.addTestQuestion = wrap(async (req, res) => {
 exports.removeTestQuestion = wrap(async (req, res) => {
   const r = await model.removeTestQuestion(req.params.testId, req.params.questionId);
   if (r.ok) return res.json({ success: true });
-  if (r.code === 'has_answers') return res.status(409).json({ success: false, message: 'Students have already answered this question, so it cannot be removed.' });
   return notFound(res);
 });

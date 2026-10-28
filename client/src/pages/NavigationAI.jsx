@@ -29,7 +29,7 @@ export default function NavigationAI() {
   return (
     <DashboardLayout>
       <main className="max-w-6xl mx-auto px-6 py-10">
-        <h1 className="font-display font-semibold text-2xl text-navy-950">Navigation AI</h1>
+        <h1 className="font-display font-semibold text-2xl text-navy-950">AI Case Mentor</h1>
         <p className="mt-1 text-gray-500">
           Study a case, give your diagnosis by typing or speaking, and get feedback grounded in the case record.
         </p>
@@ -68,7 +68,7 @@ export default function NavigationAI() {
             </div>
 
             <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {visible.map((c) => (
+              {visible.map((c, idx) => (
                 <Link
                   key={c.id}
                   to={`/navigation-ai/${c.id}`}
@@ -85,7 +85,9 @@ export default function NavigationAI() {
                     )}
                   </div>
                   <div className="p-4">
-                    <h3 className="font-medium text-navy-950 text-sm truncate">{c.title}</h3>
+                    <h3 className="font-medium text-navy-950 text-sm truncate">
+                      {c.case_number ? `Case ${c.case_number}` : `Case ${idx + 1}`}
+                    </h3>
                     <div className="mt-2 flex items-center gap-2 flex-wrap text-[11px]">
                       <span className="px-2 py-0.5 rounded border border-gray-200 text-gray-500">{c.system_name}</span>
                       {c.modality && <span className="font-mono px-2 py-0.5 rounded border border-gray-200 text-gray-500">{c.modality}</span>}

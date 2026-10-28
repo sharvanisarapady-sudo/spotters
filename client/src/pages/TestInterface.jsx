@@ -24,7 +24,7 @@ export default function TestInterface() {
   const [viewIndex, setViewIndex] = useState(0); // question currently displayed
   const [answers, setAnswers] = useState({}); // { [index]: studentAnswer }
   const [inputValue, setInputValue] = useState('');
-  const [timeLeft, setTimeLeft] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(() => location.state?.attempt?.secondsPerQuestion ?? 60);
   const [submitting, setSubmitting] = useState(false);
   const [finishing, setFinishing] = useState(false);
 
@@ -40,6 +40,7 @@ export default function TestInterface() {
       .start(testId)
       .then((res) => {
         if (cancelled) return;
+        setTimeLeft(res.attempt.secondsPerQuestion || 60);
         setAttempt(res.attempt);
         setQuestions(res.questions);
       })
@@ -55,11 +56,7 @@ export default function TestInterface() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (attempt) setTimeLeft(attempt.secondsPerQuestion);
-  }, [attempt]);
-
-  const totalQuestions = attempt?.totalQuestions || questions.length;
+  const totalQuestions = questions.length || attempt?.totalQuestions || 0;
   const isLastQuestion = activeIndex === totalQuestions - 1;
   const isViewingActive = viewIndex === activeIndex;
   const currentQuestion = questions[viewIndex];

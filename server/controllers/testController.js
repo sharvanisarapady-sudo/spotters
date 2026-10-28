@@ -35,7 +35,7 @@ if (questionCount === 0) {
     // A student can only have one live attempt per block at a time.
     await testModel.abandonInProgress(req.user.id, testId);
 
-    const attemptId = await testModel.createAttempt(req.user.id, testId, block.total_questions);
+    const attemptId = await testModel.createAttempt(req.user.id, testId, questionCount);
     const questions = await testModel.getQuestionsForAttempt(testId);
 
     return res.status(201).json({
@@ -44,7 +44,7 @@ if (questionCount === 0) {
         id: attemptId,
         blockNumber: block.block_number,
         title: block.title,
-        totalQuestions: block.total_questions,
+        totalQuestions: questionCount,
         secondsPerQuestion: block.seconds_per_question,
       },
       questions,
@@ -136,6 +136,7 @@ async function getResults(req, res) {
       success: true,
       attempt: {
         id: attempt.id,
+        testId: attempt.test_id,
         blockNumber: block.block_number,
         score: attempt.score,
         total: attempt.total_questions,

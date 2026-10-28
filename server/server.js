@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const { testConnection } = require('./config/db');
+const { initDb } = require('./config/initDb');
 const authRoutes = require('./routes/authRoutes');
 const systemRoutes = require('./routes/systemRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
@@ -12,6 +13,7 @@ const testRoutes = require('./routes/testRoutes');
 const progressRoutes = require('./routes/progressRoutes');
 const navigationAiRoutes = require('./routes/navigationAiRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const fs = require('fs');
 const path = require('path');
 const { requireAuth } = require('./middleware/authMiddleware');
 const { describeConfig } = require('./services/aiService');
@@ -22,13 +24,14 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 16) {
 }
 
 const app = express();
+app.set('trust proxy', 1); // Required for secure cookies behind Render / Cloudflare / reverse proxies
 app.disable('x-powered-by');
 const PORT = process.env.PORT || 5000;
 
 // ---- Core middleware ----
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : true,
     credentials: true,
   })
 );
@@ -73,10 +76,19 @@ app.use(
   })
 );
 
-// ---- 404 handler ----
+// ---- 404 handler for API routes ----
 app.use('/api', (req, res) => {
   res.status(404).json({ success: false, message: 'API route not found.' });
 });
+
+// ---- Serve built React frontend in production (or whenever client/dist exists) ----
+const clientDistPath = path.join(__dirname, '..', 'client', 'dist');
+if (fs.existsSync(path.join(clientDistPath, 'index.html'))) {
+  app.use(express.static(clientDistPath));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+}
 
 // ---- Centralized error handler (never leaks internals) ----
 app.use((err, req, res, next) => {
@@ -88,6 +100,8 @@ async function start() {
   const dbOk = await testConnection();
   if (!dbOk) {
     console.warn('[server] Starting without a confirmed database connection. Check your .env settings.');
+  } else {
+    await initDb();
   }
   console.log(`[ai] ${describeConfig()}`);
   app.listen(PORT, () => {

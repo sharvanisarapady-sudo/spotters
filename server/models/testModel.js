@@ -1,8 +1,19 @@
 const { pool } = require('../config/db');
+const caseAdminModel = require('./caseAdminModel');
+
+function shuffleArray(items) {
+  const arr = [...items];
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
 
 const testModel = {
   /** All blocks with a live count of attached questions. */
   async listBlocks() {
+    await caseAdminModel.autoSyncBlocks();
     const [rows] = await pool.query(
       `SELECT t.id, t.block_number, t.title, t.total_questions, t.seconds_per_question, t.is_active,
               COUNT(tq.id) AS question_count
@@ -47,7 +58,7 @@ const testModel = {
       );
       q.images = images;
     }
-    return rows;
+    return shuffleArray(rows);
   },
 
   /** Case_id + correct_answer for one test_question, used only for server-side grading. */

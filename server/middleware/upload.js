@@ -1,14 +1,50 @@
 const crypto = require('crypto');
+const path = require('path');
 const multer = require('multer');
 const { UPLOAD_DIR, MAX_FILE_BYTES } = require('../services/imageStorageService');
 
 const MAX_FILES_PER_REQUEST = 10;
+const MAX_VIDEO_BYTES = 100 * 1024 * 1024; // 100 MB
 
 // Temp files get a random name; the real name is assigned after content validation.
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, UPLOAD_DIR),
   filename: (req, file, cb) => cb(null, `tmp-${crypto.randomUUID()}`),
 });
+
+const videoStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
+  filename: (req, file, cb) => {
+    const ext = file.mimetype === 'video/webm' ? 'webm' : 'mp4';
+    cb(null, `vid-${crypto.randomUUID()}.${ext}`);
+  },
+});
+
+const videoUploader = multer({
+  storage: videoStorage,
+  limits: { fileSize: MAX_VIDEO_BYTES, files: 1, fields: 5 },
+  fileFilter: (req, file, cb) => {
+    const ok = ['video/mp4', 'video/webm', 'video/quicktime'].includes(file.mimetype);
+    if (!ok) {
+      const err = new multer.MulterError('LIMIT_UNEXPECTED_FILE', file.fieldname);
+      err.message = 'Only MP4, WebM, and MOV videos are allowed.';
+      err.code = 'INVALID_TYPE';
+      return cb(err);
+    }
+    return cb(null, true);
+  },
+}).single('video');
+
+function handleVideoUpload(req, res, next) {
+  videoUploader(req, res, (err) => {
+    if (!err) return next();
+    let status = 400;
+    let message = 'Video upload failed.';
+    if (err.code === 'INVALID_TYPE') message = err.message;
+    else if (err.code === 'LIMIT_FILE_SIZE') { status = 413; message = 'Video must be 100 MB or smaller.'; }
+    return res.status(status).json({ success: false, message });
+  });
+}
 
 const uploader = multer({
   storage,
@@ -50,4 +86,4 @@ function handleImageUpload(req, res, next) {
   });
 }
 
-module.exports = { handleImageUpload, MAX_FILES_PER_REQUEST };
+module.exports = { handleImageUpload, handleVideoUpload, MAX_FILES_PER_REQUEST };
