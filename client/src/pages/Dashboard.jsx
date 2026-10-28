@@ -182,7 +182,15 @@ export default function Dashboard() {
                     />
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex flex-wrap items-center gap-2 shrink-0">
+                  {user?.role === 'admin' && (
+                    <Link
+                      to="/admin/cases"
+                      className="rounded-xl bg-amber-400/20 border border-amber-400/40 hover:bg-amber-400/30 px-4 py-2 text-xs font-semibold text-amber-300 transition"
+                    >
+                      + Content &amp; Blocks
+                    </Link>
+                  )}
                   <Link
                     to="/tests"
                     className="rounded-xl bg-spotter-blue hover:bg-spotter-blue-dark px-4 py-2 text-xs font-semibold text-white transition"

@@ -73,8 +73,36 @@ export default function DashboardLayout({ children }) {
 
       {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 inset-x-0 z-40 h-14 bg-navy-950 text-white flex items-center justify-between px-4 border-b border-white/10">
-        <span className="font-display font-semibold text-sm tracking-tight">SPOTTERS.COM</span>
-        <button onClick={logout} className="text-xs text-white/60">Logout</button>
+        <div className="flex items-center gap-2 min-w-0">
+          <IconCrosshair className="w-4 h-4 text-spotter-blue-light shrink-0" />
+          <span className="font-display font-semibold text-sm tracking-tight truncate">SPOTTERS.COM</span>
+          <span
+            className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+              isAdmin ? 'bg-amber-400/20 text-amber-300' : 'bg-white/10 text-white/60'
+            }`}
+          >
+            {isAdmin ? 'Radiologist' : 'Student'}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {isAdmin && (
+            <NavLink
+              to="/admin/cases"
+              className={({ isActive }) =>
+                `rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition ${
+                  isActive
+                    ? 'bg-spotter-blue text-white'
+                    : 'bg-amber-400/20 text-amber-300 border border-amber-400/30 hover:bg-amber-400/30'
+                }`
+              }
+            >
+              + Content &amp; Blocks
+            </NavLink>
+          )}
+          <button onClick={logout} className="text-xs text-white/60 hover:text-white px-1.5 py-1">
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Content */}
@@ -91,7 +119,7 @@ export default function DashboardLayout({ children }) {
         aria-label="Primary"
         className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-navy-950 border-t border-white/10 flex"
       >
-        {navItems.map((item) => (
+        {visibleNavItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
@@ -101,7 +129,9 @@ export default function DashboardLayout({ children }) {
             }
           >
             <item.icon className="w-[18px] h-[18px]" />
-            <span className="truncate max-w-full px-0.5">{item.label.replace('AI Case Mentor', 'AI Mentor')}</span>
+            <span className="truncate max-w-full px-0.5">
+              {item.label.replace('AI Case Mentor', 'AI Mentor').replace('Content & Blocks', 'Blocks')}
+            </span>
           </NavLink>
         ))}
       </nav>
