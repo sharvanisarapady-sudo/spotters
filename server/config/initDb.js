@@ -1,5 +1,6 @@
 const { pool } = require('./db');
 const caseAdminModel = require('../models/caseAdminModel');
+const { evaluateAnswer } = require('../services/answerEvaluationService');
 
 const CREATE_TABLES = [
   `CREATE TABLE IF NOT EXISTS users (
@@ -355,6 +356,36 @@ async function initDb() {
     }
 
     await caseAdminModel.autoSyncBlocks();
+
+    // Retroactively re-evaluate any past answers marked wrong due to minor spelling typos (e.g. "anamoly" vs "anomaly")
+    const [wrongRows] = await pool.query(
+      `SELECT ta.id, ta.attempt_id, ta.student_answer, pc.correct_answer
+       FROM test_answers ta
+       JOIN practice_cases pc ON pc.id = ta.case_id
+       WHERE ta.is_correct = 0 AND ta.student_answer IS NOT NULL AND TRIM(ta.student_answer) <> ''`
+    );
+    const updatedAttempts = new Set();
+    for (const row of wrongRows) {
+      if (evaluateAnswer(row.student_answer, row.correct_answer)) {
+        await pool.query('UPDATE test_answers SET is_correct = 1 WHERE id = ?', [row.id]);
+        updatedAttempts.add(row.attempt_id);
+      }
+    }
+    for (const attemptId of updatedAttempts) {
+      const [[agg]] = await pool.query(
+        `SELECT SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct
+         FROM test_answers WHERE attempt_id = ?`,
+        [attemptId]
+      );
+      const [[att]] = await pool.query('SELECT total_questions FROM test_attempts WHERE id = ?', [attemptId]);
+      if (att) {
+        const score = Number(agg.correct) || 0;
+        const total = Number(att.total_questions) || 1;
+        const accuracy = Number(((score / total) * 100).toFixed(1));
+        await pool.query('UPDATE test_attempts SET score = ?, accuracy = ? WHERE id = ?', [score, accuracy, attemptId]);
+      }
+    }
+
     console.log('[db] Schema, seed cases & random test blocks verified');
   } catch (err) {
     console.warn('[db] Schema initialization warning:', err.message);
