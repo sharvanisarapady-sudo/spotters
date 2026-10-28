@@ -13,7 +13,7 @@ function shuffleArray(items) {
 const testModel = {
   /** All blocks with a live count of attached questions. */
   async listBlocks() {
-    await caseAdminModel.autoSyncBlocks();
+    await caseAdminModel.ensureSynced();
     const [rows] = await pool.query(
       `SELECT t.id, t.block_number, t.title, t.block_type, t.system_id,
               t.total_questions, t.seconds_per_question, t.is_active,
@@ -56,12 +56,23 @@ const testModel = {
       [testId]
     );
 
-    for (const q of rows) {
-      const [images] = await pool.query(
-        'SELECT id, image_url, display_order FROM case_images WHERE case_id = ? ORDER BY display_order ASC',
-        [q.case_id]
+    if (rows.length > 0) {
+      const caseIds = rows.map((q) => q.case_id);
+      const [allImages] = await pool.query(
+        `SELECT id, case_id, image_url, display_order
+         FROM case_images
+         WHERE case_id IN (${caseIds.map(() => '?').join(',')})
+         ORDER BY display_order ASC`,
+        caseIds
       );
-      q.images = images;
+      const imgByCase = new Map();
+      for (const img of allImages) {
+        if (!imgByCase.has(img.case_id)) imgByCase.set(img.case_id, []);
+        imgByCase.get(img.case_id).push(img);
+      }
+      for (const q of rows) {
+        q.images = imgByCase.get(q.case_id) || [];
+      }
     }
     return shuffleArray(rows);
   },

@@ -17,6 +17,8 @@ const poolConfig = process.env.DATABASE_URL
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0,
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 10000,
       dateStrings: true,
       ...(useSsl ? { ssl: { rejectUnauthorized: false } } : {}),
     };

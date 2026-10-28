@@ -8,41 +8,40 @@ const { displayAnswer } = require('../services/answerEvaluationService');
  */
 const progressModel = {
   async getOverview(userId) {
-    const [[completed]] = await pool.query(
-      `SELECT COUNT(*) AS tests_completed,
-              AVG(score) AS avg_score,
-              AVG(accuracy) AS avg_accuracy,
-              MAX(score) AS best_score
-       FROM test_attempts
-       WHERE user_id = ? AND status = 'completed'`,
-      [userId]
-    );
-
-    const [[best]] = await pool.query(
-      `SELECT score, total_questions
-       FROM test_attempts
-       WHERE user_id = ? AND status = 'completed' AND score IS NOT NULL
-       ORDER BY score DESC, completed_at DESC
-       LIMIT 1`,
-      [userId]
-    );
-
-    const [[answers]] = await pool.query(
-      `SELECT COUNT(*) AS attempted,
-              COUNT(is_correct) AS graded,
-              SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct
-       FROM test_answers
-       WHERE user_id = ?`,
-      [userId]
-    );
-
-    const [[bookmarks]] = await pool.query(
-      `SELECT COUNT(*) AS count
-       FROM bookmarks b
-       JOIN practice_cases pc ON pc.id = b.case_id AND pc.status = 'published'
-       WHERE b.user_id = ?`,
-      [userId]
-    );
+    const [[[completed]], [[best]], [[answers]], [[bookmarks]]] = await Promise.all([
+      pool.query(
+        `SELECT COUNT(*) AS tests_completed,
+                AVG(score) AS avg_score,
+                AVG(accuracy) AS avg_accuracy,
+                MAX(score) AS best_score
+         FROM test_attempts
+         WHERE user_id = ? AND status = 'completed'`,
+        [userId]
+      ),
+      pool.query(
+        `SELECT score, total_questions
+         FROM test_attempts
+         WHERE user_id = ? AND status = 'completed' AND score IS NOT NULL
+         ORDER BY score DESC, completed_at DESC
+         LIMIT 1`,
+        [userId]
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS attempted,
+                COUNT(is_correct) AS graded,
+                SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct
+         FROM test_answers
+         WHERE user_id = ?`,
+        [userId]
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS count
+         FROM bookmarks b
+         JOIN practice_cases pc ON pc.id = b.case_id AND pc.status = 'published'
+         WHERE b.user_id = ?`,
+        [userId]
+      ),
+    ]);
 
     const graded = Number(answers.graded) || 0;
     const correct = Number(answers.correct) || 0;
@@ -159,12 +158,23 @@ const progressModel = {
        ORDER BY MAX(ta.answered_at) DESC`,
       [userId]
     );
-    for (const r of rows) {
-      const [images] = await pool.query(
-        'SELECT id, image_url, display_order FROM case_images WHERE case_id = ? ORDER BY display_order ASC',
-        [r.case_id]
+    if (rows.length > 0) {
+      const caseIds = rows.map((r) => r.case_id);
+      const [allImages] = await pool.query(
+        `SELECT id, case_id, image_url, display_order
+         FROM case_images
+         WHERE case_id IN (${caseIds.map(() => '?').join(',')})
+         ORDER BY display_order ASC`,
+        caseIds
       );
-      r.images = images;
+      const imgByCase = new Map();
+      for (const img of allImages) {
+        if (!imgByCase.has(img.case_id)) imgByCase.set(img.case_id, []);
+        imgByCase.get(img.case_id).push(img);
+      }
+      for (const r of rows) {
+        r.images = imgByCase.get(r.case_id) || [];
+      }
     }
     return rows;
   },
@@ -185,77 +195,91 @@ const progressModel = {
 
   /** Active days, today's activity summary, today's feed, and 7-day trend series. */
   async getActivityStats(userId) {
-    const [activeDates] = await pool.query(
-      `SELECT DISTINCT d FROM (
-         SELECT DATE(started_at) AS d FROM test_attempts WHERE user_id = ?
-         UNION
-         SELECT DATE(answered_at) AS d FROM test_answers WHERE user_id = ?
-         UNION
-         SELECT DATE(created_at) AS d FROM ai_interactions WHERE user_id = ?
-         UNION
-         SELECT DATE(created_at) AS d FROM study_planner WHERE user_id = ? AND is_completed = 1
-         UNION
-         SELECT CURDATE() AS d
-       ) AS dates WHERE d IS NOT NULL`,
-      [userId, userId, userId, userId]
-    );
-
-    const [[todayAns]] = await pool.query(
-      `SELECT COUNT(*) AS attempted,
-              SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct
-       FROM test_answers
-       WHERE user_id = ? AND DATE(answered_at) = CURDATE()`,
-      [userId]
-    );
-
-    const [[todayTests]] = await pool.query(
-      `SELECT COUNT(*) AS completed
-       FROM test_attempts
-       WHERE user_id = ? AND status = 'completed' AND DATE(completed_at) = CURDATE()`,
-      [userId]
-    );
-
-    const [[todayAi]] = await pool.query(
-      `SELECT COUNT(*) AS count
-       FROM ai_interactions
-       WHERE user_id = ? AND DATE(created_at) = CURDATE()`,
-      [userId]
-    );
-
-    const [[todayPlanner]] = await pool.query(
-      `SELECT COUNT(*) AS completed,
-              (SELECT COUNT(*) FROM study_planner WHERE user_id = ? AND scheduled_date = CURDATE()) AS total
-       FROM study_planner
-       WHERE user_id = ? AND scheduled_date = CURDATE() AND is_completed = 1`,
-      [userId, userId]
-    );
-
-    // Recent activities today / recent days
-    const [recentAnswers] = await pool.query(
-      `SELECT ta.id, ta.is_correct, ta.answered_at AS ts,
-              pc.title AS case_title, pc.modality, t.block_number
-       FROM test_answers ta
-       JOIN practice_cases pc ON pc.id = ta.case_id
-       JOIN tests t ON t.id = ta.test_id
-       WHERE ta.user_id = ?
-       ORDER BY ta.answered_at DESC LIMIT 8`,
-      [userId]
-    );
-
-    const [recentAi] = await pool.query(
-      `SELECT ai.id, ai.ai_verdict, ai.created_at AS ts, pc.modality, pc.id AS case_id
-       FROM ai_interactions ai
-       LEFT JOIN practice_cases pc ON pc.id = ai.case_id
-       WHERE ai.user_id = ?
-       ORDER BY ai.created_at DESC LIMIT 5`,
-      [userId]
-    );
+    const [
+      [activeDates],
+      [[todayAns]],
+      [[todayTests]],
+      [[todayAi]],
+      [[todayPlanner]],
+      [recentAnswers],
+      [recentAi],
+      [dailyRows],
+    ] = await Promise.all([
+      pool.query(
+        `SELECT DISTINCT d FROM (
+           SELECT DATE(started_at) AS d FROM test_attempts WHERE user_id = ?
+           UNION
+           SELECT DATE(answered_at) AS d FROM test_answers WHERE user_id = ?
+           UNION
+           SELECT DATE(created_at) AS d FROM ai_interactions WHERE user_id = ?
+           UNION
+           SELECT DATE(created_at) AS d FROM study_planner WHERE user_id = ? AND is_completed = 1
+           UNION
+           SELECT CURDATE() AS d
+         ) AS dates WHERE d IS NOT NULL`,
+        [userId, userId, userId, userId]
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS attempted,
+                SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct
+         FROM test_answers
+         WHERE user_id = ? AND DATE(answered_at) = CURDATE()`,
+        [userId]
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS completed
+         FROM test_attempts
+         WHERE user_id = ? AND status = 'completed' AND DATE(completed_at) = CURDATE()`,
+        [userId]
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS count
+         FROM ai_interactions
+         WHERE user_id = ? AND DATE(created_at) = CURDATE()`,
+        [userId]
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS completed,
+                (SELECT COUNT(*) FROM study_planner WHERE user_id = ? AND scheduled_date = CURDATE()) AS total
+         FROM study_planner
+         WHERE user_id = ? AND scheduled_date = CURDATE() AND is_completed = 1`,
+        [userId, userId]
+      ),
+      pool.query(
+        `SELECT ta.id, ta.is_correct, ta.answered_at AS ts,
+                pc.title AS case_title, pc.modality, t.block_number
+         FROM test_answers ta
+         JOIN practice_cases pc ON pc.id = ta.case_id
+         JOIN tests t ON t.id = ta.test_id
+         WHERE ta.user_id = ?
+         ORDER BY ta.answered_at DESC LIMIT 8`,
+        [userId]
+      ),
+      pool.query(
+        `SELECT ai.id, ai.ai_verdict, ai.created_at AS ts, pc.modality, pc.id AS case_id
+         FROM ai_interactions ai
+         LEFT JOIN practice_cases pc ON pc.id = ai.case_id
+         WHERE ai.user_id = ?
+         ORDER BY ai.created_at DESC LIMIT 5`,
+        [userId]
+      ),
+      pool.query(
+        `SELECT DATE(answered_at) AS d,
+                COUNT(*) AS attempted,
+                SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct
+         FROM test_answers
+         WHERE user_id = ? AND answered_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+         GROUP BY DATE(answered_at)
+         ORDER BY d ASC`,
+        [userId]
+      ),
+    ]);
 
     const feed = [
       ...recentAnswers.map((a) => ({
         id: `ans-${a.id}`,
         type: 'question',
-        label: `Attempted "${a.case_title}" in Block ${a.block_number}`,
+        label: `Attempted "${a.case_title}" in Block ${a.block_number > 1000 ? 'System' : a.block_number}`,
         badge: a.is_correct === 1 ? 'Correct' : 'Incorrect',
         badgeTone: a.is_correct === 1 ? 'green' : 'red',
         ts: a.ts,
@@ -263,7 +287,7 @@ const progressModel = {
       ...recentAi.map((a) => ({
         id: `ai-${a.id}`,
         type: 'ai',
-        label: `Practiced Navigation AI Case #${a.case_id || ''}`,
+        label: `Practiced AI Case Mentor Case #${a.case_id || ''}`,
         badge: a.ai_verdict === 'correct' ? 'AI Verified' : 'Reviewed',
         badgeTone: a.ai_verdict === 'correct' ? 'green' : 'blue',
         ts: a.ts,
@@ -271,18 +295,6 @@ const progressModel = {
     ]
       .sort((a, b) => new Date(b.ts) - new Date(a.ts))
       .slice(0, 8);
-
-    // 7-day trend series for charts
-    const [dailyRows] = await pool.query(
-      `SELECT DATE(answered_at) AS d,
-              COUNT(*) AS attempted,
-              SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct
-       FROM test_answers
-       WHERE user_id = ? AND answered_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
-       GROUP BY DATE(answered_at)
-       ORDER BY d ASC`,
-      [userId]
-    );
 
     const byDate = new Map(dailyRows.map((r) => [String(r.d).slice(0, 10), r]));
     const dailySeries = [];

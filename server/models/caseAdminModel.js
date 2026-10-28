@@ -15,6 +15,9 @@ function shuffleArray(items) {
 }
 
 let settingsTableReady = false;
+let blocksSynced = false;
+let cachedQuestionsPerBlock = 10;
+
 async function ensureSettingsTable(conn) {
   if (settingsTableReady) return;
   await conn.query(
@@ -27,6 +30,10 @@ async function ensureSettingsTable(conn) {
 }
 
 const caseAdminModel = {
+  async ensureSynced() {
+    if (blocksSynced) return { questionsPerBlock: cachedQuestionsPerBlock };
+    return caseAdminModel.autoSyncBlocks();
+  },
   async list({ status, systemId }) {
     const where = [];
     const params = [];
@@ -413,6 +420,8 @@ const caseAdminModel = {
       }
 
       await conn.commit();
+      cachedQuestionsPerBlock = capacity;
+      blocksSynced = true;
       return { questionsPerBlock: capacity };
     } catch (e) {
       await conn.rollback();
@@ -424,23 +433,25 @@ const caseAdminModel = {
 
   /** All blocks with their assigned questions (case title/status) for the admin UI. */
   async listBlocksWithQuestions() {
-    const { questionsPerBlock } = await caseAdminModel.autoSyncBlocks();
-    const [blocks] = await pool.query(
-      `SELECT t.id, t.block_number, t.title, t.block_type, t.system_id, t.total_questions, t.seconds_per_question, t.is_active,
-              s.name AS system_name, s.display_order AS system_order
-       FROM tests t
-       LEFT JOIN systems s ON s.id = t.system_id
-       ORDER BY t.block_type ASC, COALESCE(s.display_order, t.block_number) ASC`
-    );
-    const [qs] = await pool.query(
-      `SELECT tq.id, tq.test_id, tq.case_id, tq.question_order, pc.title, pc.status, pc.modality,
-              s.name AS system_name,
-              (SELECT COUNT(*) FROM test_answers ta WHERE ta.question_id = tq.id) AS answer_count
-       FROM test_questions tq
-       JOIN practice_cases pc ON pc.id = tq.case_id
-       JOIN systems s ON s.id = pc.system_id
-       ORDER BY tq.test_id, tq.question_order`
-    );
+    const { questionsPerBlock } = await caseAdminModel.ensureSynced();
+    const [[blocks], [qs]] = await Promise.all([
+      pool.query(
+        `SELECT t.id, t.block_number, t.title, t.block_type, t.system_id, t.total_questions, t.seconds_per_question, t.is_active,
+                s.name AS system_name, s.display_order AS system_order
+         FROM tests t
+         LEFT JOIN systems s ON s.id = t.system_id
+         ORDER BY t.block_type ASC, COALESCE(s.display_order, t.block_number) ASC`
+      ),
+      pool.query(
+        `SELECT tq.id, tq.test_id, tq.case_id, tq.question_order, pc.title, pc.status, pc.modality,
+                s.name AS system_name,
+                (SELECT COUNT(*) FROM test_answers ta WHERE ta.question_id = tq.id) AS answer_count
+         FROM test_questions tq
+         JOIN practice_cases pc ON pc.id = tq.case_id
+         JOIN systems s ON s.id = pc.system_id
+         ORDER BY tq.test_id, tq.question_order`
+      ),
+    ]);
     const allWithQs = blocks.map((b) => ({ ...b, questions: qs.filter((q) => q.test_id === b.id) }));
     return {
       questionsPerBlock,
