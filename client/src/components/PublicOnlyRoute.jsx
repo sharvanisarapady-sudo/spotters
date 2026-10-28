@@ -1,9 +1,12 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-/** Login/Register: signed-in users go straight to the dashboard. */
+/** Login/Register: signed-in users go straight to their home portal. */
 export default function PublicOnlyRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return null;
-  return user ? <Navigate to="/dashboard" replace /> : children;
+  if (user) {
+    return <Navigate to={user.role === 'admin' ? '/admin/cases' : '/dashboard'} replace />;
+  }
+  return children;
 }
