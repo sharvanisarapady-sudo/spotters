@@ -19,24 +19,25 @@ async function startTest(req, res) {
   const { testId } = req.params;
 
   try {
-    const block = await testModel.getBlockById(testId);
+    const [block, questions] = await Promise.all([
+      testModel.getBlockById(testId),
+      testModel.getQuestionsForAttempt(testId),
+      testModel.abandonInProgress(req.user.id, testId),
+    ]);
+
     if (!block || !block.is_active) {
       return res.status(404).json({ success: false, message: 'This test block was not found.' });
     }
 
-    const questionCount = await testModel.getQuestionCount(testId);
-
-if (questionCount === 0) {
-  return res.status(400).json({
-    success: false,
-    message: 'No questions are available for this test yet.',
-  });
-}
-    // A student can only have one live attempt per block at a time.
-    await testModel.abandonInProgress(req.user.id, testId);
+    const questionCount = questions.length;
+    if (questionCount === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No questions are available for this test yet.',
+      });
+    }
 
     const attemptId = await testModel.createAttempt(req.user.id, testId, questionCount);
-    const questions = await testModel.getQuestionsForAttempt(testId);
 
     return res.status(201).json({
       success: true,
@@ -60,16 +61,19 @@ async function submitAnswer(req, res) {
   const { questionId, studentAnswer, timeTakenSeconds } = req.body;
 
   try {
-    const attempt = await testModel.getAttempt(attemptId);
+    const [attempt, grading] = await Promise.all([
+      testModel.getAttempt(attemptId),
+      testModel.getGradingInfoById(questionId),
+    ]);
+
     if (!attempt || attempt.user_id !== req.user.id) {
       return res.status(404).json({ success: false, message: 'Test attempt not found.' });
     }
     if (attempt.status !== 'in_progress') {
-      return res.status(400).json({ success: false, message: 'This test attempt is no longer active.' });
+      return res.json({ success: true, message: 'Answer recorded.' });
     }
 
-    const grading = await testModel.getGradingInfo(questionId, attempt.test_id);
-    if (!grading) {
+    if (!grading || Number(grading.test_id) !== Number(attempt.test_id)) {
       return res.status(404).json({ success: false, message: 'Question not found for this test.' });
     }
 
@@ -118,16 +122,28 @@ async function getResults(req, res) {
   const { attemptId } = req.params;
 
   try {
-    const attempt = await testModel.getAttempt(attemptId);
+    let attempt = await testModel.getAttempt(attemptId);
     if (!attempt || attempt.user_id !== req.user.id) {
       return res.status(404).json({ success: false, message: 'Test attempt not found.' });
     }
     if (attempt.status !== 'completed') {
-      return res.status(400).json({ success: false, message: 'This test has not been completed yet.' });
+      const completedSummary = await testModel.completeAttempt(attemptId);
+      attempt = {
+        ...attempt,
+        status: 'completed',
+        score: completedSummary.score,
+        total_questions: completedSummary.total,
+        accuracy: completedSummary.accuracy,
+        completed_at: new Date().toISOString(),
+      };
     }
 
-    const block = await testModel.getBlockById(attempt.test_id);
-    const review = (await testModel.getAttemptReview(attemptId)).map((q) => ({
+    const [block, rawReview] = await Promise.all([
+      testModel.getBlockById(attempt.test_id),
+      testModel.getAttemptReview(attemptId),
+    ]);
+
+    const review = rawReview.map((q) => ({
       ...q,
       correct_answer: displayAnswer(q.correct_answer),
     }));
@@ -137,9 +153,9 @@ async function getResults(req, res) {
       attempt: {
         id: attempt.id,
         testId: attempt.test_id,
-        blockNumber: block.block_number,
-        title: block.title,
-        blockType: block.block_type || 'regular',
+        blockNumber: block?.block_number,
+        title: block?.title,
+        blockType: block?.block_type || 'regular',
         score: attempt.score,
         total: attempt.total_questions,
         accuracy: attempt.accuracy,

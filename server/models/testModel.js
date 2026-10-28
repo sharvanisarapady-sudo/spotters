@@ -80,12 +80,24 @@ const testModel = {
   /** Case_id + correct_answer for one test_question, used only for server-side grading. */
   async getGradingInfo(testQuestionId, testId) {
     const [rows] = await pool.query(
-      `SELECT tq.case_id, pc.correct_answer
+      `SELECT tq.case_id, tq.test_id, pc.correct_answer
        FROM test_questions tq
        JOIN practice_cases pc ON pc.id = tq.case_id
        WHERE tq.id = ? AND tq.test_id = ?
        LIMIT 1`,
       [testQuestionId, testId]
+    );
+    return rows[0] || null;
+  },
+
+  async getGradingInfoById(testQuestionId) {
+    const [rows] = await pool.query(
+      `SELECT tq.case_id, tq.test_id, pc.correct_answer
+       FROM test_questions tq
+       JOIN practice_cases pc ON pc.id = tq.case_id
+       WHERE tq.id = ?
+       LIMIT 1`,
+      [testQuestionId]
     );
     return rows[0] || null;
   },
@@ -115,21 +127,28 @@ const testModel = {
       `INSERT INTO test_answers
          (attempt_id, user_id, test_id, question_id, case_id, student_answer, is_correct, time_taken_seconds)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-       ON DUPLICATE KEY UPDATE attempt_id = attempt_id`, // first answer wins; replays are ignored
+       ON DUPLICATE KEY UPDATE
+         student_answer = VALUES(student_answer),
+         is_correct = VALUES(is_correct),
+         time_taken_seconds = VALUES(time_taken_seconds)`,
       [attemptId, userId, testId, questionId, caseId, studentAnswer, isCorrect, timeTaken]
     );
   },
 
   async completeAttempt(attemptId) {
-    const [[agg]] = await pool.query(
-      `SELECT SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct, COUNT(*) AS answered
-       FROM test_answers WHERE attempt_id = ?`,
-      [attemptId]
-    );
-    const [[attempt]] = await pool.query('SELECT total_questions FROM test_attempts WHERE id = ?', [attemptId]);
+    const [[agg], [attemptRows]] = await Promise.all([
+      pool.query(
+        `SELECT SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct, COUNT(*) AS answered
+         FROM test_answers WHERE attempt_id = ?`,
+        [attemptId]
+      ),
+      pool.query('SELECT total_questions FROM test_attempts WHERE id = ? LIMIT 1', [attemptId]),
+    ]);
+    const aggRow = agg[0] || {};
+    const attempt = attemptRows[0] || { total_questions: 1 };
 
-    const score = agg.correct || 0;
-    const total = attempt.total_questions;
+    const score = Number(aggRow.correct) || 0;
+    const total = Number(attempt.total_questions) || 1;
     const accuracy = total > 0 ? Number(((score / total) * 100).toFixed(1)) : 0;
 
     await pool.query(

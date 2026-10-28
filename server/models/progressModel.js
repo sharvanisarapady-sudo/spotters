@@ -8,15 +8,16 @@ const { displayAnswer } = require('../services/answerEvaluationService');
  */
 const progressModel = {
   async getOverview(userId) {
-    const [[[completed]], [[best]], [[answers]], [[bookmarks]]] = await Promise.all([
+    const [[[summary]], [[best]]] = await Promise.all([
       pool.query(
-        `SELECT COUNT(*) AS tests_completed,
-                AVG(score) AS avg_score,
-                AVG(accuracy) AS avg_accuracy,
-                MAX(score) AS best_score
-         FROM test_attempts
-         WHERE user_id = ? AND status = 'completed'`,
-        [userId]
+        `SELECT
+           (SELECT COUNT(*) FROM test_attempts WHERE user_id = ? AND status = 'completed') AS tests_completed,
+           (SELECT AVG(score) FROM test_attempts WHERE user_id = ? AND status = 'completed') AS avg_score,
+           (SELECT COUNT(*) FROM test_answers WHERE user_id = ?) AS attempted,
+           (SELECT COUNT(is_correct) FROM test_answers WHERE user_id = ?) AS graded,
+           (SELECT SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) FROM test_answers WHERE user_id = ?) AS correct,
+           (SELECT COUNT(*) FROM bookmarks b JOIN practice_cases pc ON pc.id = b.case_id AND pc.status = 'published' WHERE b.user_id = ?) AS bookmarks_count`,
+        [userId, userId, userId, userId, userId, userId]
       ),
       pool.query(
         `SELECT score, total_questions
@@ -26,34 +27,19 @@ const progressModel = {
          LIMIT 1`,
         [userId]
       ),
-      pool.query(
-        `SELECT COUNT(*) AS attempted,
-                COUNT(is_correct) AS graded,
-                SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct
-         FROM test_answers
-         WHERE user_id = ?`,
-        [userId]
-      ),
-      pool.query(
-        `SELECT COUNT(*) AS count
-         FROM bookmarks b
-         JOIN practice_cases pc ON pc.id = b.case_id AND pc.status = 'published'
-         WHERE b.user_id = ?`,
-        [userId]
-      ),
     ]);
 
-    const graded = Number(answers.graded) || 0;
-    const correct = Number(answers.correct) || 0;
+    const graded = Number(summary.graded) || 0;
+    const correct = Number(summary.correct) || 0;
 
     return {
-      testsCompleted: Number(completed.tests_completed) || 0,
-      questionsAttempted: Number(answers.attempted) || 0,
+      testsCompleted: Number(summary.tests_completed) || 0,
+      questionsAttempted: Number(summary.attempted) || 0,
       correctAnswers: correct,
       overallAccuracy: graded > 0 ? Number(((correct / graded) * 100).toFixed(1)) : null,
-      averageScore: completed.avg_score !== null ? Number(Number(completed.avg_score).toFixed(1)) : null,
+      averageScore: summary.avg_score !== null ? Number(Number(summary.avg_score).toFixed(1)) : null,
       bestScore: best ? { score: best.score, total: best.total_questions } : null,
-      bookmarkedCases: Number(bookmarks.count) || 0,
+      bookmarkedCases: Number(summary.bookmarks_count) || 0,
     };
   },
 
@@ -83,17 +69,18 @@ const progressModel = {
   },
 
   /** Per-block progress summary and the questions attempted inside each block. */
-  async getBlockProgress(userId) {
-    const [blocks] = await pool.query(
-      `SELECT t.id, t.block_number, t.title,
-              (SELECT COUNT(*) FROM test_questions tq WHERE tq.test_id = t.id) AS question_count,
-              (SELECT COUNT(*) FROM test_attempts att WHERE att.test_id = t.id AND att.user_id = ? AND att.status = 'completed') AS tests_completed
-       FROM tests t
-       ORDER BY t.block_number ASC`,
-      [userId]
-    );
-
-    const attempted = await this.getAttemptedQuestions(userId);
+  async getBlockProgress(userId, preloadedAttempted = null) {
+    const [[blocks], attempted] = await Promise.all([
+      pool.query(
+        `SELECT t.id, t.block_number, t.title,
+                (SELECT COUNT(*) FROM test_questions tq WHERE tq.test_id = t.id) AS question_count,
+                (SELECT COUNT(*) FROM test_attempts att WHERE att.test_id = t.id AND att.user_id = ? AND att.status = 'completed') AS tests_completed
+         FROM tests t
+         ORDER BY t.block_number ASC`,
+        [userId]
+      ),
+      preloadedAttempted ? Promise.resolve(preloadedAttempted) : this.getAttemptedQuestions(userId),
+    ]);
 
     return blocks.map((b) => {
       const bQuestions = attempted.filter((q) => Number(q.test_id) === Number(b.id));
@@ -197,10 +184,7 @@ const progressModel = {
   async getActivityStats(userId) {
     const [
       [activeDates],
-      [[todayAns]],
-      [[todayTests]],
-      [[todayAi]],
-      [[todayPlanner]],
+      [[todayCounts]],
       [recentAnswers],
       [recentAi],
       [dailyRows],
@@ -220,30 +204,14 @@ const progressModel = {
         [userId, userId, userId, userId]
       ),
       pool.query(
-        `SELECT COUNT(*) AS attempted,
-                SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct
-         FROM test_answers
-         WHERE user_id = ? AND DATE(answered_at) = CURDATE()`,
-        [userId]
-      ),
-      pool.query(
-        `SELECT COUNT(*) AS completed
-         FROM test_attempts
-         WHERE user_id = ? AND status = 'completed' AND DATE(completed_at) = CURDATE()`,
-        [userId]
-      ),
-      pool.query(
-        `SELECT COUNT(*) AS count
-         FROM ai_interactions
-         WHERE user_id = ? AND DATE(created_at) = CURDATE()`,
-        [userId]
-      ),
-      pool.query(
-        `SELECT COUNT(*) AS completed,
-                (SELECT COUNT(*) FROM study_planner WHERE user_id = ? AND scheduled_date = CURDATE()) AS total
-         FROM study_planner
-         WHERE user_id = ? AND scheduled_date = CURDATE() AND is_completed = 1`,
-        [userId, userId]
+        `SELECT
+           (SELECT COUNT(*) FROM test_answers WHERE user_id = ? AND DATE(answered_at) = CURDATE()) AS ans_attempted,
+           (SELECT SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) FROM test_answers WHERE user_id = ? AND DATE(answered_at) = CURDATE()) AS ans_correct,
+           (SELECT COUNT(*) FROM test_attempts WHERE user_id = ? AND status = 'completed' AND DATE(completed_at) = CURDATE()) AS tests_completed,
+           (SELECT COUNT(*) FROM ai_interactions WHERE user_id = ? AND DATE(created_at) = CURDATE()) AS ai_count,
+           (SELECT COUNT(*) FROM study_planner WHERE user_id = ? AND scheduled_date = CURDATE() AND is_completed = 1) AS planner_completed,
+           (SELECT COUNT(*) FROM study_planner WHERE user_id = ? AND scheduled_date = CURDATE()) AS planner_total`,
+        [userId, userId, userId, userId, userId, userId]
       ),
       pool.query(
         `SELECT ta.id, ta.is_correct, ta.answered_at AS ts,
@@ -315,12 +283,12 @@ const progressModel = {
     return {
       activeDays: Math.max(activeDates.length, 1),
       todaySummary: {
-        questionsToday: Number(todayAns.attempted) || 0,
-        correctToday: Number(todayAns.correct) || 0,
-        testsCompletedToday: Number(todayTests.completed) || 0,
-        aiInteractionsToday: Number(todayAi.count) || 0,
-        plannerCompletedToday: Number(todayPlanner.completed) || 0,
-        plannerTotalToday: Number(todayPlanner.total) || 0,
+        questionsToday: Number(todayCounts.ans_attempted) || 0,
+        correctToday: Number(todayCounts.ans_correct) || 0,
+        testsCompletedToday: Number(todayCounts.tests_completed) || 0,
+        aiInteractionsToday: Number(todayCounts.ai_count) || 0,
+        plannerCompletedToday: Number(todayCounts.planner_completed) || 0,
+        plannerTotalToday: Number(todayCounts.planner_total) || 0,
       },
       todayFeed: feed,
       dailySeries,

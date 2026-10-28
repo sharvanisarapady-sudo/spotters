@@ -15,7 +15,7 @@ export default function ImageViewer({ images = [] }) {
   const containerRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [zoom, setZoom] = useState(MIN_ZOOM);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [, setIsFullscreen] = useState(false);
   const [failed, setFailed] = useState({}); // image ids that could not be loaded
 
   // New case / new image set: forget previous selection and load failures.
@@ -28,6 +28,17 @@ export default function ImageViewer({ images = [] }) {
 
   const hasImages = images.length > 0;
   const count = images.length;
+
+  // Preload only the immediately adjacent next slice so scrolling feels smooth
+  // without flooding the browser connection pool with 20 simultaneous downloads.
+  useEffect(() => {
+    if (count < 2) return;
+    const nextImg = images[activeIndex + 1];
+    if (nextImg?.image_url) {
+      const preload = new Image();
+      preload.src = nextImg.image_url;
+    }
+  }, [activeIndex, count, images]);
 
   // MRI/CT-style stack scrolling: mouse wheel moves through slices. Needs a native
   // listener (not React's onWheel) so we can stop the page itself from scrolling.
@@ -144,6 +155,7 @@ export default function ImageViewer({ images = [] }) {
             <img
               src={activeImage.image_url}
               alt="Radiology case"
+              decoding="async"
               onError={() => setFailed((f) => ({ ...f, [activeImage.id]: true }))}
               className="max-w-full max-h-full object-contain transition-transform duration-200 ease-out select-none"
               style={{ transform: `scale(${zoom})` }}
@@ -173,33 +185,53 @@ export default function ImageViewer({ images = [] }) {
         </div>
       )}
 
-      {/* Thumbnails (only when there's more than one image) */}
+      {/* Thumbnails / Slice selector (only when there's more than one image) */}
       {images.length > 1 && (
         <div className="flex gap-2 px-4 py-3 border-t border-white/10 overflow-x-auto">
-          {images.map((img, i) => (
-            <button
-              key={img.id}
-              aria-label={`Show image ${i + 1}`}
-              onClick={() => {
-                setActiveIndex(i);
-                setZoom(MIN_ZOOM);
-              }}
-              className={`shrink-0 w-14 h-14 rounded-md overflow-hidden border-2 transition ${
-                i === activeIndex ? 'border-spotter-blue' : 'border-white/10 opacity-60 hover:opacity-100'
-              }`}
-            >
-              {failed[img.id] ? (
-                <span className="w-full h-full flex items-center justify-center bg-white/5 text-white/30 text-[10px]">N/A</span>
-              ) : (
-                <img
-                  src={img.image_url}
-                  alt=""
-                  onError={() => setFailed((f) => ({ ...f, [img.id]: true }))}
-                  className="w-full h-full object-cover"
-                />
-              )}
-            </button>
-          ))}
+          {images.length <= 6
+            ? images.map((img, i) => (
+                <button
+                  key={img.id}
+                  aria-label={`Show image ${i + 1}`}
+                  onClick={() => {
+                    setActiveIndex(i);
+                    setZoom(MIN_ZOOM);
+                  }}
+                  className={`shrink-0 w-14 h-14 rounded-md overflow-hidden border-2 transition ${
+                    i === activeIndex ? 'border-spotter-blue' : 'border-white/10 opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  {failed[img.id] ? (
+                    <span className="w-full h-full flex items-center justify-center bg-white/5 text-white/30 text-[10px]">N/A</span>
+                  ) : (
+                    <img
+                      src={img.image_url}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      onError={() => setFailed((f) => ({ ...f, [img.id]: true }))}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </button>
+              ))
+            : images.map((img, i) => (
+                <button
+                  key={img.id}
+                  aria-label={`Show slice ${i + 1}`}
+                  onClick={() => {
+                    setActiveIndex(i);
+                    setZoom(MIN_ZOOM);
+                  }}
+                  className={`shrink-0 min-w-[2.25rem] h-8 px-2 rounded-md font-mono text-xs border transition ${
+                    i === activeIndex
+                      ? 'bg-spotter-blue border-spotter-blue text-white font-semibold'
+                      : 'bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
         </div>
       )}
     </div>

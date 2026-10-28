@@ -69,10 +69,11 @@ app.use(
   '/uploads',
   requireAuth,
   express.static(path.join(__dirname, 'uploads'), {
-    maxAge: '1d',
+    maxAge: '7d',
+    immutable: true,
     dotfiles: 'deny',
     index: false,
-    setHeaders: (res) => res.setHeader('Cache-Control', 'private, max-age=86400'),
+    setHeaders: (res) => res.setHeader('Cache-Control', 'private, max-age=604800, immutable'),
   })
 );
 
@@ -84,7 +85,7 @@ app.use('/api', (req, res) => {
 // ---- Serve built React frontend in production (or whenever client/dist exists) ----
 const clientDistPath = path.join(__dirname, '..', 'client', 'dist');
 if (fs.existsSync(path.join(clientDistPath, 'index.html'))) {
-  app.use(express.static(clientDistPath));
+  app.use(express.static(clientDistPath, { maxAge: '1h' }));
   app.get('*', (req, res) => {
     res.sendFile(path.join(clientDistPath, 'index.html'));
   });
@@ -97,16 +98,17 @@ app.use((err, req, res, next) => {
 });
 
 async function start() {
+  console.log(`[ai] ${describeConfig()}`);
+  app.listen(PORT, () => {
+    console.log(`[server] Spotters.com API listening on http://localhost:${PORT}`);
+  });
+
   const dbOk = await testConnection();
   if (!dbOk) {
     console.warn('[server] Starting without a confirmed database connection. Check your .env settings.');
   } else {
     await initDb();
   }
-  console.log(`[ai] ${describeConfig()}`);
-  app.listen(PORT, () => {
-    console.log(`[server] Spotters.com API listening on http://localhost:${PORT}`);
-  });
 }
 
 start();

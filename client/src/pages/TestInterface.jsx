@@ -30,6 +30,7 @@ export default function TestInterface() {
 
   const timerRef = useRef(null);
   const submittingRef = useRef(false);
+  const pendingSavesRef = useRef([]);
 
   // Recover attempt state on refresh by starting a fresh attempt
   // (any prior in-progress attempt for this block is auto-abandoned server-side).
@@ -61,51 +62,51 @@ export default function TestInterface() {
   const isViewingActive = viewIndex === activeIndex;
   const currentQuestion = questions[viewIndex];
 
-  const advance = useCallback(
-    async (submittedText) => {
-      setAnswers((prev) => ({ ...prev, [activeIndex]: submittedText }));
-
-      if (isLastQuestion) {
-        setFinishing(true);
-        try {
-          await testService.complete(attempt.id);
-        } catch {
-          // Results page will surface any issue on load.
-        }
-        navigate(`/tests/attempts/${attempt.id}/results`);
-        return;
-      }
-
-      const nextIndex = activeIndex + 1;
-      setActiveIndex(nextIndex);
-      setViewIndex(nextIndex);
-      setInputValue('');
-      setTimeLeft(attempt.secondsPerQuestion);
-      submittingRef.current = false;
-    },
-    [activeIndex, isLastQuestion, attempt, navigate]
-  );
-
   const handleSubmit = useCallback(async () => {
-    if (submittingRef.current || finishing || !isViewingActive) return;
+    if (submittingRef.current || finishing || !isViewingActive || !currentQuestion) return;
     submittingRef.current = true;
-    setSubmitting(true);
-    clearInterval(timerRef.current);
+    clearTimeout(timerRef.current);
 
-    const timeTaken = attempt.secondsPerQuestion - timeLeft;
-    try {
-      await testService.submitAnswer(attempt.id, {
-        questionId: currentQuestion.test_question_id,
-        studentAnswer: inputValue,
+    const submittedText = inputValue;
+    const questionId = currentQuestion.test_question_id;
+    const timeTaken = Math.max(0, (attempt?.secondsPerQuestion || 60) - timeLeft);
+
+    setAnswers((prev) => ({ ...prev, [activeIndex]: submittedText }));
+
+    const savePromise = testService
+      .submitAnswer(attempt.id, {
+        questionId,
+        studentAnswer: submittedText,
         timeTakenSeconds: timeTaken,
+      })
+      .catch(() => {
+        // Answer save failures don't block progression
       });
-    } catch {
-      // Answer save failures don't block progression; the block-level
-      // result will simply show fewer graded questions.
+
+    pendingSavesRef.current.push(savePromise);
+
+    if (isLastQuestion) {
+      setFinishing(true);
+      setSubmitting(true);
+      await Promise.all(pendingSavesRef.current);
+      try {
+        await testService.complete(attempt.id);
+      } catch {
+        // Results endpoint will auto-complete if needed
+      }
+      navigate(`/tests/attempts/${attempt.id}/results`);
+      return;
     }
-    await advance(inputValue);
+
+    // Advance immediately for instant UI response while save completes in background
+    const nextIndex = activeIndex + 1;
+    setActiveIndex(nextIndex);
+    setViewIndex(nextIndex);
+    setInputValue('');
+    setTimeLeft(attempt.secondsPerQuestion || 60);
     setSubmitting(false);
-  }, [finishing, isViewingActive, attempt, timeLeft, currentQuestion, inputValue, advance]);
+    submittingRef.current = false;
+  }, [finishing, isViewingActive, currentQuestion, inputValue, attempt, timeLeft, activeIndex, isLastQuestion, navigate]);
 
   // Timer countdown — only runs for the live question.
   useEffect(() => {

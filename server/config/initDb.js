@@ -264,127 +264,93 @@ const INITIAL_CASES = [
 
 async function initDb() {
   try {
-    for (const sql of CREATE_TABLES) {
-      await pool.query(sql);
-    }
-
-    // Add block_type and system_id to tests if upgrading from an older schema
+    // Fast-path check: if tables and seed cases already exist, skip 18 sequential DDL/seed round-trips
+    let alreadyInitialized = false;
     try {
-      await pool.query(`ALTER TABLE tests ADD COLUMN block_type VARCHAR(20) NOT NULL DEFAULT 'regular'`);
+      const [[{ cnt }]] = await pool.query('SELECT COUNT(*) AS cnt FROM practice_cases');
+      if (Number(cnt) > 0) {
+        alreadyInitialized = true;
+      }
     } catch {
-      // column already exists
-    }
-    try {
-      await pool.query(`ALTER TABLE tests ADD COLUMN system_id INT NULL`);
-    } catch {
-      // column already exists
+      alreadyInitialized = false;
     }
 
-    // Backfill separate key_findings / learning_points / differential_diagnosis on Case 6 & 7 if empty
-    await pool.query(
-      `UPDATE practice_cases
-       SET explanation = 'CT shows an enlarged left kidney with a large calculus (possibly staghorn) at the renal pelvis with dilated calyces with hypodense content within, which represents xanthogranulomatous content. In the setting of a diabetic patient with recurrent UTIs, xanthogranulomatous pyelonephritis becomes the primary differential.',
-           key_findings = 'Obstructive calculus at the renal pelvis\nDilated renal calyces with hypodense xanthogranulomatous content (classic Bear-paw sign)',
-           learning_points = 'In acute hydronephrosis, the content within the calyces is fluid attenuating. Xanthogranulomatous content is denser and occurs in chronic obstruction with recurrent UTIs (especially in diabetic patients).',
-           differential_diagnosis = 'Obstructive hydronephrosis\nRenal tuberculosis\nRenal cell carcinoma'
-       WHERE id = 6 AND (key_findings IS NULL OR TRIM(key_findings) = '')`
-    );
-    await pool.query(
-      `UPDATE practice_cases
-       SET explanation = 'Plain radiograph of the chest shows enlarged and lobulated bilateral hila (compare the hilar thickness to the right/left bronchial lumen diameter). The right paratracheal stripe is also widened. These three features denote the classical Garland sign, where there are enlarged lymph nodes in the right paratracheal region and bilateral hilar regions.',
-           key_findings = 'Bilateral hilar and right paratracheal lymphadenopathy (Garland triad / 1-2-3 sign)',
-           learning_points = 'When both hila are enlarged, check if they are smooth or lobulated. Smooth hilar enlargement favours pulmonary arterial dilation (pulmonary hypertension). Lobulated hilar contour denotes lymphadenopathy.',
-           differential_diagnosis = 'Lymphoma\nTuberculosis or fungal granulomatous disease\nMetastatic mediastinal lymphadenopathy'
-       WHERE id = 7 AND (key_findings IS NULL OR TRIM(key_findings) = '')`
-    );
-
-    // Seed the 11 radiology systems if not present
-    await pool.query(
-      `INSERT INTO systems (name, slug, display_order) VALUES
-        ('Head and Neck Radiology', 'head-and-neck-radiology', 1),
-        ('Neuroradiology', 'neuroradiology', 2),
-        ('Hepatobiliary & Pancreatic Imaging', 'hepatobiliary-pancreatic-imaging', 3),
-        ('Genitourinary Radiology', 'genitourinary-radiology', 4),
-        ('Gastrointestinal Radiology', 'gastrointestinal-radiology', 5),
-        ('Vascular Radiology', 'vascular-radiology', 6),
-        ('Cardiothoracic Radiology', 'cardiothoracic-radiology', 7),
-        ('Obstetric & Fetal Imaging', 'obstetric-fetal-imaging', 8),
-        ('Gynecologic Imaging', 'gynecologic-imaging', 9),
-        ('Oncologic Imaging', 'oncologic-imaging', 10),
-        ('Musculoskeletal Radiology', 'musculoskeletal-radiology', 11)
-      ON DUPLICATE KEY UPDATE display_order = VALUES(display_order)`
-    );
-
-    // Ensure at least Blocks 1–5 exist
-    await pool.query(
-      `INSERT INTO tests (block_number, title, total_questions, seconds_per_question, is_active) VALUES
-        (1, 'Block 1', 10, 60, TRUE),
-        (2, 'Block 2', 10, 60, TRUE),
-        (3, 'Block 3', 10, 60, TRUE),
-        (4, 'Block 4', 10, 60, TRUE),
-        (5, 'Block 5', 10, 60, TRUE)
-      ON DUPLICATE KEY UPDATE is_active = VALUES(is_active)`
-    );
-
-    // Seed initial cases & images on a fresh database
-    const [[{ cnt }]] = await pool.query('SELECT COUNT(*) AS cnt FROM practice_cases');
-    if (Number(cnt) === 0) {
-      for (const c of INITIAL_CASES) {
-        await pool.query(
-          `INSERT INTO practice_cases
-            (id, system_id, title, modality, difficulty, clinical_info, question_text, correct_answer, explanation, key_findings, learning_points, differential_diagnosis, status)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          c
-        );
+    if (!alreadyInitialized) {
+      for (const sql of CREATE_TABLES) {
+        await pool.query(sql);
       }
 
-      const images = [
-        [1, '/uploads/cases/2081e1ff-f483-4c88-b034-be761562c66f.jpg', 1],
-        ...Array.from({ length: 20 }, (_, i) => [2, `/uploads/cases/mock-mri-tumour-${String(i + 1).padStart(2, '0')}.png`, i + 1]),
-        ...Array.from({ length: 20 }, (_, i) => [3, `/uploads/cases/mock-mri-stroke-${String(i + 1).padStart(2, '0')}.png`, i + 1]),
-        ...Array.from({ length: 20 }, (_, i) => [4, `/uploads/cases/mock-mri-hydro-${String(i + 1).padStart(2, '0')}.png`, i + 1]),
-        [5, '/uploads/cases/af3f1fff-9329-4ba4-90dd-6bfc6c6de062.png', 1],
-        [6, '/uploads/cases/fa5d01e9-da7a-4990-9097-80ee03cb0556.jpg', 1],
-        [7, '/uploads/cases/7758fa7a-646a-4ef6-81ee-911fd4af6568.jpg', 1],
-      ];
-      for (const [caseId, url, order] of images) {
-        await pool.query(
-          'INSERT INTO case_images (case_id, image_url, display_order) VALUES (?, ?, ?)',
-          [caseId, url, order]
-        );
+      // Add block_type and system_id to tests if upgrading from an older schema
+      try {
+        await pool.query(`ALTER TABLE tests ADD COLUMN block_type VARCHAR(20) NOT NULL DEFAULT 'regular'`);
+      } catch {
+        // column already exists
       }
-    }
-
-    await caseAdminModel.autoSyncBlocks();
-
-    // Retroactively re-evaluate any past answers marked wrong due to minor spelling typos (e.g. "anamoly" vs "anomaly")
-    const [wrongRows] = await pool.query(
-      `SELECT ta.id, ta.attempt_id, ta.student_answer, pc.correct_answer
-       FROM test_answers ta
-       JOIN practice_cases pc ON pc.id = ta.case_id
-       WHERE ta.is_correct = 0 AND ta.student_answer IS NOT NULL AND TRIM(ta.student_answer) <> ''`
-    );
-    const updatedAttempts = new Set();
-    for (const row of wrongRows) {
-      if (evaluateAnswer(row.student_answer, row.correct_answer)) {
-        await pool.query('UPDATE test_answers SET is_correct = 1 WHERE id = ?', [row.id]);
-        updatedAttempts.add(row.attempt_id);
+      try {
+        await pool.query(`ALTER TABLE tests ADD COLUMN system_id INT NULL`);
+      } catch {
+        // column already exists
       }
-    }
-    for (const attemptId of updatedAttempts) {
-      const [[agg]] = await pool.query(
-        `SELECT SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct
-         FROM test_answers WHERE attempt_id = ?`,
-        [attemptId]
+
+      // Seed the 11 radiology systems if not present
+      await pool.query(
+        `INSERT INTO systems (name, slug, display_order) VALUES
+          ('Head and Neck Radiology', 'head-and-neck-radiology', 1),
+          ('Neuroradiology', 'neuroradiology', 2),
+          ('Hepatobiliary & Pancreatic Imaging', 'hepatobiliary-pancreatic-imaging', 3),
+          ('Genitourinary Radiology', 'genitourinary-radiology', 4),
+          ('Gastrointestinal Radiology', 'gastrointestinal-radiology', 5),
+          ('Vascular Radiology', 'vascular-radiology', 6),
+          ('Cardiothoracic Radiology', 'cardiothoracic-radiology', 7),
+          ('Obstetric & Fetal Imaging', 'obstetric-fetal-imaging', 8),
+          ('Gynecologic Imaging', 'gynecologic-imaging', 9),
+          ('Oncologic Imaging', 'oncologic-imaging', 10),
+          ('Musculoskeletal Radiology', 'musculoskeletal-radiology', 11)
+        ON DUPLICATE KEY UPDATE display_order = VALUES(display_order)`
       );
-      const [[att]] = await pool.query('SELECT total_questions FROM test_attempts WHERE id = ?', [attemptId]);
-      if (att) {
-        const score = Number(agg.correct) || 0;
-        const total = Number(att.total_questions) || 1;
-        const accuracy = Number(((score / total) * 100).toFixed(1));
-        await pool.query('UPDATE test_attempts SET score = ?, accuracy = ? WHERE id = ?', [score, accuracy, attemptId]);
+
+      // Ensure at least Blocks 1–5 exist
+      await pool.query(
+        `INSERT INTO tests (block_number, title, total_questions, seconds_per_question, is_active) VALUES
+          (1, 'Block 1', 10, 60, TRUE),
+          (2, 'Block 2', 10, 60, TRUE),
+          (3, 'Block 3', 10, 60, TRUE),
+          (4, 'Block 4', 10, 60, TRUE),
+          (5, 'Block 5', 10, 60, TRUE)
+        ON DUPLICATE KEY UPDATE is_active = VALUES(is_active)`
+      );
+
+      // Seed initial cases & images on a fresh database
+      const [[{ cnt }]] = await pool.query('SELECT COUNT(*) AS cnt FROM practice_cases');
+      if (Number(cnt) === 0) {
+        for (const c of INITIAL_CASES) {
+          await pool.query(
+            `INSERT INTO practice_cases
+              (id, system_id, title, modality, difficulty, clinical_info, question_text, correct_answer, explanation, key_findings, learning_points, differential_diagnosis, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            c
+          );
+        }
+
+        const images = [
+          [1, '/uploads/cases/2081e1ff-f483-4c88-b034-be761562c66f.jpg', 1],
+          ...Array.from({ length: 20 }, (_, i) => [2, `/uploads/cases/mock-mri-tumour-${String(i + 1).padStart(2, '0')}.png`, i + 1]),
+          ...Array.from({ length: 20 }, (_, i) => [3, `/uploads/cases/mock-mri-stroke-${String(i + 1).padStart(2, '0')}.png`, i + 1]),
+          ...Array.from({ length: 20 }, (_, i) => [4, `/uploads/cases/mock-mri-hydro-${String(i + 1).padStart(2, '0')}.png`, i + 1]),
+          [5, '/uploads/cases/af3f1fff-9329-4ba4-90dd-6bfc6c6de062.png', 1],
+          [6, '/uploads/cases/fa5d01e9-da7a-4990-9097-80ee03cb0556.jpg', 1],
+          [7, '/uploads/cases/7758fa7a-646a-4ef6-81ee-911fd4af6568.jpg', 1],
+        ];
+        for (const [caseId, url, order] of images) {
+          await pool.query(
+            'INSERT INTO case_images (case_id, image_url, display_order) VALUES (?, ?, ?)',
+            [caseId, url, order]
+          );
+        }
       }
     }
+
+    await caseAdminModel.ensureSynced();
 
     console.log('[db] Schema, seed cases & random test blocks verified');
   } catch (err) {

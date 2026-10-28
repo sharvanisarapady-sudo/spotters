@@ -14,24 +14,14 @@ function shuffleArray(items) {
   return arr;
 }
 
-let settingsTableReady = false;
 let blocksSynced = false;
 let cachedQuestionsPerBlock = 10;
-
-async function ensureSettingsTable(conn) {
-  if (settingsTableReady) return;
-  await conn.query(
-    `CREATE TABLE IF NOT EXISTS app_settings (
-       setting_key VARCHAR(64) PRIMARY KEY,
-       setting_value VARCHAR(255) NOT NULL
-     ) ENGINE=InnoDB`
-  );
-  settingsTableReady = true;
-}
+let syncPromise = null;
 
 const caseAdminModel = {
   async ensureSynced() {
     if (blocksSynced) return { questionsPerBlock: cachedQuestionsPerBlock };
+    if (syncPromise) return syncPromise;
     return caseAdminModel.autoSyncBlocks();
   },
   async list({ status, systemId }) {
@@ -52,10 +42,12 @@ const caseAdminModel = {
   },
 
   async get(id) {
-    const [rows] = await pool.query('SELECT * FROM practice_cases WHERE id = ? LIMIT 1', [id]);
+    const [[rows], [images], [videos]] = await Promise.all([
+      pool.query('SELECT * FROM practice_cases WHERE id = ? LIMIT 1', [id]),
+      pool.query('SELECT id, image_url, display_order FROM case_images WHERE case_id = ? ORDER BY display_order', [id]),
+      pool.query('SELECT id, video_url, title FROM case_videos WHERE case_id = ? ORDER BY id', [id]),
+    ]);
     if (!rows[0]) return null;
-    const [images] = await pool.query('SELECT id, image_url, display_order FROM case_images WHERE case_id = ? ORDER BY display_order', [id]);
-    const [videos] = await pool.query('SELECT id, video_url, title FROM case_videos WHERE case_id = ? ORDER BY id', [id]);
     return { ...rows[0], images, videos };
   },
 
@@ -146,289 +138,295 @@ const caseAdminModel = {
    * 2. Automatically assigned to their corresponding System-Based Block (11 System Blocks, 1 per Radiology System).
    */
   async autoSyncBlocks({ reshuffleAll = false, questionsPerBlock = null } = {}) {
-    const conn = await pool.getConnection();
-    try {
-      await conn.beginTransaction();
-      await ensureSettingsTable(conn);
-
-      // Ensure block_type and system_id columns exist on tests
-      try {
-        await conn.query(`ALTER TABLE tests ADD COLUMN block_type VARCHAR(20) NOT NULL DEFAULT 'regular'`);
-      } catch {
-        // already exists
-      }
-      try {
-        await conn.query(`ALTER TABLE tests ADD COLUMN system_id INT NULL`);
-      } catch {
-        // already exists
-      }
-
-      let capacity = 10;
-      if (questionsPerBlock !== null && Number.isInteger(Number(questionsPerBlock)) && Number(questionsPerBlock) >= 1) {
-        capacity = Math.min(100, Math.max(1, Number(questionsPerBlock)));
-        await conn.query(
-          `INSERT INTO app_settings (setting_key, setting_value) VALUES ('questions_per_block', ?)
-           ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)`,
-          [String(capacity)]
-        );
-      } else {
-        const [settingRows] = await conn.query(
-          `SELECT setting_value FROM app_settings WHERE setting_key = 'questions_per_block' LIMIT 1`
-        );
-        if (settingRows[0] && Number(settingRows[0].setting_value) >= 1) {
-          capacity = Number(settingRows[0].setting_value);
-        }
-      }
-
-      // 1. All valid published cases (with system_id)
-      const [publishedRows] = await conn.query(
-        `SELECT id, system_id FROM practice_cases
-         WHERE status = 'published' AND correct_answer IS NOT NULL AND TRIM(correct_answer) <> ''
-         ORDER BY id ASC`
-      );
-      const publishedIds = publishedRows.map((r) => r.id);
-      const publishedSet = new Set(publishedIds);
-
-      // =========================================================
-      // PART A: REGULAR BLOCKS (block_type = 'regular', Block 1, 2, 3...)
-      // =========================================================
-      let [regularBlocks] = await conn.query(
-        `SELECT id, block_number, seconds_per_question
-         FROM tests
-         WHERE block_type = 'regular'
-         ORDER BY block_number ASC FOR UPDATE`
-      );
-      if (regularBlocks.length === 0) {
-        const [ins] = await conn.query(
-          `INSERT INTO tests (block_number, title, block_type, system_id, total_questions, seconds_per_question, is_active)
-           VALUES (1, 'Block 1', 'regular', NULL, ?, 60, 1)`,
-          [capacity]
-        );
-        regularBlocks = [{ id: ins.insertId, block_number: 1, seconds_per_question: 60 }];
-      }
-
-      const regularBlockIds = new Set(regularBlocks.map((b) => b.id));
-
-      const [existingRegularTq] = await conn.query(
-        `SELECT tq.id, tq.test_id, tq.case_id, tq.question_order
-         FROM test_questions tq
-         JOIN tests t ON t.id = tq.test_id
-         WHERE t.block_type = 'regular'
-         ORDER BY tq.test_id ASC, tq.question_order ASC FOR UPDATE`
-      );
-      const seenRegularCases = new Set();
-      const validRegularTqByCase = new Map();
-      const invalidRegularTqIds = [];
-
-      for (const row of existingRegularTq) {
-        if (!publishedSet.has(row.case_id) || seenRegularCases.has(row.case_id) || !regularBlockIds.has(row.test_id)) {
-          invalidRegularTqIds.push(row.id);
-        } else {
-          seenRegularCases.add(row.case_id);
-          validRegularTqByCase.set(row.case_id, row);
-        }
-      }
-
-      if (invalidRegularTqIds.length > 0) {
-        await conn.query(
-          `DELETE FROM test_questions WHERE id IN (${invalidRegularTqIds.map(() => '?').join(',')})`,
-          invalidRegularTqIds
-        );
-      }
-
-      if (reshuffleAll) {
-        const shuffledCaseIds = shuffleArray(publishedIds);
-        const neededBlocks = Math.max(1, Math.ceil(shuffledCaseIds.length / capacity));
-
-        while (regularBlocks.length < neededBlocks) {
-          const nextBlockNum = regularBlocks[regularBlocks.length - 1].block_number + 1;
-          const [ins] = await conn.query(
-            `INSERT INTO tests (block_number, title, block_type, system_id, total_questions, seconds_per_question, is_active)
-             VALUES (?, ?, 'regular', NULL, ?, 60, 1)`,
-            [nextBlockNum, `Block ${nextBlockNum}`, capacity]
-          );
-          regularBlocks.push({ id: ins.insertId, block_number: nextBlockNum, seconds_per_question: 60 });
-        }
-
-        const regIdsList = regularBlocks.map((b) => b.id);
-        await conn.query(
-          `UPDATE test_questions SET question_order = id + 100000 WHERE test_id IN (${regIdsList.map(() => '?').join(',')})`,
-          regIdsList
-        );
-
-        for (let i = 0; i < shuffledCaseIds.length; i += 1) {
-          const caseId = shuffledCaseIds[i];
-          const blockIdx = Math.floor(i / capacity);
-          const orderInBlock = (i % capacity) + 1;
-          const targetTestId = regularBlocks[blockIdx].id;
-
-          const existingRow = validRegularTqByCase.get(caseId);
-          if (existingRow) {
-            await conn.query(
-              'UPDATE test_questions SET test_id = ?, question_order = ? WHERE id = ?',
-              [targetTestId, orderInBlock, existingRow.id]
-            );
-          } else {
-            await conn.query(
-              'INSERT INTO test_questions (test_id, case_id, question_order) VALUES (?, ?, ?)',
-              [targetTestId, caseId, orderInBlock]
-            );
-          }
-        }
-      } else {
-        const unassignedCaseIds = shuffleArray(publishedIds.filter((id) => !validRegularTqByCase.has(id)));
-
-        if (unassignedCaseIds.length > 0) {
-          const blockCasesMap = new Map(regularBlocks.map((b) => [b.id, []]));
-          for (const row of validRegularTqByCase.values()) {
-            if (!blockCasesMap.has(row.test_id)) blockCasesMap.set(row.test_id, []);
-            blockCasesMap.get(row.test_id).push(row);
-          }
-
-          const touchedBlockIds = new Set();
-
-          for (const newCaseId of unassignedCaseIds) {
-            let targetBlock = regularBlocks.find((b) => (blockCasesMap.get(b.id)?.length || 0) < capacity);
-
-            if (!targetBlock) {
-              const nextBlockNum = regularBlocks[regularBlocks.length - 1].block_number + 1;
-              const [ins] = await conn.query(
-                `INSERT INTO tests (block_number, title, block_type, system_id, total_questions, seconds_per_question, is_active)
-                 VALUES (?, ?, 'regular', NULL, ?, 60, 1)`,
-                [nextBlockNum, `Block ${nextBlockNum}`, capacity]
-              );
-              targetBlock = { id: ins.insertId, block_number: nextBlockNum, seconds_per_question: 60 };
-              regularBlocks.push(targetBlock);
-              blockCasesMap.set(targetBlock.id, []);
-            }
-
-            const currentList = blockCasesMap.get(targetBlock.id);
-            const tempOrder = currentList.length + 50000;
-            const [insTq] = await conn.query(
-              'INSERT INTO test_questions (test_id, case_id, question_order) VALUES (?, ?, ?)',
-              [targetBlock.id, newCaseId, tempOrder]
-            );
-            currentList.push({ id: insTq.insertId, test_id: targetBlock.id, case_id: newCaseId, question_order: tempOrder });
-            touchedBlockIds.add(targetBlock.id);
-          }
-
-          for (const blockId of touchedBlockIds) {
-            const list = blockCasesMap.get(blockId) || [];
-            await conn.query('UPDATE test_questions SET question_order = id + 100000 WHERE test_id = ?', [blockId]);
-            const shuffledList = shuffleArray(list);
-            for (let idx = 0; idx < shuffledList.length; idx += 1) {
-              await conn.query(
-                'UPDATE test_questions SET question_order = ? WHERE id = ?',
-                [idx + 1, shuffledList[idx].id]
-              );
-            }
-          }
-        }
-      }
-
-      // =========================================================
-      // PART B: SYSTEM-BASED BLOCKS (11 Blocks — 1 per Radiology System)
-      // =========================================================
-      const [allSystems] = await conn.query(
-        'SELECT id, name, slug, display_order FROM systems ORDER BY display_order ASC, id ASC'
-      );
-      const [existingSysBlocks] = await conn.query(
-        `SELECT id, block_number, system_id, title FROM tests WHERE block_type = 'system' FOR UPDATE`
-      );
-      const sysBlockBySystemId = new Map(existingSysBlocks.map((b) => [b.system_id, b]));
-
-      for (const sys of allSystems) {
-        let sysBlock = sysBlockBySystemId.get(sys.id);
-        const sysBlockNumber = 1000 + (sys.display_order || sys.id);
-        if (!sysBlock) {
-          const [ins] = await conn.query(
-            `INSERT INTO tests (block_number, title, block_type, system_id, total_questions, seconds_per_question, is_active)
-             VALUES (?, ?, 'system', ?, 10, 60, 1)
-             ON DUPLICATE KEY UPDATE block_type = 'system', system_id = VALUES(system_id), title = VALUES(title)`,
-            [sysBlockNumber, sys.name, sys.id]
-          );
-          let sysTestId = ins.insertId;
-          if (!sysTestId) {
-            const [[found]] = await conn.query('SELECT id FROM tests WHERE block_number = ? LIMIT 1', [sysBlockNumber]);
-            sysTestId = found.id;
-          }
-          sysBlock = { id: sysTestId, block_number: sysBlockNumber, system_id: sys.id, title: sys.name };
-          sysBlockBySystemId.set(sys.id, sysBlock);
-        }
-
-        const sysCaseIds = publishedRows.filter((r) => r.system_id === sys.id).map((r) => r.id);
-        const sysCaseSet = new Set(sysCaseIds);
-
-        const [sysTq] = await conn.query(
-          'SELECT id, case_id, question_order FROM test_questions WHERE test_id = ? ORDER BY question_order ASC FOR UPDATE',
-          [sysBlock.id]
-        );
-        const seenInSys = new Set();
-        const validSysTq = [];
-        const invalidSysTqIds = [];
-
-        for (const row of sysTq) {
-          if (!sysCaseSet.has(row.case_id) || seenInSys.has(row.case_id)) {
-            invalidSysTqIds.push(row.id);
-          } else {
-            seenInSys.add(row.case_id);
-            validSysTq.push(row);
-          }
-        }
-
-        if (invalidSysTqIds.length > 0) {
-          await conn.query(
-            `DELETE FROM test_questions WHERE id IN (${invalidSysTqIds.map(() => '?').join(',')})`,
-            invalidSysTqIds
-          );
-        }
-
-        const missingSysCases = shuffleArray(sysCaseIds.filter((cid) => !seenInSys.has(cid)));
-        if (missingSysCases.length > 0 || reshuffleAll) {
-          for (let i = 0; i < missingSysCases.length; i += 1) {
-            const cid = missingSysCases[i];
-            const tempOrd = 60000 + i;
-            const [ins] = await conn.query(
-              'INSERT INTO test_questions (test_id, case_id, question_order) VALUES (?, ?, ?)',
-              [sysBlock.id, cid, tempOrd]
-            );
-            validSysTq.push({ id: ins.insertId, case_id: cid, question_order: tempOrd });
-          }
-
-          if (validSysTq.length > 0) {
-            await conn.query('UPDATE test_questions SET question_order = id + 100000 WHERE test_id = ?', [sysBlock.id]);
-            const shuffledSysTq = shuffleArray(validSysTq);
-            for (let idx = 0; idx < shuffledSysTq.length; idx += 1) {
-              await conn.query(
-                'UPDATE test_questions SET question_order = ? WHERE id = ?',
-                [idx + 1, shuffledSysTq[idx].id]
-              );
-            }
-          }
-        }
-      }
-
-      // 4. Sync total_questions on all blocks
-      const [counts] = await conn.query(
-        `SELECT t.id, COUNT(tq.id) AS cnt
-         FROM tests t
-         LEFT JOIN test_questions tq ON tq.test_id = t.id
-         GROUP BY t.id`
-      );
-      for (const c of counts) {
-        await conn.query('UPDATE tests SET total_questions = ? WHERE id = ?', [Math.max(c.cnt, 1), c.id]);
-      }
-
-      await conn.commit();
-      cachedQuestionsPerBlock = capacity;
-      blocksSynced = true;
-      return { questionsPerBlock: capacity };
-    } catch (e) {
-      await conn.rollback();
-      throw e;
-    } finally {
-      conn.release();
+    if (syncPromise && !reshuffleAll && questionsPerBlock === null) {
+      return syncPromise;
     }
+
+    const runSync = async () => {
+      try {
+        let capacity = cachedQuestionsPerBlock || 10;
+        if (questionsPerBlock !== null && Number.isInteger(Number(questionsPerBlock)) && Number(questionsPerBlock) >= 1) {
+          capacity = Math.min(100, Math.max(1, Number(questionsPerBlock)));
+          await pool.query(
+            `INSERT INTO app_settings (setting_key, setting_value) VALUES ('questions_per_block', ?)
+             ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)`,
+            [String(capacity)]
+          );
+        } else {
+          try {
+            const [settingRows] = await pool.query(
+              `SELECT setting_value FROM app_settings WHERE setting_key = 'questions_per_block' LIMIT 1`
+            );
+            if (settingRows[0] && Number(settingRows[0].setting_value) >= 1) {
+              capacity = Number(settingRows[0].setting_value);
+            }
+          } catch {
+            // app_settings table not yet created
+          }
+        }
+
+        // Fetch all state in a single parallel batch (no FOR UPDATE table locks!)
+        const [[publishedRows], [allTests], [allTq], [allSystems]] = await Promise.all([
+          pool.query(
+            `SELECT id, system_id FROM practice_cases
+             WHERE status = 'published' AND correct_answer IS NOT NULL AND TRIM(correct_answer) <> ''
+             ORDER BY id ASC`
+          ),
+          pool.query(
+            `SELECT id, block_number, block_type, system_id, title, seconds_per_question
+             FROM tests
+             ORDER BY block_number ASC`
+          ),
+          pool.query(
+            `SELECT id, test_id, case_id, question_order
+             FROM test_questions
+             ORDER BY test_id ASC, question_order ASC`
+          ),
+          pool.query(
+            `SELECT id, name, slug, display_order FROM systems ORDER BY display_order ASC, id ASC`
+          ),
+        ]);
+
+        const publishedIds = publishedRows.map((r) => r.id);
+        const publishedSet = new Set(publishedIds);
+
+        // =========================================================
+        // PART A: REGULAR BLOCKS (block_type = 'regular', Block 1, 2, 3...)
+        // =========================================================
+        let regularBlocks = allTests.filter((t) => t.block_type !== 'system');
+        if (regularBlocks.length === 0) {
+          const [ins] = await pool.query(
+            `INSERT INTO tests (block_number, title, block_type, system_id, total_questions, seconds_per_question, is_active)
+             VALUES (1, 'Block 1', 'regular', NULL, ?, 60, 1)`,
+            [capacity]
+          );
+          regularBlocks = [{ id: ins.insertId, block_number: 1, block_type: 'regular', seconds_per_question: 60 }];
+        }
+
+        const regularBlockIds = new Set(regularBlocks.map((b) => b.id));
+        const existingRegularTq = allTq.filter((tq) => regularBlockIds.has(tq.test_id));
+
+        const seenRegularCases = new Set();
+        const validRegularTqByCase = new Map();
+        const invalidRegularTqIds = [];
+
+        for (const row of existingRegularTq) {
+          if (!publishedSet.has(row.case_id) || seenRegularCases.has(row.case_id)) {
+            invalidRegularTqIds.push(row.id);
+          } else {
+            seenRegularCases.add(row.case_id);
+            validRegularTqByCase.set(row.case_id, row);
+          }
+        }
+
+        let anyChanges = false;
+
+        if (invalidRegularTqIds.length > 0) {
+          anyChanges = true;
+          await pool.query(
+            `DELETE FROM test_questions WHERE id IN (${invalidRegularTqIds.map(() => '?').join(',')})`,
+            invalidRegularTqIds
+          );
+        }
+
+        if (reshuffleAll) {
+          anyChanges = true;
+          const shuffledCaseIds = shuffleArray(publishedIds);
+          const neededBlocks = Math.max(1, Math.ceil(shuffledCaseIds.length / capacity));
+
+          while (regularBlocks.length < neededBlocks) {
+            const nextBlockNum = regularBlocks[regularBlocks.length - 1].block_number + 1;
+            const [ins] = await pool.query(
+              `INSERT INTO tests (block_number, title, block_type, system_id, total_questions, seconds_per_question, is_active)
+               VALUES (?, ?, 'regular', NULL, ?, 60, 1)`,
+              [nextBlockNum, `Block ${nextBlockNum}`, capacity]
+            );
+            regularBlocks.push({ id: ins.insertId, block_number: nextBlockNum, seconds_per_question: 60 });
+          }
+
+          const regIdsList = regularBlocks.map((b) => b.id);
+          await pool.query(
+            `UPDATE test_questions SET question_order = id + 100000 WHERE test_id IN (${regIdsList.map(() => '?').join(',')})`,
+            regIdsList
+          );
+
+          for (let i = 0; i < shuffledCaseIds.length; i += 1) {
+            const caseId = shuffledCaseIds[i];
+            const blockIdx = Math.floor(i / capacity);
+            const orderInBlock = (i % capacity) + 1;
+            const targetTestId = regularBlocks[blockIdx].id;
+
+            const existingRow = validRegularTqByCase.get(caseId);
+            if (existingRow) {
+              await pool.query(
+                'UPDATE test_questions SET test_id = ?, question_order = ? WHERE id = ?',
+                [targetTestId, orderInBlock, existingRow.id]
+              );
+            } else {
+              await pool.query(
+                'INSERT INTO test_questions (test_id, case_id, question_order) VALUES (?, ?, ?)',
+                [targetTestId, caseId, orderInBlock]
+              );
+            }
+          }
+        } else {
+          const unassignedCaseIds = shuffleArray(publishedIds.filter((id) => !validRegularTqByCase.has(id)));
+
+          if (unassignedCaseIds.length > 0) {
+            anyChanges = true;
+            const blockCasesMap = new Map(regularBlocks.map((b) => [b.id, []]));
+            for (const row of validRegularTqByCase.values()) {
+              if (!blockCasesMap.has(row.test_id)) blockCasesMap.set(row.test_id, []);
+              blockCasesMap.get(row.test_id).push(row);
+            }
+
+            const touchedBlockIds = new Set();
+
+            for (const newCaseId of unassignedCaseIds) {
+              let targetBlock = regularBlocks.find((b) => (blockCasesMap.get(b.id)?.length || 0) < capacity);
+
+              if (!targetBlock) {
+                const nextBlockNum = regularBlocks[regularBlocks.length - 1].block_number + 1;
+                const [ins] = await pool.query(
+                  `INSERT INTO tests (block_number, title, block_type, system_id, total_questions, seconds_per_question, is_active)
+                   VALUES (?, ?, 'regular', NULL, ?, 60, 1)`,
+                  [nextBlockNum, `Block ${nextBlockNum}`, capacity]
+                );
+                targetBlock = { id: ins.insertId, block_number: nextBlockNum, seconds_per_question: 60 };
+                regularBlocks.push(targetBlock);
+                blockCasesMap.set(targetBlock.id, []);
+              }
+
+              const currentList = blockCasesMap.get(targetBlock.id);
+              const tempOrder = currentList.length + 50000;
+              const [insTq] = await pool.query(
+                'INSERT INTO test_questions (test_id, case_id, question_order) VALUES (?, ?, ?)',
+                [targetBlock.id, newCaseId, tempOrder]
+              );
+              currentList.push({ id: insTq.insertId, test_id: targetBlock.id, case_id: newCaseId, question_order: tempOrder });
+              touchedBlockIds.add(targetBlock.id);
+            }
+
+            for (const blockId of touchedBlockIds) {
+              const list = blockCasesMap.get(blockId) || [];
+              await pool.query('UPDATE test_questions SET question_order = id + 100000 WHERE test_id = ?', [blockId]);
+              const shuffledList = shuffleArray(list);
+              for (let idx = 0; idx < shuffledList.length; idx += 1) {
+                await pool.query(
+                  'UPDATE test_questions SET question_order = ? WHERE id = ?',
+                  [idx + 1, shuffledList[idx].id]
+                );
+              }
+            }
+          }
+        }
+
+        // =========================================================
+        // PART B: SYSTEM-BASED BLOCKS (11 Blocks — 1 per Radiology System)
+        // =========================================================
+        const existingSysBlocks = allTests.filter((t) => t.block_type === 'system');
+        const sysBlockBySystemId = new Map(existingSysBlocks.map((b) => [b.system_id, b]));
+        const tqByTestId = new Map();
+        for (const tq of allTq) {
+          if (!tqByTestId.has(tq.test_id)) tqByTestId.set(tq.test_id, []);
+          tqByTestId.get(tq.test_id).push(tq);
+        }
+
+        for (const sys of allSystems) {
+          let sysBlock = sysBlockBySystemId.get(sys.id);
+          const sysBlockNumber = 1000 + (sys.display_order || sys.id);
+          if (!sysBlock) {
+            anyChanges = true;
+            const [ins] = await pool.query(
+              `INSERT INTO tests (block_number, title, block_type, system_id, total_questions, seconds_per_question, is_active)
+               VALUES (?, ?, 'system', ?, 10, 60, 1)
+               ON DUPLICATE KEY UPDATE block_type = 'system', system_id = VALUES(system_id), title = VALUES(title)`,
+              [sysBlockNumber, sys.name, sys.id]
+            );
+            let sysTestId = ins.insertId;
+            if (!sysTestId) {
+              const [[found]] = await pool.query('SELECT id FROM tests WHERE block_number = ? LIMIT 1', [sysBlockNumber]);
+              sysTestId = found.id;
+            }
+            sysBlock = { id: sysTestId, block_number: sysBlockNumber, system_id: sys.id, title: sys.name };
+            sysBlockBySystemId.set(sys.id, sysBlock);
+          }
+
+          const sysCaseIds = publishedRows.filter((r) => r.system_id === sys.id).map((r) => r.id);
+          const sysCaseSet = new Set(sysCaseIds);
+
+          const sysTq = tqByTestId.get(sysBlock.id) || [];
+          const seenInSys = new Set();
+          const validSysTq = [];
+          const invalidSysTqIds = [];
+
+          for (const row of sysTq) {
+            if (!sysCaseSet.has(row.case_id) || seenInSys.has(row.case_id)) {
+              invalidSysTqIds.push(row.id);
+            } else {
+              seenInSys.add(row.case_id);
+              validSysTq.push(row);
+            }
+          }
+
+          if (invalidSysTqIds.length > 0) {
+            anyChanges = true;
+            await pool.query(
+              `DELETE FROM test_questions WHERE id IN (${invalidSysTqIds.map(() => '?').join(',')})`,
+              invalidSysTqIds
+            );
+          }
+
+          const missingSysCases = shuffleArray(sysCaseIds.filter((cid) => !seenInSys.has(cid)));
+          if (missingSysCases.length > 0 || reshuffleAll) {
+            anyChanges = true;
+            for (let i = 0; i < missingSysCases.length; i += 1) {
+              const cid = missingSysCases[i];
+              const tempOrd = 60000 + i;
+              const [ins] = await pool.query(
+                'INSERT INTO test_questions (test_id, case_id, question_order) VALUES (?, ?, ?)',
+                [sysBlock.id, cid, tempOrd]
+              );
+              validSysTq.push({ id: ins.insertId, case_id: cid, question_order: tempOrd });
+            }
+
+            if (validSysTq.length > 0) {
+              await pool.query('UPDATE test_questions SET question_order = id + 100000 WHERE test_id = ?', [sysBlock.id]);
+              const shuffledSysTq = shuffleArray(validSysTq);
+              for (let idx = 0; idx < shuffledSysTq.length; idx += 1) {
+                await pool.query(
+                  'UPDATE test_questions SET question_order = ? WHERE id = ?',
+                  [idx + 1, shuffledSysTq[idx].id]
+                );
+              }
+            }
+          }
+        }
+
+        if (anyChanges) {
+          const [counts] = await pool.query(
+            `SELECT t.id, COUNT(tq.id) AS cnt
+             FROM tests t
+             LEFT JOIN test_questions tq ON tq.test_id = t.id
+             GROUP BY t.id`
+          );
+          await Promise.all(
+            counts.map((c) =>
+              pool.query('UPDATE tests SET total_questions = ? WHERE id = ?', [Math.max(c.cnt, 1), c.id])
+            )
+          );
+        }
+
+        cachedQuestionsPerBlock = capacity;
+        blocksSynced = true;
+        return { questionsPerBlock: capacity };
+      } finally {
+        syncPromise = null;
+      }
+    };
+
+    syncPromise = runSync();
+    return syncPromise;
   },
 
   /** All blocks with their assigned questions (case title/status) for the admin UI. */

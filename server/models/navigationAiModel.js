@@ -28,31 +28,32 @@ const navigationAiModel = {
 
   /** Student-safe case: NO answer, explanation, findings, learning points or differentials. */
   async getCaseForStudent(caseId) {
-    const [allIds] = await pool.query(
-      `SELECT pc.id
-       FROM practice_cases pc
-       WHERE pc.status = 'published'
-         AND pc.correct_answer IS NOT NULL AND TRIM(pc.correct_answer) <> ''
-       ORDER BY pc.id ASC`
-    );
-    const idx = allIds.findIndex((r) => Number(r.id) === Number(caseId));
-
-    const [rows] = await pool.query(
-      `SELECT pc.id, pc.modality, pc.difficulty, pc.clinical_info, pc.question_text,
-              s.name AS system_name, s.slug AS system_slug
-       FROM practice_cases pc
-       JOIN systems s ON s.id = pc.system_id
-       WHERE pc.id = ? AND pc.status = 'published'
-         AND pc.correct_answer IS NOT NULL AND TRIM(pc.correct_answer) <> ''
-       LIMIT 1`,
-      [caseId]
-    );
+    const [[allIds], [rows], [images]] = await Promise.all([
+      pool.query(
+        `SELECT pc.id
+         FROM practice_cases pc
+         WHERE pc.status = 'published'
+           AND pc.correct_answer IS NOT NULL AND TRIM(pc.correct_answer) <> ''
+         ORDER BY pc.id ASC`
+      ),
+      pool.query(
+        `SELECT pc.id, pc.modality, pc.difficulty, pc.clinical_info, pc.question_text,
+                s.name AS system_name, s.slug AS system_slug
+         FROM practice_cases pc
+         JOIN systems s ON s.id = pc.system_id
+         WHERE pc.id = ? AND pc.status = 'published'
+           AND pc.correct_answer IS NOT NULL AND TRIM(pc.correct_answer) <> ''
+         LIMIT 1`,
+        [caseId]
+      ),
+      pool.query(
+        'SELECT id, image_url, display_order FROM case_images WHERE case_id = ? ORDER BY display_order ASC',
+        [caseId]
+      ),
+    ]);
     if (!rows[0]) return null;
 
-    const [images] = await pool.query(
-      'SELECT id, image_url, display_order FROM case_images WHERE case_id = ? ORDER BY display_order ASC',
-      [caseId]
-    );
+    const idx = allIds.findIndex((r) => Number(r.id) === Number(caseId));
     const caseNumber = idx >= 0 ? idx + 1 : Number(caseId);
     return {
       ...rows[0],

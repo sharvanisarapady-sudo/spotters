@@ -6,12 +6,13 @@ async function listCasesForSystem(req, res) {
   const { slug } = req.params;
 
   try {
-    const system = await systemModel.findBySlug(slug);
+    const [system, cases] = await Promise.all([
+      systemModel.findBySlug(slug),
+      practiceCaseModel.findBySystemSlug(slug, req.user.id),
+    ]);
     if (!system) {
       return res.status(404).json({ success: false, message: 'Radiology system not found.' });
     }
-
-    const cases = await practiceCaseModel.findBySystemSlug(slug, req.user.id);
 
     return res.json({
       success: true,

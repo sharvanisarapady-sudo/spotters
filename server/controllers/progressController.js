@@ -2,14 +2,14 @@ const progressModel = require('../models/progressModel');
 
 async function getProgress(req, res) {
   try {
-    const [overview, systems, history, attemptedQuestions, blocks, activity] = await Promise.all([
+    const [overview, systems, history, attemptedQuestions, activity] = await Promise.all([
       progressModel.getOverview(req.user.id),
       progressModel.getSystemPerformance(req.user.id),
       progressModel.getTestHistory(req.user.id),
       progressModel.getAttemptedQuestions(req.user.id),
-      progressModel.getBlockProgress(req.user.id),
       progressModel.getActivityStats(req.user.id),
     ]);
+    const blocks = await progressModel.getBlockProgress(req.user.id, attemptedQuestions);
     return res.json({ success: true, overview, systems, history, attemptedQuestions, blocks, activity });
   } catch (err) {
     console.error('[progress] error:', err.message);
