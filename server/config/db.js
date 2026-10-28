@@ -31,6 +31,24 @@ async function testConnection() {
     console.log('[db] MySQL connection successful');
     return true;
   } catch (err) {
+    if (err.code === 'ER_BAD_DB_ERROR' && !process.env.DATABASE_URL) {
+      try {
+        const dbName = (process.env.DB_NAME || 'spotters_db').replace(/[^a-zA-Z0-9_]/g, '');
+        const bootstrapConn = await mysql.createConnection({
+          host: process.env.DB_HOST || 'localhost',
+          port: Number(process.env.DB_PORT) || 3306,
+          user: process.env.DB_USER || 'root',
+          password: process.env.DB_PASSWORD || '',
+          ...(useSsl ? { ssl: { rejectUnauthorized: false } } : {}),
+        });
+        await bootstrapConn.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
+        await bootstrapConn.end();
+        console.log(`[db] Created database "${dbName}" automatically`);
+        return true;
+      } catch (createErr) {
+        console.error('[db] Auto-create database failed:', createErr.message);
+      }
+    }
     console.error('[db] MySQL connection failed:', err.message);
     return false;
   }
