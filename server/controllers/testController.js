@@ -138,6 +138,8 @@ async function getResults(req, res) {
         id: attempt.id,
         testId: attempt.test_id,
         blockNumber: block.block_number,
+        title: block.title,
+        blockType: block.block_type || 'regular',
         score: attempt.score,
         total: attempt.total_questions,
         accuracy: attempt.accuracy,

@@ -126,7 +126,12 @@ exports.setTestQuestions = wrap(async (req, res) => {
 
 exports.listTests = wrap(async (req, res) => {
   const data = await model.listBlocksWithQuestions();
-  return res.json({ success: true, blocks: data.blocks, questionsPerBlock: data.questionsPerBlock });
+  return res.json({
+    success: true,
+    blocks: data.blocks,
+    systemBlocks: data.systemBlocks,
+    questionsPerBlock: data.questionsPerBlock,
+  });
 });
 
 exports.shuffleTests = wrap(async (req, res) => {
@@ -135,7 +140,12 @@ exports.shuffleTests = wrap(async (req, res) => {
     questionsPerBlock: req.body.questions_per_block,
   });
   const data = await model.listBlocksWithQuestions();
-  return res.json({ success: true, blocks: data.blocks, questionsPerBlock: data.questionsPerBlock });
+  return res.json({
+    success: true,
+    blocks: data.blocks,
+    systemBlocks: data.systemBlocks,
+    questionsPerBlock: data.questionsPerBlock,
+  });
 });
 
 exports.createTest = wrap(async (req, res) => {

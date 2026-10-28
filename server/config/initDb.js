@@ -57,6 +57,8 @@ const CREATE_TABLES = [
     id INT AUTO_INCREMENT PRIMARY KEY,
     block_number INT NOT NULL UNIQUE,
     title VARCHAR(150) NOT NULL,
+    block_type VARCHAR(20) NOT NULL DEFAULT 'regular',
+    system_id INT NULL,
     total_questions INT NOT NULL DEFAULT 20,
     seconds_per_question INT NOT NULL DEFAULT 60,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
@@ -264,6 +266,36 @@ async function initDb() {
     for (const sql of CREATE_TABLES) {
       await pool.query(sql);
     }
+
+    // Add block_type and system_id to tests if upgrading from an older schema
+    try {
+      await pool.query(`ALTER TABLE tests ADD COLUMN block_type VARCHAR(20) NOT NULL DEFAULT 'regular'`);
+    } catch {
+      // column already exists
+    }
+    try {
+      await pool.query(`ALTER TABLE tests ADD COLUMN system_id INT NULL`);
+    } catch {
+      // column already exists
+    }
+
+    // Backfill separate key_findings / learning_points / differential_diagnosis on Case 6 & 7 if empty
+    await pool.query(
+      `UPDATE practice_cases
+       SET explanation = 'CT shows an enlarged left kidney with a large calculus (possibly staghorn) at the renal pelvis with dilated calyces with hypodense content within, which represents xanthogranulomatous content. In the setting of a diabetic patient with recurrent UTIs, xanthogranulomatous pyelonephritis becomes the primary differential.',
+           key_findings = 'Obstructive calculus at the renal pelvis\nDilated renal calyces with hypodense xanthogranulomatous content (classic Bear-paw sign)',
+           learning_points = 'In acute hydronephrosis, the content within the calyces is fluid attenuating. Xanthogranulomatous content is denser and occurs in chronic obstruction with recurrent UTIs (especially in diabetic patients).',
+           differential_diagnosis = 'Obstructive hydronephrosis\nRenal tuberculosis\nRenal cell carcinoma'
+       WHERE id = 6 AND (key_findings IS NULL OR TRIM(key_findings) = '')`
+    );
+    await pool.query(
+      `UPDATE practice_cases
+       SET explanation = 'Plain radiograph of the chest shows enlarged and lobulated bilateral hila (compare the hilar thickness to the right/left bronchial lumen diameter). The right paratracheal stripe is also widened. These three features denote the classical Garland sign, where there are enlarged lymph nodes in the right paratracheal region and bilateral hilar regions.',
+           key_findings = 'Bilateral hilar and right paratracheal lymphadenopathy (Garland triad / 1-2-3 sign)',
+           learning_points = 'When both hila are enlarged, check if they are smooth or lobulated. Smooth hilar enlargement favours pulmonary arterial dilation (pulmonary hypertension). Lobulated hilar contour denotes lymphadenopathy.',
+           differential_diagnosis = 'Lymphoma\nTuberculosis or fungal granulomatous disease\nMetastatic mediastinal lymphadenopathy'
+       WHERE id = 7 AND (key_findings IS NULL OR TRIM(key_findings) = '')`
+    );
 
     // Seed the 11 radiology systems if not present
     await pool.query(

@@ -64,7 +64,7 @@ export default function TestResults() {
           <>
             <div className="mt-6 rounded-2xl bg-navy-950 text-white p-8 text-center">
               <p className="font-mono text-xs tracking-[0.2em] uppercase text-spotter-blue-light">
-                Block {data.attempt.blockNumber} Complete
+                {data.attempt.title || `Block ${data.attempt.blockNumber}`} Complete
               </p>
               <p className="mt-3 font-display font-semibold text-4xl">
                 {data.attempt.score} / {data.attempt.total}

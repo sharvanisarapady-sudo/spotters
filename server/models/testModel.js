@@ -15,12 +15,17 @@ const testModel = {
   async listBlocks() {
     await caseAdminModel.autoSyncBlocks();
     const [rows] = await pool.query(
-      `SELECT t.id, t.block_number, t.title, t.total_questions, t.seconds_per_question, t.is_active,
+      `SELECT t.id, t.block_number, t.title, t.block_type, t.system_id,
+              t.total_questions, t.seconds_per_question, t.is_active,
+              s.name AS system_name, s.slug AS system_slug, s.display_order AS system_order,
               COUNT(tq.id) AS question_count
        FROM tests t
+       LEFT JOIN systems s ON s.id = t.system_id
        LEFT JOIN test_questions tq ON tq.test_id = t.id
-       GROUP BY t.id, t.block_number, t.title, t.total_questions, t.seconds_per_question, t.is_active
-       ORDER BY t.block_number ASC`
+       GROUP BY t.id, t.block_number, t.title, t.block_type, t.system_id,
+                t.total_questions, t.seconds_per_question, t.is_active,
+                s.name, s.slug, s.display_order
+       ORDER BY t.block_type ASC, COALESCE(s.display_order, t.block_number) ASC`
     );
     return rows;
   },

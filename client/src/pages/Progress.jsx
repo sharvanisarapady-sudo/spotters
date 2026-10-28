@@ -285,7 +285,8 @@ export default function Progress() {
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-mono text-xs px-2 py-0.5 rounded bg-gray-100 text-navy-900">
-                                Block {q.block_number}{q.question_order ? ` · Q${q.question_order}` : ''}
+                                {q.block_number > 1000 ? 'System Block' : `Block ${q.block_number}`}
+                                {q.question_order ? ` · Q${q.question_order}` : ''}
                               </span>
                               <span className="font-medium text-navy-950">{q.case_title}</span>
                               {q.modality && <span className="text-xs text-gray-400">({q.modality})</span>}
@@ -342,7 +343,9 @@ export default function Progress() {
                         className="w-full flex flex-wrap items-center justify-between gap-4 px-5 py-4 bg-gray-50/70 hover:bg-gray-100/70 transition text-left"
                       >
                         <div>
-                          <span className="font-display font-semibold text-navy-950">Block {b.block_number}</span>
+                          <span className="font-display font-semibold text-navy-950">
+                            {b.block_number > 1000 ? `System Block: ${b.title}` : `Block ${b.block_number}`}
+                          </span>
                           <span className="ml-3 text-xs text-gray-500">
                             {b.question_count} {b.question_count === 1 ? 'question' : 'questions'} in block
                           </span>
@@ -442,7 +445,9 @@ export default function Progress() {
                           className="flex items-center justify-between py-3 text-sm hover:bg-gray-50 -mx-2 px-2 rounded-lg transition"
                         >
                           <div>
-                            <p className="font-medium text-navy-950">Block {t.block_number}</p>
+                            <p className="font-medium text-navy-950">
+                              {t.title && t.block_number > 1000 ? `System: ${t.title}` : `Block ${t.block_number}`}
+                            </p>
                             <p className="text-xs text-gray-400">{new Date(t.completed_at).toLocaleDateString()}</p>
                           </div>
                           <div className="text-right">

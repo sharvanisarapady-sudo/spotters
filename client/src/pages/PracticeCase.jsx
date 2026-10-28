@@ -4,21 +4,25 @@ import DashboardLayout from '../layouts/DashboardLayout';
 import ImageViewer from '../components/practice/ImageViewer';
 import BookmarkButton from '../components/practice/BookmarkButton';
 import { practiceService } from '../services/practiceService';
-import VideoPlayer from '../components/VideoPlayer';
 import Disclaimer from '../components/Disclaimer';
 import { IconBack } from '../components/icons';
 
-function Section({ title, content }) {
+function Section({ title, content, badge }) {
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-6">
       <h2 className="font-display font-semibold text-sm tracking-wide uppercase text-navy-950">{title}</h2>
-      {content ? (
-        <p className="mt-3 text-sm text-gray-600 leading-relaxed whitespace-pre-line">{content}</p>
-      ) : (
-        <p className="mt-3 text-sm text-gray-400">
-          {title === 'Diagnosis' ? 'Diagnosis will appear after submission.' : 'Case information will appear here.'}
+      {badge && (
+        <p className="mt-3 inline-block rounded-lg bg-spotter-blue/10 border border-spotter-blue/20 px-3 py-1.5 font-display font-semibold text-sm text-spotter-blue">
+          {badge}
         </p>
       )}
+      {content ? (
+        <p className="mt-3 text-sm text-gray-600 leading-relaxed whitespace-pre-line">{content}</p>
+      ) : !badge ? (
+        <p className="mt-3 text-sm text-gray-400">
+          {title === 'Diagnosis' ? 'Diagnosis will appear after submission.' : 'Not specified for this case.'}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -104,8 +108,15 @@ export default function PracticeCase() {
               </div>
 
               <div className="lg:col-span-2 space-y-4">
-                <Section title="Case" content={caseData.clinical_info || caseData.question_text} />
-                <Section title="Diagnosis" content={[caseData.correct_answer, caseData.explanation].filter(Boolean).join('\n\n')} />
+                <Section
+                  title="Clinical Information & Question"
+                  content={[caseData.clinical_info, caseData.question_text].filter(Boolean).join('\n\n')}
+                />
+                <Section
+                  title="Diagnosis & Explanation"
+                  badge={caseData.correct_answer ? caseData.correct_answer.split('|')[0].trim() : null}
+                  content={caseData.explanation}
+                />
               </div>
             </div>
 
@@ -113,10 +124,6 @@ export default function PracticeCase() {
               <Section title="Key Imaging Findings" content={caseData.key_findings} />
               <Section title="Learning Points" content={caseData.learning_points} />
               <Section title="Differential Diagnosis" content={caseData.differential_diagnosis} />
-            </div>
-
-            <div className="mt-6">
-              <VideoPlayer videos={caseData.videos} />
             </div>
 
             <Disclaimer className="mt-10" />

@@ -168,7 +168,7 @@ export default function TestInterface() {
           <span className="font-display font-semibold text-sm tracking-tight">SPOTTERS.COM</span>
         </div>
         <div className="text-sm text-white/60 font-mono">
-          Block {attempt.blockNumber} &middot; Question {viewIndex + 1} / {totalQuestions}
+          {attempt.title || `Block ${attempt.blockNumber}`} &middot; Question {viewIndex + 1} / {totalQuestions}
         </div>
         <div className={`font-mono text-lg font-semibold ${isViewingActive ? urgencyClass : 'text-white/30'}`}>
           {isViewingActive ? formatTime(timeLeft) : '—:—'}

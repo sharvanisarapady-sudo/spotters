@@ -235,16 +235,54 @@ function CreateCaseForm({ blocks, onCreated, onCancel }) {
       </div>
 
       <label className="block text-sm font-medium text-navy-950">
-        Explanation (shown after test / in revision)
+        Explanation (shown in Practice, Test Results &amp; Revision)
         <textarea
           name="explanation"
           value={form.explanation}
           onChange={update}
           rows={2}
           className={fieldClass}
-          placeholder="Explain the key radiological features..."
+          placeholder="Explain the diagnosis and radiological correlation..."
         />
       </label>
+
+      <div className="grid sm:grid-cols-3 gap-4">
+        <label className="block text-sm font-medium text-navy-950">
+          Key Imaging Findings
+          <textarea
+            name="key_findings"
+            value={form.key_findings}
+            onChange={update}
+            rows={3}
+            className={fieldClass}
+            placeholder="e.g. Box-shaped cardiac silhouette, right atrial enlargement..."
+          />
+        </label>
+
+        <label className="block text-sm font-medium text-navy-950">
+          Learning Points
+          <textarea
+            name="learning_points"
+            value={form.learning_points}
+            onChange={update}
+            rows={3}
+            className={fieldClass}
+            placeholder="e.g. Classic radiographic Pearl and clinical takeaway..."
+          />
+        </label>
+
+        <label className="block text-sm font-medium text-navy-950">
+          Differential Diagnosis
+          <textarea
+            name="differential_diagnosis"
+            value={form.differential_diagnosis}
+            onChange={update}
+            rows={3}
+            className={fieldClass}
+            placeholder="e.g. Pericardial effusion, Pulmonary stenosis..."
+          />
+        </label>
+      </div>
 
       <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-3">
         <label className="block text-sm font-medium text-navy-950">
@@ -265,7 +303,7 @@ function CreateCaseForm({ blocks, onCreated, onCancel }) {
 
         <div className="pt-2 border-t border-gray-200 grid sm:grid-cols-2 gap-3">
           <label className="block text-xs font-medium text-navy-950">
-            Video Explanation URL (YouTube, Vimeo, or MP4 — optional)
+            Video Explanation URL (Shown in AI Case Mentor Only — optional)
             <input
               type="url"
               value={videoUrl}
@@ -275,7 +313,7 @@ function CreateCaseForm({ blocks, onCreated, onCancel }) {
             />
           </label>
           <label className="block text-xs font-medium text-navy-950">
-            Or Upload Video File (.mp4 / .webm — optional)
+            Or Upload Video File (.mp4 / .webm for AI Case Mentor — optional)
             <input
               type="file"
               accept="video/mp4,video/webm,video/quicktime"
@@ -349,10 +387,14 @@ function CaseEditor({ caseId, onChanged }) {
         setEditForm({
           title: r.case.title || '',
           modality: r.case.modality || '',
+          difficulty: r.case.difficulty || 'medium',
           clinical_info: r.case.clinical_info || '',
           question_text: r.case.question_text || '',
           correct_answer: r.case.correct_answer || '',
           explanation: r.case.explanation || '',
+          key_findings: r.case.key_findings || '',
+          learning_points: r.case.learning_points || '',
+          differential_diagnosis: r.case.differential_diagnosis || '',
         });
       })
       .catch((e) => setError(errMsg(e, 'Could not load this case.')));
@@ -454,6 +496,9 @@ function CaseEditor({ caseId, onChanged }) {
             {detail.clinical_info && <p><strong>Clinical Info:</strong> {detail.clinical_info}</p>}
             {detail.question_text && <p><strong>Question:</strong> {detail.question_text}</p>}
             {detail.explanation && <p><strong>Explanation:</strong> {detail.explanation}</p>}
+            {detail.key_findings && <p><strong>Key Imaging Findings:</strong> {detail.key_findings}</p>}
+            {detail.learning_points && <p><strong>Learning Points:</strong> {detail.learning_points}</p>}
+            {detail.differential_diagnosis && <p><strong>Differential Diagnosis:</strong> {detail.differential_diagnosis}</p>}
           </div>
         ) : (
           <form onSubmit={saveCaseText} className="mt-3 space-y-3">
@@ -500,6 +545,35 @@ function CaseEditor({ caseId, onChanged }) {
                 className="mt-1 w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-sm"
               />
             </label>
+            <div className="grid sm:grid-cols-3 gap-3">
+              <label className="block text-xs font-medium text-navy-950">
+                Key Imaging Findings
+                <textarea
+                  rows={3}
+                  value={editForm.key_findings}
+                  onChange={(e) => setEditForm({ ...editForm, key_findings: e.target.value })}
+                  className="mt-1 w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-sm"
+                />
+              </label>
+              <label className="block text-xs font-medium text-navy-950">
+                Learning Points
+                <textarea
+                  rows={3}
+                  value={editForm.learning_points}
+                  onChange={(e) => setEditForm({ ...editForm, learning_points: e.target.value })}
+                  className="mt-1 w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-sm"
+                />
+              </label>
+              <label className="block text-xs font-medium text-navy-950">
+                Differential Diagnosis
+                <textarea
+                  rows={3}
+                  value={editForm.differential_diagnosis}
+                  onChange={(e) => setEditForm({ ...editForm, differential_diagnosis: e.target.value })}
+                  className="mt-1 w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-sm"
+                />
+              </label>
+            </div>
             <button
               type="submit"
               disabled={savingFields}
@@ -553,12 +627,12 @@ function CaseEditor({ caseId, onChanged }) {
         <p className="mt-2 text-xs text-gray-400">JPEG, PNG or WebP · up to 10 MB each · up to 10 at a time.</p>
       </div>
 
-      {/* Video Explanations Manager (shown in AI Case Mentor after answering & in Practice) */}
+      {/* Video Explanations Manager (shown in AI Case Mentor Only) */}
       <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-3">
         <div>
-          <h3 className="text-sm font-semibold text-navy-950">Video Explanation (AI Case Mentor &amp; Practice)</h3>
+          <h3 className="text-sm font-semibold text-navy-950">Video Explanation (AI Case Mentor Only)</h3>
           <p className="text-xs text-gray-500">
-            Shown automatically in AI Case Mentor right after a student submits their diagnosis. Supports YouTube, Vimeo, or uploaded MP4/WebM files.
+            Shown exclusively in AI Case Mentor right after a student submits their diagnosis. Supports YouTube, Vimeo, or uploaded MP4/WebM files.
           </p>
         </div>
 
@@ -672,7 +746,7 @@ function CaseEditor({ caseId, onChanged }) {
   );
 }
 
-function TestBlocks({ cases, blocks, questionsPerBlock, onReloadBlocks }) {
+function TestBlocks({ cases, blocks, systemBlocks = [], questionsPerBlock, onReloadBlocks }) {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
@@ -703,7 +777,7 @@ function TestBlocks({ cases, blocks, questionsPerBlock, onReloadBlocks }) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-8">
       <Banner>{error}</Banner>
       <Banner kind="ok">{notice}</Banner>
 
@@ -716,17 +790,17 @@ function TestBlocks({ cases, blocks, questionsPerBlock, onReloadBlocks }) {
                 Auto-Random Active
               </span>
               <p className="text-sm font-semibold text-navy-950">
-                Automatic Random &amp; Unique Block Assignment
+                1. Regular Mixed Spotter Blocks (Block 1, Block 2, Block 3, …)
               </p>
             </div>
             <p className="mt-1 text-xs text-gray-600">
-              Whenever you add and publish a case, it is automatically added at random to a test block with 100% unique cases across all blocks ({publishable.length} published case{publishable.length === 1 ? '' : 's'} total). As blocks fill up, new block numbers (Block {blocks.length ? Math.max(...blocks.map((b) => b.block_number)) + 1 : 1}+) are created automatically without limit.
+              Whenever you publish a case, it is automatically added at random to a Regular Block with 100% unique cases across all Regular Blocks ({publishable.length} published case{publishable.length === 1 ? '' : 's'} total). As blocks fill up, new block numbers (Block {blocks.length ? Math.max(...blocks.map((b) => b.block_number)) + 1 : 1}+) are created automatically without limit.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <label className="text-xs font-medium text-navy-950 flex items-center gap-1.5 bg-white rounded-lg border border-gray-300 px-2.5 py-1.5">
-              <span>Max Cases / Block:</span>
+              <span>Max Cases / Regular Block:</span>
               <input
                 type="number"
                 min={1}
@@ -742,7 +816,7 @@ function TestBlocks({ cases, blocks, questionsPerBlock, onReloadBlocks }) {
               onClick={() =>
                 act(
                   () => adminService.shuffleTests(perBlockCap),
-                  `All ${publishable.length} published cases have been randomly & uniquely shuffled across blocks (${perBlockCap} max per block)!`
+                  `All ${publishable.length} published cases have been randomly & uniquely shuffled across Regular Blocks (${perBlockCap} max per block) and synced to the 11 System Blocks!`
                 )
               }
               className="rounded-lg bg-spotter-blue hover:bg-spotter-blue-dark px-4 py-2 text-xs font-semibold text-white disabled:opacity-50"
@@ -755,7 +829,7 @@ function TestBlocks({ cases, blocks, questionsPerBlock, onReloadBlocks }) {
         {/* Optional pre-create extra block bar */}
         <div className="pt-3 border-t border-spotter-blue/15 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-600">
           <span>
-            Want to pre-create an additional block manually? Next block number is{' '}
+            Want to pre-create an additional Regular Block manually? Next block number is{' '}
             <strong className="text-navy-950">
               Block {blocks.length ? Math.max(...blocks.map((b) => b.block_number)) + 1 : 1}
             </strong>
@@ -779,7 +853,7 @@ function TestBlocks({ cases, blocks, questionsPerBlock, onReloadBlocks }) {
               onClick={() =>
                 act(
                   () => adminService.createTest({ seconds_per_question: newSeconds }),
-                  'Extra test block created!'
+                  'Extra regular test block created!'
                 )
               }
               className="rounded-lg border border-gray-300 bg-white hover:bg-gray-50 px-3 py-1 text-xs font-medium text-navy-950 disabled:opacity-50"
@@ -837,6 +911,61 @@ function TestBlocks({ cases, blocks, questionsPerBlock, onReloadBlocks }) {
           </div>
         ))}
       </div>
+
+      {/* 2. SYSTEM-BASED BLOCKS (11 Radiology Systems) */}
+      {systemBlocks && systemBlocks.length > 0 && (
+        <div className="pt-6 border-t border-gray-200">
+          <div className="mb-4">
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-emerald-600 px-2.5 py-0.5 text-[10px] font-mono uppercase tracking-wider text-white">
+                11 Systems
+              </span>
+              <h3 className="text-base font-semibold text-navy-950">
+                2. System-Based Spotter Blocks (11 Blocks — One per Radiology System)
+              </h3>
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              Each of the 11 Radiology Systems has its own dedicated test block. Whenever you publish a case for a system, it is automatically added into that system&apos;s block in randomized order.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {systemBlocks.map((sb, idx) => (
+              <div key={sb.id} className="rounded-xl border border-gray-200 p-4 bg-gray-50/60 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                      System Block {idx + 1}
+                    </span>
+                    <span className="font-mono text-xs text-gray-500">
+                      {sb.questions.length} case{sb.questions.length === 1 ? '' : 's'}
+                    </span>
+                  </div>
+                  <h4 className="mt-2 font-semibold text-sm text-navy-950">{sb.system_name || sb.title}</h4>
+
+                  {sb.questions.length === 0 ? (
+                    <p className="mt-2 text-xs text-gray-400 italic">
+                      No published cases in this system yet.
+                    </p>
+                  ) : (
+                    <ol className="mt-2 divide-y divide-gray-200/60 text-xs">
+                      {sb.questions.map((q, qIdx) => (
+                        <li key={q.id} className="py-1 flex items-center justify-between gap-2">
+                          <span className="truncate text-gray-700">
+                            <span className="font-mono text-[10px] text-emerald-700 mr-1.5">Q{qIdx + 1}</span>
+                            Case #{q.case_id} {q.modality ? `(${q.modality})` : ''}
+                          </span>
+                          <span className="font-mono text-[10px] text-gray-400">Auto</span>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -844,6 +973,7 @@ function TestBlocks({ cases, blocks, questionsPerBlock, onReloadBlocks }) {
 export default function AdminCases() {
   const [cases, setCases] = useState(null);
   const [blocks, setBlocks] = useState(null);
+  const [systemBlocks, setSystemBlocks] = useState([]);
   const [questionsPerBlock, setQuestionsPerBlock] = useState(10);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [notice, setNotice] = useState('');
@@ -865,6 +995,7 @@ export default function AdminCases() {
         .listTests()
         .then((r) => {
           setBlocks(r.blocks);
+          setSystemBlocks(r.systemBlocks || []);
           if (r.questionsPerBlock) setQuestionsPerBlock(r.questionsPerBlock);
         })
         .catch((e) => setError(errMsg(e, 'Could not load test blocks.'))),
@@ -999,6 +1130,7 @@ export default function AdminCases() {
             <TestBlocks
               cases={cases}
               blocks={blocks}
+              systemBlocks={systemBlocks}
               questionsPerBlock={questionsPerBlock}
               onReloadBlocks={loadBlocks}
             />
