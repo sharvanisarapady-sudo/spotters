@@ -375,7 +375,9 @@ function CaseEditor({ caseId, onChanged }) {
   const [videoUrl, setVideoUrl] = useState('');
   const [videoTitle, setVideoTitle] = useState('');
   const [savingVideo, setSavingVideo] = useState(false);
+  const [replacingImgId, setReplacingImgId] = useState(null);
   const fileRef = useRef(null);
+  const replaceFileRef = useRef(null);
   const videoFileRef = useRef(null);
 
   const load = useCallback(() => {
@@ -467,6 +469,40 @@ function CaseEditor({ caseId, onChanged }) {
       onChanged();
     } catch (err) {
       setError(errMsg(err, 'Could not delete the image.'));
+    }
+  };
+
+  const handleReplaceFile = async (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    const oldImgId = replacingImgId;
+    setReplacingImgId(null);
+    if (files.length === 0 || !oldImgId) return;
+
+    const bad = files.find((f) => !ALLOWED.includes(f.type) || f.size > MAX_BYTES);
+    if (bad) {
+      setError(
+        !ALLOWED.includes(bad.type)
+          ? `"${bad.name}" is not a JPEG, PNG or WebP image.`
+          : `"${bad.name}" is larger than 10 MB.`
+      );
+      return;
+    }
+
+    setUploading(true);
+    setProgress(0);
+    setError('');
+    setNotice('');
+    try {
+      await adminService.uploadImages(caseId, files, setProgress);
+      await adminService.deleteImage(oldImgId).catch(() => {});
+      setNotice('Scan replaced and permanently backed up in cloud database!');
+      await load();
+      onChanged();
+    } catch (err) {
+      setError(errMsg(err, 'Could not replace image. Please try again.'));
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -585,23 +621,43 @@ function CaseEditor({ caseId, onChanged }) {
         )}
       </div>
 
+      <input
+        ref={replaceFileRef}
+        type="file"
+        multiple
+        accept="image/jpeg,image/png,image/webp"
+        onChange={handleReplaceFile}
+        className="hidden"
+      />
+
       {detail.images.length === 0 ? (
         <p className="text-sm text-gray-500">No images yet for this case.</p>
       ) : (
         <ul className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {detail.images.map((img, i) => (
             <li key={img.id} className="relative rounded-lg overflow-hidden bg-navy-950 aspect-square">
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-2 text-center">
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-2.5 text-center gap-1.5">
                 <span className="text-[11px] font-medium text-amber-300">File missing on server</span>
-                <span className="mt-1 text-[10px] text-white/50">Delete &amp; re-upload scan to save in cloud DB</span>
+                <button
+                  type="button"
+                  disabled={uploading}
+                  onClick={() => {
+                    setReplacingImgId(img.id);
+                    replaceFileRef.current?.click();
+                  }}
+                  className="rounded-md bg-spotter-blue hover:bg-spotter-blue-dark px-2.5 py-1 text-[11px] font-semibold text-white transition disabled:opacity-50"
+                >
+                  ↻ Replace Scan
+                </button>
               </div>
               <img
                 src={img.image_url}
                 alt={`Case image ${i + 1}`}
-                className="relative w-full h-full object-cover bg-navy-950"
+                className="relative w-full h-full object-cover bg-navy-950 pointer-events-none"
                 onError={(ev) => { ev.currentTarget.style.display = 'none'; }}
               />
               <button
+                type="button"
                 onClick={() => remove(img)}
                 className="absolute top-1.5 right-1.5 rounded bg-black/70 px-2 py-0.5 text-[11px] text-white hover:bg-red-600"
                 aria-label={`Delete image ${i + 1}`}
