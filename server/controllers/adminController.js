@@ -59,19 +59,23 @@ exports.setStatus = wrap(async (req, res) => {
 });
 
 exports.deleteCase = wrap(async (req, res) => {
-  const urls = await model.listImageUrlsForCase(req.params.id);
+  const urls = await model.listMediaUrlsForCase(req.params.id);
   if (!(await model.remove(req.params.id))) return notFound(res);
-  await Promise.all(urls.map((u) => storage.removeByUrl(u))); // rows are gone (cascade); drop the files too
+  await Promise.all(urls.map((u) => storage.removeByUrl(u))); // rows are gone (cascade); drop local & DB backup files too
   refreshContentAndAi();
   return res.json({ success: true });
 });
 
-exports.addImage = wrap(async (req, res) =>
-  res.status(201).json({ success: true, id: await model.addImage(req.params.id, req.body.image_url) }));
+exports.addImage = wrap(async (req, res) => {
+  const id = await model.addImage(req.params.id, req.body.image_url);
+  refreshContentAndAi();
+  return res.status(201).json({ success: true, id });
+});
 exports.deleteImage = wrap(async (req, res) => {
   const img = await model.getImage(req.params.imageId);
   if (!img || !(await model.removeImage(img.id))) return notFound(res);
-  await storage.removeByUrl(img.image_url); // only deletes files inside uploads/cases
+  await storage.removeByUrl(img.image_url); // deletes from uploads/cases and stored_files
+  refreshContentAndAi();
   return res.json({ success: true });
 });
 
@@ -126,8 +130,13 @@ exports.uploadVideo = wrap(async (req, res) => {
   return res.status(201).json({ success: true, id, video_url: videoUrl });
 });
 
-exports.deleteVideo = wrap(async (req, res) =>
-  (await model.removeVideo(req.params.videoId)) ? res.json({ success: true }) : notFound(res));
+exports.deleteVideo = wrap(async (req, res) => {
+  const vid = await model.getVideo(req.params.videoId);
+  if (!vid || !(await model.removeVideo(vid.id))) return notFound(res);
+  await storage.removeByUrl(vid.video_url);
+  cache.invalidateContent();
+  return res.json({ success: true });
+});
 
 exports.setTestQuestions = wrap(async (req, res) => {
   const test = await testModel.getBlockById(req.params.testId);
@@ -135,6 +144,7 @@ exports.setTestQuestions = wrap(async (req, res) => {
   const ids = req.body.caseIds;
   if (new Set(ids).size !== ids.length) return res.status(400).json({ success: false, message: 'Duplicate cases in block.' });
   await model.setTestQuestions(test.id, ids);
+  cache.invalidateContent();
   res.json({ success: true, count: ids.length });
 });
 
@@ -180,11 +190,13 @@ exports.createTest = wrap(async (req, res) => {
     title: req.body.title,
     secondsPerQuestion: req.body.seconds_per_question,
   });
+  cache.invalidateContent();
   return res.status(201).json({ success: true, block });
 });
 
 exports.deleteTest = wrap(async (req, res) => {
   const ok = await model.deleteBlock(req.params.testId);
+  if (ok) cache.invalidateContent();
   return ok ? res.json({ success: true }) : notFound(res);
 });
 
@@ -200,11 +212,15 @@ const ADD_MESSAGES = {
 exports.addTestQuestion = wrap(async (req, res) => {
   const r = await model.addTestQuestion(req.params.testId, req.body.caseId);
   if (!r.ok) { const [code, message] = ADD_MESSAGES[r.code]; return res.status(code).json({ success: false, message }); }
+  cache.invalidateContent();
   return res.status(201).json({ success: true, id: r.id, questionOrder: r.question_order });
 });
 
 exports.removeTestQuestion = wrap(async (req, res) => {
   const r = await model.removeTestQuestion(req.params.testId, req.params.questionId);
-  if (r.ok) return res.json({ success: true });
+  if (r.ok) {
+    cache.invalidateContent();
+    return res.json({ success: true });
+  }
   return notFound(res);
 });

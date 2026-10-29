@@ -69,7 +69,7 @@ const caseAdminModel = {
   async setStatus(id, status) {
     const [r] = await pool.query('UPDATE practice_cases SET status = ? WHERE id = ?', [status, id]);
     if (r.affectedRows > 0) {
-      await caseAdminModel.autoSyncBlocks();
+      await caseAdminModel.autoSyncBlocks({ forceRecount: true });
     }
     return r.affectedRows > 0;
   },
@@ -77,7 +77,7 @@ const caseAdminModel = {
   async remove(id) {
     const [r] = await pool.query('DELETE FROM practice_cases WHERE id = ?', [id]);
     if (r.affectedRows > 0) {
-      await caseAdminModel.autoSyncBlocks();
+      await caseAdminModel.autoSyncBlocks({ forceRecount: true });
     }
     return r.affectedRows > 0;
   },
@@ -119,6 +119,16 @@ const caseAdminModel = {
     const [rows] = await pool.query('SELECT image_url FROM case_images WHERE case_id = ?', [caseId]);
     return rows.map((r) => r.image_url);
   },
+  async listMediaUrlsForCase(caseId) {
+    const [[imgs], [vids]] = await Promise.all([
+      pool.query('SELECT image_url FROM case_images WHERE case_id = ?', [caseId]),
+      pool.query('SELECT video_url FROM case_videos WHERE case_id = ?', [caseId]),
+    ]);
+    return [
+      ...imgs.map((r) => r.image_url),
+      ...vids.map((r) => r.video_url),
+    ].filter(Boolean);
+  },
   async removeImage(id) {
     const [r] = await pool.query('DELETE FROM case_images WHERE id = ?', [id]);
     return r.affectedRows > 0;
@@ -126,6 +136,10 @@ const caseAdminModel = {
   async addVideo(caseId, url, title) {
     const [r] = await pool.query('INSERT INTO case_videos (case_id, video_url, title) VALUES (?, ?, ?)', [caseId, url, title || null]);
     return r.insertId;
+  },
+  async getVideo(id) {
+    const [rows] = await pool.query('SELECT id, case_id, video_url FROM case_videos WHERE id = ? LIMIT 1', [id]);
+    return rows[0] || null;
   },
   async removeVideo(id) {
     const [r] = await pool.query('DELETE FROM case_videos WHERE id = ?', [id]);
@@ -137,8 +151,8 @@ const caseAdminModel = {
    * 1. Uniquely and randomly assigned across Regular Test Blocks (Block 1, Block 2, ... growing infinitely).
    * 2. Automatically assigned to their corresponding System-Based Block (11 System Blocks, 1 per Radiology System).
    */
-  async autoSyncBlocks({ reshuffleAll = false, questionsPerBlock = null } = {}) {
-    if (syncPromise && !reshuffleAll && questionsPerBlock === null) {
+  async autoSyncBlocks({ reshuffleAll = false, questionsPerBlock = null, forceRecount = false } = {}) {
+    if (syncPromise && !reshuffleAll && questionsPerBlock === null && !forceRecount) {
       return syncPromise;
     }
 
@@ -401,6 +415,28 @@ const caseAdminModel = {
               }
             }
           }
+        }
+
+        if (forceRecount) {
+          // Compact any question_order gaps left by ON DELETE CASCADE or status unpublishing
+          const [currentTq] = await pool.query(
+            'SELECT id, test_id, question_order FROM test_questions ORDER BY test_id ASC, question_order ASC'
+          );
+          const byBlock = new Map();
+          for (const row of currentTq) {
+            if (!byBlock.has(row.test_id)) byBlock.set(row.test_id, []);
+            byBlock.get(row.test_id).push(row);
+          }
+          for (const [blockId, list] of byBlock.entries()) {
+            const hasGap = list.some((r, idx) => r.question_order !== idx + 1);
+            if (hasGap) {
+              await pool.query('UPDATE test_questions SET question_order = id + 100000 WHERE test_id = ?', [blockId]);
+              for (let idx = 0; idx < list.length; idx += 1) {
+                await pool.query('UPDATE test_questions SET question_order = ? WHERE id = ?', [idx + 1, list[idx].id]);
+              }
+            }
+          }
+          anyChanges = true;
         }
 
         if (anyChanges) {

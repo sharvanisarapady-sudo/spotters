@@ -18,6 +18,9 @@ export const adminService = {
   setStatus: (id, status) =>
     api.patch(`/admin/cases/${id}/status`, { status }).then((r) => r.data),
 
+  deleteCase: (id) =>
+    api.delete(`/admin/cases/${id}`).then((r) => r.data),
+
   // Radiology systems
   listSystems: () =>
     api.get('/systems').then((r) => r.data),

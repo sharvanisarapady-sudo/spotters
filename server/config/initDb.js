@@ -270,12 +270,26 @@ const INITIAL_CASES = [
 
 async function initDb() {
   try {
-    // Fast-path check: if tables and seed cases already exist, skip 18 sequential DDL/seed round-trips
+    // Fast-path check: if initial seeding has already completed (even if admin deleted all sample cases),
+    // skip 18 sequential DDL/seed round-trips and never resurrect deleted sample cases.
     let alreadyInitialized = false;
     try {
-      const [[{ cnt }]] = await pool.query('SELECT COUNT(*) AS cnt FROM practice_cases');
-      if (Number(cnt) > 0) {
+      const [seedFlag] = await pool.query(
+        `SELECT setting_value FROM app_settings WHERE setting_key = 'initial_seed_done' LIMIT 1`
+      );
+      if (seedFlag[0] && seedFlag[0].setting_value === '1') {
         alreadyInitialized = true;
+      } else {
+        const [[{ cnt }]] = await pool.query('SELECT COUNT(*) AS cnt FROM practice_cases');
+        if (Number(cnt) > 0) {
+          alreadyInitialized = true;
+          await pool
+            .query(
+              `INSERT INTO app_settings (setting_key, setting_value) VALUES ('initial_seed_done', '1')
+               ON DUPLICATE KEY UPDATE setting_value = '1'`
+            )
+            .catch(() => {});
+        }
       }
     } catch {
       alreadyInitialized = false;
@@ -326,7 +340,7 @@ async function initDb() {
         ON DUPLICATE KEY UPDATE is_active = VALUES(is_active)`
       );
 
-      // Seed initial cases & images on a fresh database
+      // Seed initial cases & images only once on a brand-new database
       const [[{ cnt }]] = await pool.query('SELECT COUNT(*) AS cnt FROM practice_cases');
       if (Number(cnt) === 0) {
         for (const c of INITIAL_CASES) {
@@ -354,6 +368,11 @@ async function initDb() {
           );
         }
       }
+
+      await pool.query(
+        `INSERT INTO app_settings (setting_key, setting_value) VALUES ('initial_seed_done', '1')
+         ON DUPLICATE KEY UPDATE setting_value = '1'`
+      );
     }
 
     await pool.query(

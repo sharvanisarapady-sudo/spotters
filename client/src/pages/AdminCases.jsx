@@ -981,6 +981,7 @@ export default function AdminCases() {
   const [selectedId, setSelectedId] = useState(null);
   const [aiStatus, setAiStatus] = useState(null);
   const [retraining, setRetraining] = useState(false);
+  const [deletingCaseId, setDeletingCaseId] = useState(null);
 
   const loadAiStatus = useCallback(
     () =>
@@ -1061,6 +1062,30 @@ export default function AdminCases() {
     }
   };
 
+  const handleDeleteCase = async (caseItem) => {
+    if (!caseItem || deletingCaseId) return;
+    const confirmed = window.confirm(
+      `Delete "${caseItem.title}"?\n\nThis will permanently remove this case, its uploaded scan images, and remove it from Practice, AI Case Mentor, and all Test Blocks.`
+    );
+    if (!confirmed) return;
+
+    setDeletingCaseId(caseItem.id);
+    setError('');
+    setNotice('');
+    try {
+      await adminService.deleteCase(caseItem.id);
+      if (selectedId === caseItem.id) {
+        setSelectedId(null);
+      }
+      setNotice(`Deleted "${caseItem.title}" and updated Test Blocks & AI Case Mentor.`);
+      await Promise.all([loadCases(), loadBlocks(), loadAiStatus()]);
+    } catch (e) {
+      setError(errMsg(e, 'Could not delete the case.'));
+    } finally {
+      setDeletingCaseId(null);
+    }
+  };
+
   return (
     <DashboardLayout>
       <main className="max-w-6xl mx-auto px-6 py-10">
@@ -1127,11 +1152,15 @@ export default function AdminCases() {
               ) : (
                 <ul className="mt-3 divide-y divide-gray-100 max-h-[32rem] overflow-y-auto">
                   {cases.map((c, idx) => (
-                    <li key={c.id}>
+                    <li
+                      key={c.id}
+                      className={`flex items-center justify-between gap-2 rounded-lg px-2 py-2 transition ${c.id === selectedId ? 'bg-spotter-blue/10' : 'hover:bg-gray-50'}`}
+                    >
                       <button
+                        type="button"
                         onClick={() => setSelectedId(c.id)}
                         aria-current={c.id === selectedId}
-                        className={`w-full text-left px-2 py-2.5 rounded-lg text-sm transition ${c.id === selectedId ? 'bg-spotter-blue/10' : 'hover:bg-gray-50'}`}
+                        className="min-w-0 flex-1 text-left text-sm"
                       >
                         <span className="block font-medium text-navy-950 truncate">
                           Case {idx + 1}: {c.title}
@@ -1139,6 +1168,18 @@ export default function AdminCases() {
                         <span className="block text-xs text-gray-500">
                           {c.system_name} · <span className={c.status === 'published' ? 'text-green-700 font-medium' : 'text-amber-700'}>{c.status}</span> · {c.image_count} image{Number(c.image_count) === 1 ? '' : 's'}
                         </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCase(c);
+                        }}
+                        disabled={deletingCaseId === c.id}
+                        title={`Delete ${c.title}`}
+                        className="shrink-0 rounded-md border border-red-200 bg-red-50/70 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-100 transition disabled:opacity-50"
+                      >
+                        {deletingCaseId === c.id ? 'Deleting…' : 'Delete'}
                       </button>
                     </li>
                   ))}
@@ -1151,14 +1192,24 @@ export default function AdminCases() {
                 <p className="text-sm text-gray-500">Select a question/case on the left to edit its answer key, text, or images.</p>
               ) : (
                 <>
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
                     <h2 className="font-display font-semibold text-lg text-navy-950 truncate">{selected.title}</h2>
-                    <label className="text-xs text-gray-500 flex items-center gap-2 shrink-0">
-                      Status
-                      <select value={selected.status} onChange={(e) => changeStatus(e.target.value)} className="rounded border border-gray-300 px-2 py-1 text-sm">
-                        {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                    </label>
+                    <div className="flex flex-wrap items-center gap-2 shrink-0">
+                      <label className="text-xs text-gray-500 flex items-center gap-2">
+                        Status
+                        <select value={selected.status} onChange={(e) => changeStatus(e.target.value)} className="rounded border border-gray-300 px-2 py-1 text-sm">
+                          {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteCase(selected)}
+                        disabled={deletingCaseId === selected.id}
+                        className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 transition disabled:opacity-50"
+                      >
+                        {deletingCaseId === selected.id ? 'Deleting…' : 'Delete Case'}
+                      </button>
+                    </div>
                   </div>
                   <p className="mt-1 text-xs text-gray-400">Published cases appear automatically in Practice, AI Case Mentor, and are randomly &amp; uniquely assigned to Test Blocks.</p>
                   <div className="mt-4"><CaseEditor caseId={selected.id} onChanged={changed} /></div>
