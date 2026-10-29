@@ -1,6 +1,9 @@
+const fs = require('fs');
+const path = require('path');
 const { pool } = require('./db');
 const caseAdminModel = require('../models/caseAdminModel');
-const { evaluateAnswer } = require('../services/answerEvaluationService');
+const { urlToPath } = require('../services/imageStorageService');
+const curatedCases = require('./curatedCasesData.json');
 
 const CREATE_TABLES = [
   `CREATE TABLE IF NOT EXISTS users (
@@ -30,11 +33,11 @@ const CREATE_TABLES = [
     id INT AUTO_INCREMENT PRIMARY KEY,
     system_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
-    modality VARCHAR(50) NULL,
+    modality VARCHAR(100) NULL,
     difficulty ENUM('easy', 'medium', 'hard') NULL,
     clinical_info TEXT NULL,
     question_text TEXT NULL,
-    correct_answer VARCHAR(255) NULL,
+    correct_answer TEXT NULL,
     explanation TEXT NULL,
     key_findings TEXT NULL,
     learning_points TEXT NULL,
@@ -325,7 +328,8 @@ async function initDb() {
           ('Obstetric & Fetal Imaging', 'obstetric-fetal-imaging', 8),
           ('Gynecologic Imaging', 'gynecologic-imaging', 9),
           ('Oncologic Imaging', 'oncologic-imaging', 10),
-          ('Musculoskeletal Radiology', 'musculoskeletal-radiology', 11)
+          ('Musculoskeletal Radiology', 'musculoskeletal-radiology', 11),
+          ('Breast Imaging', 'breast-imaging', 12)
         ON DUPLICATE KEY UPDATE display_order = VALUES(display_order)`
       );
 
@@ -383,11 +387,199 @@ async function initDb() {
          created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
        ) ENGINE=InnoDB`
     );
+
+    await syncCuratedCaseBank();
     await caseAdminModel.ensureSynced();
 
     console.log('[db] Schema, seed cases & random test blocks verified');
   } catch (err) {
     console.warn('[db] Schema initialization warning:', err.message);
+  }
+}
+
+function normCaseTitle(title, stripParens = false) {
+  let s = String(title || '').toLowerCase();
+  if (stripParens) {
+    s = s.replace(/\([^)]*\)/g, ' ');
+  }
+  return s
+    .replace(/\bhaemorrhag/g, 'hemorrhag')
+    .replace(/\btumours?\b/g, 'tumor')
+    .replace(/\boesophag/g, 'esophag')
+    .replace(/\bpaediatric/g, 'pediatric')
+    .replace(/\bphaeochromocytoma\b/g, 'pheochromocytoma')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+async function syncCuratedCaseBank() {
+  try {
+    const [flagRows] = await pool.query(
+      `SELECT setting_value FROM app_settings WHERE setting_key = 'curated_55_synced_v1' LIMIT 1`
+    );
+    if (flagRows[0] && flagRows[0].setting_value === '1') {
+      return;
+    }
+
+    console.log('[db] Syncing 55 curated radiology cases and repairing any missing images...');
+
+    // Separate ALTER TABLE statements for TiDB Cloud compatibility
+    await pool.query(`ALTER TABLE practice_cases MODIFY COLUMN modality VARCHAR(100) NULL`).catch(() => {});
+    await pool.query(`ALTER TABLE practice_cases MODIFY COLUMN correct_answer TEXT NULL`).catch(() => {});
+
+    // Ensure Breast Imaging system exists alongside the 11 systems
+    await pool.query(
+      `INSERT INTO systems (name, slug, display_order) VALUES
+        ('Head and Neck Radiology', 'head-and-neck-radiology', 1),
+        ('Neuroradiology', 'neuroradiology', 2),
+        ('Hepatobiliary & Pancreatic Imaging', 'hepatobiliary-pancreatic-imaging', 3),
+        ('Genitourinary Radiology', 'genitourinary-radiology', 4),
+        ('Gastrointestinal Radiology', 'gastrointestinal-radiology', 5),
+        ('Vascular Radiology', 'vascular-radiology', 6),
+        ('Cardiothoracic Radiology', 'cardiothoracic-radiology', 7),
+        ('Obstetric & Fetal Imaging', 'obstetric-fetal-imaging', 8),
+        ('Gynecologic Imaging', 'gynecologic-imaging', 9),
+        ('Oncologic Imaging', 'oncologic-imaging', 10),
+        ('Musculoskeletal Radiology', 'musculoskeletal-radiology', 11),
+        ('Breast Imaging', 'breast-imaging', 12)
+       ON DUPLICATE KEY UPDATE display_order = VALUES(display_order)`
+    );
+
+    const [[systems], [existingCases], [existingImages], [storedFiles]] = await Promise.all([
+      pool.query('SELECT id, slug FROM systems'),
+      pool.query('SELECT id, title, status FROM practice_cases ORDER BY id ASC'),
+      pool.query('SELECT id, case_id, image_url FROM case_images ORDER BY display_order ASC'),
+      pool.query('SELECT filename FROM stored_files'),
+    ]);
+
+    const systemIdBySlug = new Map(systems.map((s) => [s.slug, s.id]));
+    const storedSet = new Set(storedFiles.map((f) => f.filename));
+
+    const isImageValid = (imgUrl) => {
+      if (!imgUrl) return false;
+      if (/^https?:\/\//i.test(imgUrl)) return true;
+      const abs = urlToPath(imgUrl);
+      if (!abs) return false;
+      if (fs.existsSync(abs)) return true;
+      return storedSet.has(path.basename(abs));
+    };
+
+    const imagesByCaseId = new Map();
+    for (const img of existingImages) {
+      if (!imagesByCaseId.has(img.case_id)) imagesByCaseId.set(img.case_id, []);
+      imagesByCaseId.get(img.case_id).push(img);
+    }
+
+    const matchedCaseIds = new Set();
+
+    for (const item of curatedCases) {
+      const sysId = systemIdBySlug.get(item.system_slug) || systemIdBySlug.get('neuroradiology');
+      const fullNorm = normCaseTitle(item.title, false);
+      const baseNorm = normCaseTitle(item.title, true);
+
+      const match = existingCases.find((ec) => {
+        if (matchedCaseIds.has(ec.id)) return false;
+        const ecFull = normCaseTitle(ec.title, false);
+        const ecBase = normCaseTitle(ec.title, true);
+        return ecFull === fullNorm || (baseNorm.length >= 5 && ecBase === baseNorm);
+      });
+
+      if (match) {
+        matchedCaseIds.add(match.id);
+        await pool.query(
+          `UPDATE practice_cases
+           SET system_id = ?, title = ?, modality = ?, difficulty = ?, clinical_info = ?,
+               question_text = ?, correct_answer = ?, explanation = ?, key_findings = ?,
+               learning_points = ?, differential_diagnosis = ?, status = 'published'
+           WHERE id = ?`,
+          [
+            sysId,
+            item.title,
+            item.modality,
+            item.difficulty,
+            item.clinical_info,
+            item.question_text,
+            item.correct_answer,
+            item.explanation,
+            item.key_findings,
+            item.learning_points,
+            item.differential_diagnosis,
+            match.id,
+          ]
+        );
+
+        const curImgs = imagesByCaseId.get(match.id) || [];
+        const needsImageRepair =
+          curImgs.length === 0 ||
+          curImgs.length < item.images.length ||
+          curImgs.some((ci) => !isImageValid(ci.image_url));
+
+        if (needsImageRepair) {
+          await pool.query('DELETE FROM case_images WHERE case_id = ?', [match.id]);
+          for (let i = 0; i < item.images.length; i += 1) {
+            await pool.query(
+              'INSERT INTO case_images (case_id, image_url, display_order) VALUES (?, ?, ?)',
+              [match.id, item.images[i], i + 1]
+            );
+          }
+        }
+      } else {
+        const [ins] = await pool.query(
+          `INSERT INTO practice_cases
+            (system_id, title, modality, difficulty, clinical_info, question_text, correct_answer,
+             explanation, key_findings, learning_points, differential_diagnosis, status)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'published')`,
+          [
+            sysId,
+            item.title,
+            item.modality,
+            item.difficulty,
+            item.clinical_info,
+            item.question_text,
+            item.correct_answer,
+            item.explanation,
+            item.key_findings,
+            item.learning_points,
+            item.differential_diagnosis,
+          ]
+        );
+        const newCaseId = ins.insertId;
+        matchedCaseIds.add(newCaseId);
+        for (let i = 0; i < item.images.length; i += 1) {
+          await pool.query(
+            'INSERT INTO case_images (case_id, image_url, display_order) VALUES (?, ?, ?)',
+            [newCaseId, item.images[i], i + 1]
+          );
+        }
+      }
+    }
+
+    // Clean up broken image pointers on any remaining unmatched pre-backup cases so students never hit broken images
+    for (const ec of existingCases) {
+      if (matchedCaseIds.has(ec.id)) continue;
+      const curImgs = imagesByCaseId.get(ec.id) || [];
+      const brokenIds = curImgs.filter((ci) => !isImageValid(ci.image_url)).map((ci) => ci.id);
+      if (brokenIds.length > 0) {
+        await pool.query(
+          `DELETE FROM case_images WHERE id IN (${brokenIds.map(() => '?').join(',')})`,
+          brokenIds
+        );
+      }
+      const remainingValid = curImgs.length - brokenIds.length;
+      if (remainingValid === 0 && ec.status === 'published') {
+        await pool.query(`UPDATE practice_cases SET status = 'draft' WHERE id = ?`, [ec.id]);
+      }
+    }
+
+    await pool.query(
+      `INSERT INTO app_settings (setting_key, setting_value) VALUES ('curated_55_synced_v1', '1')
+       ON DUPLICATE KEY UPDATE setting_value = '1'`
+    );
+
+    await caseAdminModel.autoSyncBlocks({ reshuffleAll: true, forceRecount: true });
+    console.log('[db] All 55 curated cases & 65 radiology scans synced and assigned to Test Blocks!');
+  } catch (err) {
+    console.warn('[db] Curated case sync warning:', err.message);
   }
 }
 

@@ -200,7 +200,7 @@ function CreateCaseForm({ blocks, onCreated, onCancel }) {
           name="correct_answer"
           value={form.correct_answer}
           onChange={update}
-          maxLength={255}
+          maxLength={2500}
           className={fieldClass}
           placeholder="e.g. Glioblastoma | GBM | High-grade glioma (separate synonyms with |)"
         />

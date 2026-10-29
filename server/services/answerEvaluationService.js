@@ -170,10 +170,12 @@ function primaryAnswer(correctAnswer) {
   return alternativesOf(correctAnswer)[0] || null;
 }
 
-/** Every accepted alternative, for result screens: "A / B / C". */
+/** Clean official answer for result screens (returns primary answer if detailed, or up to 3 short synonyms). */
 function displayAnswer(correctAnswer) {
   const alts = alternativesOf(correctAnswer);
-  return alts.length ? alts.join(' / ') : null;
+  if (!alts.length) return null;
+  if (alts[0].length > 35 || alts[0].includes('\n')) return alts[0];
+  return alts.slice(0, 3).join(' / ');
 }
 
 module.exports = { normalize, compareAnswers, evaluateAnswer, primaryAnswer, displayAnswer };

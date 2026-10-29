@@ -1,0 +1,947 @@
+[
+  {
+    "case_num": 1,
+    "title": "Xanthogranulomatous pyelonephritis",
+    "system_slug": "genitourinary-radiology",
+    "modality": "CT",
+    "difficulty": "easy",
+    "clinical_info": "55-year-old diabetic woman with recurrent UTIs",
+    "question_text": "What is the characteristic sign on non-contrast CT?\nWhat is the definitive treatment in case of non- functioning kidney?",
+    "correct_answer": "1) Bear-paw sign\n2) Nephrectomy | Bear-paw sign, Nephrectomy | Bear paw sign and nephrectomy | Bear-paw sign | Xanthogranulomatous pyelonephritis | XGP",
+    "explanation": "CT shows an enlarged left kidney with a large calculus (possibly staghorn) at the renal pelvis with dilated calyces with hypodense content within, which represents xanthogranulomatous content.\nIn the setting of a diabetic patient with recurrent UTIs, xanthogranulomatous pyelonephritis becomes the primary differential.\nIn acute hydronephrosis, the content within the calyces are fluid attenuating.\nXanthogranulomatous content is usually denser.",
+    "key_findings": "Obstructive calculus\nDilated renal calyces with hypodense content",
+    "learning_points": "Xanthogranulomatous pyelonephritis is a chronic suppurative renal infection, classically unilateral, in middle-aged women with obstructing calculi (often staghorn) and recurrent infection, and it is more frequent in diabetic patients.\nOn CT the enlarged kidney shows multiple dilated calyces filled with low-attenuation xanthomatous material (denser than simple hydronephrotic fluid) surrounding a central calculus, giving the \"bear paw\" sign. The kidney is usually non-functioning, and the inflammation may extend into the perirenal and pararenal spaces.\nTreatment is antibiotics followed by nephrectomy when the kidney is non-functioning.",
+    "differential_diagnosis": "Obstructive hydronephrosis",
+    "images": [
+      "/uploads/cases/spotter-case-01-1-xanthogranulomatous-pyelonephritis.jpg"
+    ]
+  },
+  {
+    "case_num": 2,
+    "title": "Sarcoidosis",
+    "system_slug": "cardiothoracic-radiology",
+    "modality": "Radiograph",
+    "difficulty": "medium",
+    "clinical_info": "40 year- old woman with dry cough",
+    "question_text": "What is the name of the sign?\nElucidate the characteristic histopathological finding.",
+    "correct_answer": "1) Garland triad\n2) Non-caseating granulomas | Garland triad, Non-caseating granulomas | Garland triad | Garland sign | 1-2-3 sign | Sarcoidosis",
+    "explanation": "Plain radiograph of the chest shows enlarged and lobulated bilateral hila (compare the the hilar thickness to the right/ left bronchial lumen diameter).\nThe right paratracheal stripe is also widened.\nThese three features denote the classical Garland sign, where there are enlarged lymph nodes in the right paratracheal region and bilateral hilar regions.",
+    "key_findings": "Hilar and right paratracheal lymphadenopathy",
+    "learning_points": "When both the hila are enlarged, check if they are smooth or lobulated. Smooth hilar enlargement favours pulmonary arterial dilation and hence pulmonary hypertension. Lobulated hilar contour usually denotes lymphadenopathy.",
+    "differential_diagnosis": "Other causes of mediastinal lymphadenopathy such as lymphoma, granulomatous or metastatic disease",
+    "images": [
+      "/uploads/cases/spotter-case-02-1-sarcoidosis.jpg"
+    ]
+  },
+  {
+    "case_num": 3,
+    "title": "Eagle Syndrome",
+    "system_slug": "head-and-neck-radiology",
+    "modality": "Radiograph",
+    "difficulty": "easy",
+    "clinical_info": "30-year-old with neck pain",
+    "question_text": "What structure(s) are abnormal?\nWhat is the length of the structure above which is considered abnormal?",
+    "correct_answer": "1) Elongated styloid process or calcified stylohyoid ligament\n2) Abnormal when > 3 cm | Elongated styloid process, > 3 cm | Elongated styloid process | Calcified stylohyoid ligament | Eagle syndrome",
+    "explanation": "Plain radiograph of the neck, lateral view shows an elongated styloid process.",
+    "key_findings": "Elongated styloid process",
+    "learning_points": "Always evaluate styloid process on neck radiographs and CTs for this entity",
+    "differential_diagnosis": null,
+    "images": [
+      "/uploads/cases/spotter-case-03-1-eagle-syndrome.jpg"
+    ]
+  },
+  {
+    "case_num": 4,
+    "title": "Aneurysmal subarachnoid haemorrhage",
+    "system_slug": "neuroradiology",
+    "modality": "CT",
+    "difficulty": "easy",
+    "clinical_info": "52-year-old with sudden-onset headache",
+    "question_text": "What is the most common non-traumatic cause of this appearance, and which artery is most frequently implicated?\nWhat follow-up imaging identifies the underlying vascular cause?",
+    "correct_answer": "1) Ruptured saccular aneurysm is the most common cause; the anterior communicating artery is the single most common site.\n2) CT angiography is first-line to localise and characterise the aneurysm; catheter DSA remains the gold standard if CTA is negative but suspicion persists. | Ruptured saccular aneurysm, Anterior communicating artery, CT angiography | Ruptured berry aneurysm, ACom, CTA | Aneurysmal subarachnoid haemorrhage | Subarachnoid hemorrhage | Ruptured saccular aneurysm",
+    "explanation": "Non-contrast CT of the head shows hyperdense (acute) blood filling the basal cisterns and sylvian fissures, outlining the suprasellar and perimesencephalic cisterns.\nA sudden, severe (thunderclap) headache is subarachnoid haemorrhage until proven otherwise. Non-contrast CT performed within the first 6 hours is almost 100% sensitive when read by an experienced radiologist, and sensitivity falls steadily over the following days as blood is cleared.\nThe commonest non-traumatic cause is rupture of a saccular (berry) aneurysm at the circle of Willis.",
+    "key_findings": "Hyperdensity within the basal cisterns, sylvian fissures and interhemispheric fissure\nBlood may extend into the ventricles (intraventricular haemorrhage) or the brain parenchyma\nHydrocephalus (dilated temporal horns) from obstruction of CSF absorption\nAneurysm sites: anterior communicating artery (most common), posterior communicating artery, middle cerebral artery bifurcation, basilar tip",
+    "learning_points": "The distribution of blood gives a clue to the source. Blood in the anterior interhemispheric fissure suggests an anterior communicating artery aneurysm, blood in the sylvian fissure suggests a middle cerebral artery aneurysm, and blood in the posterior fossa suggests a posterior circulation aneurysm.\nComplications to look for are re-bleeding (highest in the first 24 hours), delayed cerebral ischaemia from vasospasm (typically days 4 to 14), and acute hydrocephalus. The modified Fisher scale grades the amount of blood and predicts vasospasm risk.\nIf CTA is negative and clinical suspicion persists, digital subtraction angiography (DSA) is performed, sometimes repeated after 1 to 2 weeks.",
+    "differential_diagnosis": "Traumatic subarachnoid haemorrhage: convexity location, with adjacent contusions or fractures\nPerimesencephalic (non-aneurysmal) subarachnoid haemorrhage: blood confined anterior to the midbrain/pons, with a benign course\nArteriovenous malformation or dural arteriovenous fistula\nReversible cerebral vasoconstriction syndrome: convexity subarachnoid haemorrhage with thunderclap headache\nPseudo-subarachnoid haemorrhage: diffuse cerebral oedema or hypoxic injury makes the cisterns look dense",
+    "images": [
+      "/uploads/cases/spotter-case-04-1-aneurysmal-subarachnoid-haemorrhage.jpg"
+    ]
+  },
+  {
+    "case_num": 5,
+    "title": "Pheochromocytoma",
+    "system_slug": "genitourinary-radiology",
+    "modality": "CT",
+    "difficulty": "medium",
+    "clinical_info": "35 year old with hypertension",
+    "question_text": "What is the classic T2-weighted MRI appearance of this lesion called?\nName the other components of MEN 2B syndrome.",
+    "correct_answer": "1) Light-bulb sign\n2) Medullary thyroid carcinoma, Mucosal neuromas, Marfanoid habitus | Light-bulb sign, Medullary thyroid carcinoma, Mucosal neuromas, Marfanoid habitus | Light bulb sign | Pheochromocytoma | Phaeochromocytoma",
+    "explanation": "On T2, these lesions appear very hyperintense, and hence, appear as a ‘Light bulb’\nMEN 2B syndrome is characterized by phaeochromocytoma, Medullary thyroid carcinoma, Mucosal neuromas, Marfanoid habitus",
+    "key_findings": "CECT abdomen shows avidly, but heterogeneously enhancing lesion anterior to the left kidney.",
+    "learning_points": "In a patient with hypertension and avidly enhancing lesion along the sympathetic chain, consideration of phaeochromocytoma is primary.\nThey show intense arterial phase enhancement, with attenuation values more than 120 HU and are usually heterogeneous.\nWhen arising from extra- adrenal sites, they are termed as ‘Paragangliomas’",
+    "differential_diagnosis": "Carcinoid tumors (usually arises from the mesentery/ pancreas/ small bowel)",
+    "images": [
+      "/uploads/cases/spotter-case-05-1-pheochromocytoma.jpg"
+    ]
+  },
+  {
+    "case_num": 6,
+    "title": "Transjugular intrahepatic portosystemic shunt (TIPS)",
+    "system_slug": "hepatobiliary-pancreatic-imaging",
+    "modality": "Ultrasound",
+    "difficulty": "hard",
+    "clinical_info": "56-year-old man with cirrhosis",
+    "question_text": "What is the procedure done here and what is the physiological rationale for this procedure?\nWhat shunt velocity value raises concern for stenosis?",
+    "correct_answer": "1) Transjugular intrahepatic portosystemic shunt (TIPS) creation. TIPS creates a low-resistance portal-to-hepatic venous channel, reducing portal pressure and thereby flow through varices and ascites formation.\n2) Shunt velocity < 90 cm/s or > 190 cm/s | TIPS, < 90 cm/s or > 190 cm/s | Transjugular intrahepatic portosystemic shunt | TIPS",
+    "explanation": "Colour Doppler ultrasound shows an echogenic stent traversing the liver parenchyma between the portal vein and a hepatic vein, with colour filling of the lumen.\nTIPS decompresses the portal circulation by diverting portal blood directly into the hepatic venous system (and then the inferior vena cava), bypassing the cirrhotic sinusoidal resistance. It is used mainly for refractory ascites and for variceal bleeding that fails endoscopic and medical therapy.\nDoppler surveillance looks for shunt dysfunction. Peak velocities within the stent are normally about 90 to 190 cm/s. Values outside this range, or a fall of more than about 50 cm/s from baseline, suggest stenosis or thrombosis.",
+    "key_findings": "Echogenic stent walls seen as parallel bright lines through the liver\nColour fill of the entire stent lumen, with turbulent but forward flow\nPeak intrastent velocity within the 90 to 190 cm/s range when functioning\nDysfunction: low velocity, absent flow, focal velocity jump, or return of ascites and varices",
+    "learning_points": "The commonest site of stenosis is the hepatic venous end of the stent (from pseudo-intimal hyperplasia), followed by the parenchymal tract. Covered stent-grafts have much better patency than bare stents.\nImportant complication: hepatic encephalopathy, because portal blood bypasses the liver.\nDoppler is the first-line surveillance tool, and a suspicious study is followed by venography and pressure gradient measurement with possible revision.",
+    "differential_diagnosis": "Shunt stenosis (hepatic vein end or intrastent)\nShunt thrombosis or occlusion\nStent migration or malposition\nHepatic vein outflow obstruction or Budd-Chiari physiology (the indication for TIPS in some patients)",
+    "images": [
+      "/uploads/cases/spotter-case-06-1-transjugular-intrahepatic-portosyste.jpg"
+    ]
+  },
+  {
+    "case_num": 7,
+    "title": "Juvenile nasopharyngeal angiofibroma (JNA)",
+    "system_slug": "head-and-neck-radiology",
+    "modality": "CT",
+    "difficulty": "medium",
+    "clinical_info": "8-year-old with epistaxis",
+    "question_text": "What pathognomonic sign is seen and what does it indicate?\nWhat procedure is recommended before surgical resection?",
+    "correct_answer": "1) Holman-Miller sign: anterior bowing/erosion of the posterior maxillary sinus wall, reflecting origin at the sphenopalatine foramen/pterygopalatine fossa.\n2) Catheter angiography with pre-operative embolization precedes surgical resection. | Holman-Miller sign, Pre-operative embolization | Holman-Miller sign | Juvenile nasopharyngeal angiofibroma | JNA",
+    "explanation": "On CECT, there is a mass centred in the right pterygopalatine fossa, insinuating into the connected spaces, anteriorly causing bowing of the posterior maxillary sinus wall, medially into the nasopharynx/ nasal cavity, laterally into the pterygomaxillary fissure. These lesions show avid enhancement which reflects their high vascularity. Hence, pre- operative embolization reduces surgical risk of bleeding.",
+    "key_findings": "CECT shows avidly, but heterogeneously enhancing lesion centered in the sphenopalatine foramen/ pterygopalatine fossa with anterior bowing of the posterior wall of the maxillary sinus (Holman- Miller sign)",
+    "learning_points": "In a young patient with epistaxis and avidly enhancing lesion centred at the sphenopalatine foramen/ pterygopalatine fossa, think of JNA",
+    "differential_diagnosis": "Rhabdomyosarcoma- usually more invasive. Typically, has low ADC values\nEsthesioneuroblastoma- centred in the nasal cavity roof with cysts at the superior margin.\nNasopharyngeal carcinoma- lacks prominent flow voids on MRI and is more invasive",
+    "images": [
+      "/uploads/cases/spotter-case-07-1-juvenile-nasopharyngeal-angiofibroma.jpg"
+    ]
+  },
+  {
+    "case_num": 8,
+    "title": "CNS lymphoma",
+    "system_slug": "neuroradiology",
+    "modality": "MRI",
+    "difficulty": "hard",
+    "clinical_info": "68 year old man with altered sensorium",
+    "question_text": "What characteristic imaging features differentiate this lesion from a high grade astrocytoma?\nWhat is the rationale of withholding steroids initially in this case?",
+    "correct_answer": "1) Lymphoma shows relatively homogeneous restricted diffusion and enhancement compared to GBM. It has a lower RCBV on perfusion studies\n2) Steroids rapidly shrink the tumor and can cause the visible enhancing mass on an MRI to completely disappear within days. Because lymphoma cells die off quickly, pathologists may only see dying cells or reactive tissue, making it impossible to identify the specific type of lymphoma | Homogeneous restricted diffusion and enhancement, low rCBV, steroids cause rapid tumor lysis/vanishing tumor | Primary CNS lymphoma | CNS lymphoma",
+    "explanation": "On MRI, a periventricular lesion which is relatively homogeneous, with restricted diffusion and relatively uniform enhancement, small round cell tumours become the primary differential.\nDue to densely packed cells, these tumors show restricted diffusion and lack of necrosis would mean they enhance homogeneously compared to GBM. RCBV is lower than GBM due to denser architecture of cells.",
+    "key_findings": "DWI shows relatively homogeneous high signal in the periventricular region, in the splenium of the corpus callosum with corresponding low ADC values. There is homogeneous enhancement on post- contrast study.",
+    "learning_points": "A large mass with relatively homogeneous characteristics, with restricted diffusion and contrast enhancement would usually point towards a small round cell tumour, such as lymphoma.",
+    "differential_diagnosis": "Secondary CNS lymphoma: tends to involve more leptomeninges\nCerebral toxoplasmosis- multifocal lesions in the basal ganglia, more so showing peripheral enhancement. Have higher RCBV\nButterfly glioma/GBM-  heterogeneous\nTumefactive MS/ ADEM",
+    "images": [
+      "/uploads/cases/spotter-case-08-1-cns-lymphoma.jpg",
+      "/uploads/cases/spotter-case-08-2-cns-lymphoma.jpg",
+      "/uploads/cases/spotter-case-08-3-cns-lymphoma.jpg"
+    ]
+  },
+  {
+    "case_num": 9,
+    "title": "Usual interstitial pneumonia (UIP)",
+    "system_slug": "cardiothoracic-radiology",
+    "modality": "CT",
+    "difficulty": "hard",
+    "clinical_info": "68-year-old man with progressive exertional dyspnea",
+    "question_text": "What is the pattern called and likely cause in this case?\nWhat are its four required Fleischner Society diagnostic features?",
+    "correct_answer": "1) Usual interstitial pneumonia (UIP) pattern; Scleroderma (in view of dilated esophagus)\n2) Definite UIP requires: - Subpleural/ basal predominance- Reticular pattern- Honeycombing (+/- traction bronchiectasis)- Absence of features suggesting an alternative diagnosis. | Usual interstitial pneumonia, Scleroderma | UIP pattern, Scleroderma | Usual interstitial pneumonia | UIP",
+    "explanation": "On CT, there is honeycombing with bronchiolectasis and reticulation. The esophagus appears dilated.",
+    "key_findings": "Honeycombing i.e clustered cystic airspaces—typically measuring 3 to 10 mm in diameter (though occasionally up to 2.5 cm)—with well-defined, thick walls (1–3 mm) that indicate established, irreversible pulmonary fibrosis.",
+    "learning_points": "Honeycombing is the hallmark of definite UIP.\nLook for other clues for the cause, such as a dilated esophagus in scleroderma.",
+    "differential_diagnosis": "Paraseptal emphysema\nSmoking-related interstitial fibrosis\nParacicatricial emphysema",
+    "images": [
+      "/uploads/cases/spotter-case-09-1-usual-interstitial-pneumonia-uip.jpg",
+      "/uploads/cases/spotter-case-09-2-usual-interstitial-pneumonia-uip.jpg"
+    ]
+  },
+  {
+    "case_num": 10,
+    "title": "Double duct sign",
+    "system_slug": "hepatobiliary-pancreatic-imaging",
+    "modality": "MRI",
+    "difficulty": "medium",
+    "clinical_info": "60-year-old man with abdominal pain",
+    "question_text": "What is the cause of this sign?\nWhat vessel characteristics denote involvement by PDAC as per NCCN?",
+    "correct_answer": "1) Periampullary lesions that involve/ obstruct the distal common bile duct and main pancreatic duct\n2) Vessel wall irregularity, tear drop sign, thrombosis, vessel encasement (> 180 degrees) | Periampullary lesion, Double duct sign | Periampullary carcinoma | Pancreatic head adenocarcinoma | Double duct sign",
+    "explanation": "On MRCP, there is dilation of both the common bile duct and the main pancreatic duct. This is usually seen in mass lesions in the periampullary region.\nIn pre- surgical planning, what is considered vessel involvement, depends on the classification and if the vessel is an artery or a vein. Common classifications used are: NCCN and DPCG",
+    "key_findings": "Dilated common bile duct and main pancreatic duct",
+    "learning_points": "Dilated common bile duct and main pancreatic duct together raise suspicion of a periampullary lesion.\nA double duct sign should be treated as malignant until proven otherwise, since roughly half or more of cases in older series were malignant. Many resectable tumors are found at this stage.",
+    "differential_diagnosis": "Neoplastic (most important to exclude)- PDAC, ampullary carcinoma/adenoma, distal CBD cholangiocarcinoma, duodenal (periampullary) carcinoma\nNeuroendocrine tumor\nIPMN\nPancreatitis\nImpacted ampullary or distal CBD stone\nPapillary stenosis / sphincter of Oddi dysfunction",
+    "images": [
+      "/uploads/cases/spotter-case-10-1-double-duct-sign.jpg"
+    ]
+  },
+  {
+    "case_num": 11,
+    "title": "Hypertrophic cardiomyopathy",
+    "system_slug": "cardiothoracic-radiology",
+    "modality": "MRI",
+    "difficulty": "hard",
+    "clinical_info": "22-year-old competitive athlete",
+    "question_text": "What finding indicates dynamic left ventricular outflow tract obstruction?\nWhat does mid-wall late gadolinium enhancement signify, and why is it prognostically important?",
+    "correct_answer": "1) Systolic anterior motion (SAM) of the mitral valve toward the hypertrophied septum, with a turbulent LVOT jet on color Doppler, indicates dynamic obstruction.\n2) Mid-wall (non-coronary distribution) LGE reflects fibrosis and is an independent risk factor for ventricular arrhythmia/ sudden death. | Systolic anterior motion (SAM) of mitral valve, Mid-wall LGE fibrosis | SAM of mitral valve | Systolic anterior motion | Hypertrophic cardiomyopathy | HCM | HOCM",
+    "explanation": "In HCM, a hypertrophied basal septum narrows the LVOT. During systole, the high-velocity flow through this narrowed channel creates a Venturi effect (drag and suction forces) that pulls the anterior mitral leaflet toward the septum. This systolic anterior motion (SAM) produces septal contact, worsens the obstruction and causes posteriorly directed mitral regurgitation. The gradient is “dynamic” because it varies with preload, afterload and contractility (worse with Valsalva, dehydration, exercise or inotropes).\nLGE reflects expansion of the extracellular space (gadolinium retention in myocardial fibrosis or scar). In HCM, it classically appears as patchy, mid-wall enhancement in hypertrophied segments, particularly at the right ventricular insertion points. It arises from myocyte disarray, small-vessel disease and replacement fibrosis, and it creates a substrate for re-entrant ventricular arrhythmias. This explains why LGE is an independent predictor of sudden cardiac death and arrhythmia, with risk increasing with extent (commonly cited threshold ≥15% of LV mass).",
+    "key_findings": "SAM of the anterior mitral leaflet (or chordae) on cine SSFP in the LVOT view\nSignal void (flow-related dephasing) in the LVOT extending into the aortic root during systole\nPosteriorly directed mitral regurgitation jet\nAsymmetric basal septal hypertrophy (septal thickness ≥15 mm; ratio to the inferolateral wall >1.5)\nPatchy mid-wall LGE in hypertrophied segments, non-coronary distribution (sparing the subendocardium)\nFrequent enhancement at the anterior and inferior RV insertion points",
+    "learning_points": "Dynamic obstruction is a continuous variable, so provocation (Valsalva) may be needed to unmask it.\nPlanning LVOT views and SSFP cine is essential. Look for the mid-to-late systolic timing, which distinguishes it from fixed obstruction.\nIdentifying obstruction and its mechanism guides therapy (beta-blockers, septal myectomy or alcohol septal ablation).\nMid-wall LGE is a pattern of non-ischemic fibrosis, and its extent adds risk-stratification value beyond conventional risk factors (family history, syncope, maximal wall thickness, non-sustained VT).\nExtensive LGE helps decide on ICD placement in patients at borderline risk.",
+    "differential_diagnosis": "Dilated cardiomyopathy: linear mid-wall (septal) stripe in a dilated, hypokinetic ventricle, also carrying arrhythmic risk. The ventricular morphology differs from HCM.\nMyocarditis: subepicardial or mid-wall LGE, often in the inferolateral wall, with accompanying edema (T2 or T1 mapping) in the acute phase.\nCardiac sarcoidosis: patchy mid-wall or subepicardial LGE, often basal septum or inferolateral wall, with possible nodal and extracardiac disease.\nFabry disease: basal inferolateral mid-wall LGE with low native T1 and concentric hypertrophy.\nCardiac amyloidosis: diffuse subendocardial or transmural LGE with high native T1 and ECV, and abnormal nulling of the myocardium.",
+    "images": [
+      "/uploads/cases/spotter-case-11-1-hypertrophic-cardiomyopathy.jpg"
+    ]
+  },
+  {
+    "case_num": 12,
+    "title": "Acquired cholesteatoma (pars flaccida type)",
+    "system_slug": "head-and-neck-radiology",
+    "modality": "CT",
+    "difficulty": "easy",
+    "clinical_info": "32-year-old with progressive conductive hearing loss",
+    "question_text": "Which landmark is characteristically eroded first, and where does this lesion typically originate?\nWhat MRI sequence best differentiates residual/recurrent disease from post-operative granulation tissue?",
+    "correct_answer": "1) Scutum erosion is an early, characteristic finding; pars flaccida cholesteatoma arises in Prussak's space (lateral epitympanic recess).\n2) Non-echo-planar diffusion-weighted MRI shows restricted diffusion in cholesteatoma, distinguishing it from granulation tissue/ fluid. | Scutum erosion, Prussak space, Non-EPI DWI | Scutum erosion, Non-echo-planar DWI | Acquired cholesteatoma | Pars flaccida cholesteatoma | Cholesteatoma",
+    "explanation": "Cholesteatoma is an expansile collection of keratinizing squamous epithelium and keratin debris within the middle ear and mastoid. The pars flaccida (acquired attic) type is the commonest. Retraction of the pars flaccida creates a pocket that extends into Prussak’s space (lateral epitympanic recess), bounded by the pars flaccida laterally, the malleus neck medially and the scutum superiorly-laterally. As keratin accumulates, the mass enlarges and presses on the adjacent scutum, the sharp bony spur of the lateral epitympanic wall. This is the first bony landmark to blunt or erode, which is why scutum erosion is the earliest and most characteristic CT sign.\nAfter surgery, the challenge is separating residual or recurrent cholesteatoma from granulation tissue, fluid or scar, since all appear as soft tissue on CT and may enhance. Non-echo-planar (non-EPI) DWI (e.g., HASTE or turbo spin-echo based) exploits the keratin content of cholesteatoma, which shows restricted diffusion (high DWI signal, low ADC). Granulation tissue and fluid do not. Non-EPI techniques avoid the susceptibility artifacts at the skull base and air-bone interfaces that degrade EPI DWI, and they can detect lesions as small as 2 to 3 mm.",
+    "key_findings": "HRCT: non-dependent soft tissue in Prussak’s space, blunted or eroded scutum, medial displacement or erosion of the ossicles (lateral malleus/incus body), and an enlarged epitympanum or aditus.\nNon-EPI DWI: marked hyperintensity with low ADC.\nComplications: erosion of the tegmen, lateral semicircular canal fistula, facial nerve canal dehiscence, sigmoid plate erosion.",
+    "learning_points": "Scutum blunting is the earliest sign, and the soft tissue in the attic with a normal-looking ossicular chain does not exclude disease.\nUse non-EPI DWI with delayed post-contrast T1 for follow-up. This often avoids unnecessary “second-look” surgery.\nSmall lesions (<3 mm) and those with bright T1 or susceptibility from surgical material can give false negatives or positives.",
+    "differential_diagnosis": "Granulation tissue/chronic otitis media: T2 hyperintense with avid enhancement and no restricted diffusion.\nCholesterol granuloma: T1 and T2 hyperintense, with no restricted diffusion and no enhancement, and a bluish drum on otoscopy.\nMiddle ear fluid or mucosal thickening: no restricted diffusion, with a dependent distribution.\nCongenital cholesteatoma: a retrotympanic mass behind an intact drum in a child, without a history of perforation.\nGlomus tympanicum or schwannoma: an enhancing mass, with glomus tympanicum showing “salt-and-pepper” appearance and a promontorial location.",
+    "images": [
+      "/uploads/cases/spotter-case-12-1-acquired-cholesteatoma-pars-flaccida.jpg"
+    ]
+  },
+  {
+    "case_num": 13,
+    "title": "Tetralogy of Fallot",
+    "system_slug": "cardiothoracic-radiology",
+    "modality": "Radiograph",
+    "difficulty": "easy",
+    "clinical_info": "6-month-old infant with an systolic ejection murmur.",
+    "question_text": "What four anatomic components constitute this condition?\nWhich component determines clinical severity?",
+    "correct_answer": "1) Ventricular septal defect, Overriding aorta, RVOT (subpulmonic) obstruction, RV hypertrophy.\n2) Degree of RVOT obstruction determines severity of cyanosis. | VSD, Overriding aorta, RVOT obstruction, RV hypertrophy; RVOT obstruction | Tetralogy of Fallot | TOF | RVOT obstruction",
+    "explanation": "There is elevated left apex of the heart, giving rise to a boot- shaped heart or coeur en sabot\nTetralogy of Fallot results from anterior and cephalad displacement of the infundibular septum. This produces a malaligned VSD, an overriding aorta and narrowing of the RVOT, with RV hypertrophy developing secondarily from the pressure load.\nThe degree of RVOT obstruction determines severity: with mild obstruction, shunting is left-to-right (“pink tet”), while severe obstruction drives right-to-left shunting across the VSD and cyanosis.",
+    "key_findings": "VSD: large, subaortic, perimembranous malalignment type\nOverriding aorta: aortic root straddles the septum (usually <50%)\nRVOT obstruction: infundibular, valvar or supravalvar pulmonary stenosis, with hypoplastic pulmonary annulus or branch PAs\nRV hypertrophy: thickened RV free wall\nAssociated: right aortic arch (~25%), coronary anomalies (e.g., LAD from RCA), ASD (pentalogy), MAPCAs\nCXR: boot-shaped heart with oligaemic lungs",
+    "learning_points": "The infundibular septal malalignment is the primary defect, and the other components follow from it.\nPre-operative imaging should define coronary course, PA size and MAPCAs.\nPost-repair MRI is used to quantify pulmonary regurgitation and RV volumes, which guide timing of valve replacement.",
+    "differential_diagnosis": "Double outlet right ventricle (Fallot type): more than 50% of the aorta arises from the RV.\nPulmonary atresia with VSD: no RV-to-PA continuity, with PA supply from MAPCAs or a PDA.\nTransposition with VSD and pulmonary stenosis: discordant ventriculoarterial connections.\nEisenmenger syndrome: a large shunt with pulmonary hypertension, but no RVOT obstruction.",
+    "images": [
+      "/uploads/cases/spotter-case-13-1-tetralogy-of-fallot.jpg"
+    ]
+  },
+  {
+    "case_num": 14,
+    "title": "Multiple sclerosis",
+    "system_slug": "neuroradiology",
+    "modality": "MRI",
+    "difficulty": "medium",
+    "clinical_info": "29-year-old woman with recurrent episodes of optic neuritis.",
+    "question_text": "What are these periventricular lesions called, and what is their pathological basis?\nWhat additional MRI feature distinguishes an active demyelinating plaque from a chronic lesion?",
+    "correct_answer": "1) \"Dawson's fingers\" reflect perivenular demyelination along medullary veins oriented perpendicular to the ependyma. Look for central vein sign/ paramagnetic rim sign on SWI\n2) Active plaques show open-ring or nodular enhancement and may restrict diffusion at the leading edge; chronic \"black holes\" are T1-hypointense without enhancement. | Dawson fingers, Open-ring enhancement | Dawson's fingers | Multiple sclerosis | MS",
+    "explanation": "Dawson’s fingers are ovoid periventricular T2/FLAIR lesions oriented perpendicular to the ventricular surface. They follow perivenular inflammatory demyelination along medullary veins. Active plaques show a broken blood-brain barrier (enhancement), whereas chronic lesions do not.",
+    "key_findings": "Dawson’s fingers: FLAIR-hyperintense, radially oriented ovoid lesions at the callosal-septal interface\nCentral vein sign: a small vein within the lesion on SWI/T2*\nParamagnetic rim lesions: SWI rim of iron-laden microglia, marking chronic active (smoldering) lesions\nActive plaque: open-ring or nodular enhancement, with restricted diffusion at the leading edge\nChronic plaque: T1 “black hole” with no enhancement\nOthers: juxtacortical, infratentorial and cord lesions",
+    "learning_points": "Enhancement lasts about 4 to 6 weeks, so enhancing and non-enhancing lesions together indicate dissemination in time.\nCentral vein sign helps separate MS from mimics.\nOpen-ring enhancement (open toward the cortex) favors demyelination over abscess or tumor.",
+    "differential_diagnosis": "Small vessel ischemic disease: periventricular and subcortical white matter lesions, but spares the callosal-septal interface and has no central vein sign.\nNMOSD/MOGAD: longitudinally extensive cord or optic nerve lesions, with fewer Dawson’s fingers.\nADEM: large, bilateral, ill-defined lesions, often post-infectious and monophasic.\nSusac syndrome: central callosal “snowball” lesions.\nNeurosarcoidosis or vasculitis: leptomeningeal enhancement or vascular territory lesions.",
+    "images": [
+      "/uploads/cases/spotter-case-14-1-multiple-sclerosis.jpg"
+    ]
+  },
+  {
+    "case_num": 15,
+    "title": "Atrial septal defect closure device",
+    "system_slug": "cardiothoracic-radiology",
+    "modality": "Radiograph",
+    "difficulty": "hard",
+    "clinical_info": "20-year-old with prior cardiac procedure",
+    "question_text": "Identify the device\nWhat happens when the normal left to right shunt is reversed?",
+    "correct_answer": "1) Atrial septal defect (ASD) closure device (percutaneous septal occluder)\n2) Eisenmenger syndrome (\"Eisenmengerization\"): long-standing left-to-right shunting causes pulmonary arterial hypertension and pulmonary vascular remodelling until the shunt reverses to right-to-left, causing cyanosis. | ASD closure device, Eisenmenger syndrome | Atrial septal defect closure device | Amplatzer septal occluder | ASD occluder | Eisenmenger syndrome",
+    "explanation": "The chest radiograph shows a radiopaque, double-disc device projecting over the expected position of the interatrial septum, in keeping with a transcatheter ASD occluder placed through the femoral vein.\nA secundum ASD produces a left-to-right shunt at atrial level. The right heart and pulmonary circulation are volume-loaded for years, and the radiograph of an unrepaired ASD shows cardiomegaly with right atrial and ventricular enlargement, a prominent main pulmonary artery, pulmonary plethora and a small aortic knuckle.\nIf the shunt is left untreated, pulmonary vascular resistance rises until it exceeds systemic resistance and the shunt reverses (Eisenmenger syndrome). At that stage closure is contraindicated.",
+    "key_findings": "Metallic double-disc occluder projecting over the interatrial septum\nLook for residual features of right heart volume load or pulmonary hypertension (central pulmonary artery enlargement with peripheral pruning)",
+    "learning_points": "Percutaneous device closure is suited to secundum ASDs with adequate surrounding rims. Primum, sinus venosus and coronary sinus defects are not suitable for devices and need surgery.\nEisenmenger syndrome can complicate any large left-to-right shunt (ASD, VSD, PDA). Its radiograph shows dilated central pulmonary arteries that taper abruptly, sometimes with calcification.\nFollow-up for device complications: erosion, embolisation, residual shunt, and arrhythmia.",
+    "differential_diagnosis": "Patent foramen ovale occluder\nVentricular septal defect occluder or patent ductus arteriosus device\nPacemaker or ICD leads\nProsthetic valve or annuloplasty ring",
+    "images": [
+      "/uploads/cases/spotter-case-15-1-atrial-septal-defect-closure-device.jpg"
+    ]
+  },
+  {
+    "case_num": 16,
+    "title": "Subclavian steal syndrome",
+    "system_slug": "vascular-radiology",
+    "modality": "Ultrasound",
+    "difficulty": "medium",
+    "clinical_info": "Dizziness following exercise",
+    "question_text": "What is the cause of this phenomenon?\nWhat is the expected spectral flow in the ipsilateral subclavian artery?",
+    "correct_answer": "1) Subclavian artery stenosis or obstruction proximal to the origin of the vertebral artery (most commonly atherosclerotic, left more than right)\n2) Parvus et tardus flow (damped waveform with delayed upstroke), or absent flow if occluded | Proximal subclavian artery stenosis, Parvus et tardus | Subclavian steal syndrome | Subclavian artery stenosis, parvus et tardus",
+    "explanation": "Spectral Doppler of the left vertebral artery shows a waveform that alternates above and below the baseline, i.e. part antegrade and part retrograde flow. This bidirectional (alternating) pattern is an intermediate stage of subclavian steal.\nWith a proximal subclavian stenosis the pressure distal to it falls. Blood is then drawn retrogradely down the ipsilateral vertebral artery from the basilar circulation to supply the arm. Exercising the arm increases demand and the reversal, producing vertebrobasilar symptoms such as dizziness, visual disturbance, ataxia and syncope.\nThe stenotic subclavian artery shows a damped, delayed (parvus et tardus) waveform beyond the lesion.",
+    "key_findings": "Vertebral artery flow that is bidirectional or completely reversed\nDamped, delayed waveform in the ipsilateral subclavian or axillary artery\nBlood pressure difference of more than 15 to 20 mmHg between the two arms\nReactive hyperaemia (cuff inflation then release) increases the retrograde component",
+    "learning_points": "Stages on Doppler: (1) mid-systolic deceleration or notching of the vertebral waveform, (2) alternating antegrade and retrograde flow, (3) complete flow reversal.\nMost patients with the finding are asymptomatic; \"steal syndrome\" implies symptoms. Treatment for symptomatic cases is angioplasty with stenting, or bypass (carotid-subclavian).\nThe right side is affected if the lesion involves the brachiocephalic artery.",
+    "differential_diagnosis": "Vertebral artery stenosis or dissection\nCarotid or vertebrobasilar atherosclerotic disease\nTakayasu arteritis (aortic arch syndrome)\nThoracic outlet syndrome\nPeripheral vestibular causes of dizziness (e.g. benign paroxysmal positional vertigo)",
+    "images": [
+      "/uploads/cases/spotter-case-16-1-subclavian-steal-syndrome.jpg"
+    ]
+  },
+  {
+    "case_num": 17,
+    "title": "Achalasia cardia",
+    "system_slug": "gastrointestinal-radiology",
+    "modality": "Fluoroscopy (barium swallow)",
+    "difficulty": "easy",
+    "clinical_info": "45-year-old with progressive dysphagia",
+    "question_text": "What is the underlying pathophysiological abnormality?\nWhat is the gold standard for diagnosis?",
+    "correct_answer": "1) Failure of lower oesophageal sphincter (LES) relaxation with loss of normal peristalsis, due to degeneration of inhibitory ganglion cells in the myenteric (Auerbach) plexus.\n2) Manometry | Failure of LES relaxation / loss of myenteric ganglion cells, Manometry | Esophageal manometry | Achalasia cardia | Achalasia",
+    "explanation": "The barium swallow shows a dilated oesophagus above a smooth, symmetrical tapering at the gastro-oesophageal junction (the \"bird's beak\" or \"rat-tail\" appearance), with retained contrast and absent effective peristalsis.\nLoss of inhibitory neurons (nitric oxide and VIP releasing) leaves the LES with a high resting pressure and incomplete relaxation, and the oesophageal body loses its coordinated peristalsis. Food and secretions are retained, and the oesophagus dilates over time.\nOesophageal manometry confirms the diagnosis (high-resolution manometry with Chicago classification subtypes), while the barium swallow gives the typical morphology.",
+    "key_findings": "Dilated, sometimes sigmoid-shaped oesophagus with an air-fluid level\nSmooth, tapered \"bird's beak\" narrowing at the gastro-oesophageal junction\nAbsent gastric air bubble on radiographs\nAbsent primary peristalsis, with a delay in barium emptying (timed barium swallow)",
+    "learning_points": "Always exclude pseudoachalasia (a tumour at or near the gastro-oesophageal junction mimicking achalasia). Suggestive features are older age, short symptom duration, weight loss, and an irregular or shouldered narrowing. Endoscopy and CT are used for this.\nChagas disease (Trypanosoma cruzi) causes secondary achalasia.\nTreatment options include pneumatic dilatation, laparoscopic Heller myotomy, peroral endoscopic myotomy (POEM) and botulinum toxin injection.",
+    "differential_diagnosis": "Pseudoachalasia from a gastro-oesophageal junction carcinoma\nPeptic stricture\nScleroderma (patulous, aperistaltic oesophagus with a wide-open LES)\nChagas disease\nDiffuse oesophageal spasm (corkscrew oesophagus)",
+    "images": [
+      "/uploads/cases/spotter-case-17-1-achalasia-cardia.jpg"
+    ]
+  },
+  {
+    "case_num": 18,
+    "title": "Gallstone ileus",
+    "system_slug": "gastrointestinal-radiology",
+    "modality": "CT",
+    "difficulty": "hard",
+    "clinical_info": "82-year-old woman with abdominal pain and distension",
+    "question_text": "What is this classic triad called?\nWhere does obstruction most commonly occur, and why?",
+    "correct_answer": "1) Rigler's triad: small bowel obstruction, pneumobilia, and an ectopic gallstone. It results from a large stone eroding through a cholecysto-duodenal fistula and passing into the bowel.\n2) The terminal ileum near the ileocaecal valve is the most common impaction site, being the narrowest part of the distal small bowel lumen. | Rigler triad, Terminal ileum | Rigler's triad | Gallstone ileus",
+    "explanation": "Coronal CT shows dilated small bowel loops with a transition point in the distal small bowel, where a rounded, laminated, calcified stone is lodged (arrow). Gas in the biliary tree (pneumobilia) is present.\nChronic gallstone disease causes inflammation and adhesion of the gallbladder to the duodenum. A large stone (typically over 2 to 2.5 cm) erodes through the wall to form a cholecysto-duodenal fistula, enters the small bowel and obstructs, most often at the terminal ileum.\nThe elderly woman with a history of gallstone disease is the typical patient.",
+    "key_findings": "Small bowel obstruction with dilated proximal loops and collapsed distal bowel\nPneumobilia (gas within the biliary tree)\nEctopic gallstone in the bowel lumen (often only the rim is dense, or the stone is isodense and easily missed)\nCollapsed, thick-walled gallbladder, possibly containing gas, with fistula to the duodenum",
+    "learning_points": "Only about 10 to 15% of gallstones are radiopaque, so the stone is often not visible on a plain radiograph, and CT is the investigation of choice.\nBouveret syndrome is the variant in which the stone lodges in the duodenum or pylorus and produces gastric outlet obstruction.\nTreatment is surgical enterolithotomy to remove the stone; cholecystectomy and fistula closure may be delayed.",
+    "differential_diagnosis": "Adhesional or hernial small bowel obstruction\nObstructing small bowel tumour\nPneumobilia from other causes: previous sphincterotomy, biliary stent or bilio-enteric anastomosis\nEmphysematous cholecystitis\nOther enteroliths or bezoar",
+    "images": [
+      "/uploads/cases/spotter-case-18-1-gallstone-ileus.jpg"
+    ]
+  },
+  {
+    "case_num": 19,
+    "title": "Pneumatosis intestinalis",
+    "system_slug": "gastrointestinal-radiology",
+    "modality": "CT",
+    "difficulty": "easy",
+    "clinical_info": "Acute abdominal pain",
+    "question_text": "What is the common cause of this appearance in neonates?\nList causes of this appearance",
+    "correct_answer": "1) Necrotising enterocolitis\n2) Bowel ischaemia; intestinal obstruction; toxic megacolon; benign causes such as pulmonary diseases and post-gastrointestinal interventions | Necrotising enterocolitis, Bowel ischaemia | Necrotizing enterocolitis | NEC | Pneumatosis intestinalis",
+    "explanation": "Coronal CT shows linear and bubbly collections of gas lying within the wall of the bowel, which is pneumatosis intestinalis. It is best identified on lung window settings, where the gas is clearly separate from the lumen.\nPneumatosis is an imaging sign and not a diagnosis. Its significance depends entirely on the clinical context and associated findings: in an unwell patient with bowel wall thickening, poor wall enhancement, mesenteric or portal venous gas, or ascites, it signals transmural infarction; in a well patient with a benign cause it may be an incidental finding.",
+    "key_findings": "Intramural gas in the bowel wall (linear or cystic/bubbly)\nAssociated portal venous gas or mesenteric venous gas\nPoor wall enhancement, bowel dilatation, mesenteric stranding and free fluid suggest ischaemia\nLook for SMA/SMV occlusion on contrast-enhanced CT",
+    "learning_points": "Causes of pneumatosis: bowel ischaemia, necrotising enterocolitis in neonates, bowel obstruction, toxic megacolon and inflammatory bowel disease, infection, steroids and immunosuppression, connective tissue diseases, and benign causes such as chronic obstructive lung disease and asthma, endoscopy and other gastrointestinal interventions.\nCystic or bubbly pneumatosis (particularly in the colon) is more often benign and chronic, whereas linear pneumatosis is more often associated with ischaemia, but the pattern alone is unreliable and clinical correlation is essential.",
+    "differential_diagnosis": "Pseudopneumatosis: gas trapped between faeces and wall, or between folds\nIntraluminal gas bubbles within stool\nPneumoperitoneum or gas in an adjacent diverticulum\nEmphysematous gastritis or enteritis",
+    "images": [
+      "/uploads/cases/spotter-case-19-1-pneumatosis-intestinalis.jpg"
+    ]
+  },
+  {
+    "case_num": 20,
+    "title": "Ovarian teratoma (dermoid cyst)",
+    "system_slug": "gynecologic-imaging",
+    "modality": "MRI",
+    "difficulty": "medium",
+    "clinical_info": "34-year-old woman with an incidental adnexal mass",
+    "question_text": "What germ layers contribute to this tumour's tissue, and what is the significance of the Rokitansky nodule?\nIn a localised lesion, what imaging characteristic favours malignant nature?",
+    "correct_answer": "1) Composed of tissue from all three germ layers (ectoderm, mesoderm, endoderm). The Rokitansky nodule (dermoid plug) is a solid protuberance projecting from the cyst wall that contains hair, fat, teeth or bone, and it is the usual site from which malignant transformation (most often squamous cell carcinoma) arises.\n2) Solid enhancing components | Ectoderm mesoderm endoderm, Rokitansky nodule, Solid enhancing components | Mature cystic teratoma | Ovarian dermoid cyst | Ovarian teratoma | Dermoid cyst",
+    "explanation": "A mature cystic teratoma is a well-defined adnexal cystic mass containing fat, which is T1-hyperintense and loses signal on fat-suppressed sequences. It may show a fat-fluid level, a Rokitansky nodule projecting into the lumen, and calcification or teeth.\nMRI confirms the fat content, demonstrates the nodule, and assesses for solid enhancing tissue, which would raise the possibility of malignant transformation.",
+    "key_findings": "Fat within an adnexal cyst (T1 hyperintense, suppressed on fat saturation)\nRokitansky nodule or dermoid plug projecting from the wall\nFat-fluid level; possible calcification or tooth\nSolid enhancing components, wall invasion or extension beyond the ovary suggest malignancy",
+    "learning_points": "Most common ovarian germ cell tumour and the most common benign ovarian neoplasm in young women. Bilateral in about 10 to 15%.\nComplications: torsion (most frequent), rupture with chemical peritonitis, infection, and malignant transformation in about 1 to 2%, mostly in older women.\nTeratomas are associated with anti-NMDA receptor encephalitis, so a young woman with this encephalitis warrants a search for an ovarian teratoma.",
+    "differential_diagnosis": "Endometrioma: T1 hyperintense but T2 shading, and persists on fat suppression\nHaemorrhagic cyst\nImmature teratoma: large, predominantly solid mass in a young patient with scattered calcification and small foci of fat\nStruma ovarii\nMucinous cystadenoma",
+    "images": [
+      "/uploads/cases/spotter-case-20-1-ovarian-teratoma-dermoid-cyst.jpg"
+    ]
+  },
+  {
+    "case_num": 21,
+    "title": "Staghorn calculus (struvite)",
+    "system_slug": "genitourinary-radiology",
+    "modality": "Radiograph",
+    "difficulty": "easy",
+    "clinical_info": "Chronic left flank pain",
+    "question_text": "What is the most common underlying infectious cause?\nWhat is the typical stone composition?",
+    "correct_answer": "1) Chronic infection by urease-producing organisms (Proteus mirabilis) that alkalinise the urine.\n2) Most staghorn calculi are struvite (magnesium ammonium phosphate). | Proteus mirabilis, Struvite | Magnesium ammonium phosphate | Proteus, Struvite | Staghorn calculus",
+    "explanation": "The abdominal radiograph shows a dense, branching calcification in the left renal area forming a cast of the pelvicalyceal system (a staghorn calculus).\nUrease-producing organisms (classically Proteus mirabilis, also Klebsiella, Pseudomonas, Providencia and Staphylococcus saprophyticus) split urea to ammonia, which alkalinises the urine and drives precipitation of magnesium ammonium phosphate (struvite) and carbonate apatite. Escherichia coli does not produce urease.",
+    "key_findings": "Branching radiodense calculus occupying the renal pelvis and extending into the calyces\nPossible hydronephrosis, cortical thinning and a small or non-functioning kidney on follow-up imaging",
+    "learning_points": "Struvite stones are typically moderately radiopaque, form in infected alkaline urine, and are commoner in women with recurrent urinary tract infections.\nComplete removal (percutaneous nephrolithotomy, often combined with other modalities) is needed because residual fragments harbour bacteria and perpetuate infection. Untreated cases may progress to pyonephrosis, xanthogranulomatous pyelonephritis and loss of the kidney.\nCT without contrast is used to define the stone burden, and a functional study (DMSA or MAG3) assesses renal function before deciding on surgery.",
+    "differential_diagnosis": "Large calcium oxalate or calcium phosphate stones\nCystine stone (faintly opaque, ground-glass)\nUric acid stone (radiolucent)\nRenal tuberculosis with calcification (autonephrectomy)\nNephrocalcinosis",
+    "images": [
+      "/uploads/cases/spotter-case-21-1-staghorn-calculus-struvite.jpg"
+    ]
+  },
+  {
+    "case_num": 22,
+    "title": "Horseshoe kidney",
+    "system_slug": "genitourinary-radiology",
+    "modality": "Radiograph (urography)",
+    "difficulty": "medium",
+    "clinical_info": "Recurrent urolithiasis",
+    "question_text": "Name the sign.\nWhat structure prevents the kidneys from ascending?",
+    "correct_answer": "1) Flower-vase sign, due to medially directed lower calyces.\n2) The isthmus is typically trapped beneath the inferior mesenteric artery during ascent. | Flower-vase sign, Inferior mesenteric artery | Flower vase sign, IMA | Horseshoe kidney",
+    "explanation": "There is low-lying position of both kidneys, with the lower poles directed medially and the lower calyces pointing toward the midline, giving the flower-vase (drooping lily) appearance. The lower poles are joined by an isthmus across the midline.\nHorseshoe kidney is the commonest renal fusion anomaly. The isthmus lies anterior to the aorta and IVC, usually at the L3-L4 level, and is held back by the inferior mesenteric artery during ascent. Incomplete rotation leaves the renal pelves facing anteriorly, and the ureters pass over the isthmus with a high insertion on the pelvis. The resulting poor drainage predisposes to stones, infection and pelviureteric junction obstruction.",
+    "key_findings": "Kidneys lying low with the long axes converging inferiorly (in contrast to the normal axis)\nLower poles fused across the midline by an isthmus of parenchyma or fibrous tissue\nMedially directed lower calyces (flower-vase sign) and anteriorly facing renal pelves\nCalculi, hydronephrosis or recurrent infection as complications",
+    "learning_points": "CT (or MRI) demonstrates the isthmus clearly, as well as the vascular supply, which is variable and often multiple.\nAssociations: Turner syndrome and trisomy 18. Increased incidence of Wilms tumour and renal carcinoid, and the usual renal tumours.\nThe isthmus is usually left in place at surgery, but the variable and often multiple renal arteries matter for any intervention.",
+    "differential_diagnosis": "Crossed fused renal ectopia\nPelvic kidney\nMalrotated kidneys without fusion\nRetroperitoneal mass or nodes overlying the great vessels (on cross-sectional imaging)",
+    "images": [
+      "/uploads/cases/spotter-case-22-1-horseshoe-kidney.jpg"
+    ]
+  },
+  {
+    "case_num": 23,
+    "title": "Complete hydatidiform mole",
+    "system_slug": "gynecologic-imaging",
+    "modality": "Ultrasound",
+    "difficulty": "medium",
+    "clinical_info": "22-year-old woman with first-trimester bleed PV",
+    "question_text": "What is the karyotype and mechanism of formation of a complete hydatidiform mole?\nWhat pathognomonic change can be seen in the ovaries?",
+    "correct_answer": "1) A complete mole typically arises from fertilisation of an empty ovum, usually resulting in a diploid, entirely paternal karyotype (46,XX), with no fetal tissue.\n2) Theca lutein cysts | 46,XX diploid paternal, Theca lutein cysts | 46 XX, Theca lutein cysts | Complete hydatidiform mole | Hydatidiform mole",
+    "explanation": "Pelvic ultrasound shows an enlarged uterine cavity filled with a heterogeneous echogenic mass containing numerous small anechoic cystic spaces, the \"snowstorm\" or \"cluster of grapes\" pattern, without a recognisable fetus or gestational sac.\nIn a complete mole an enucleate egg is fertilised by a single haploid sperm that duplicates its chromosomes (46,XX), or occasionally by two sperms (46,XY or XX). All the genetic material is paternal, so there is no embryo, and the chorionic villi undergo diffuse hydropic swelling with trophoblastic proliferation.\nThe β-hCG is markedly elevated, and high levels cause bilateral enlarged multiloculated ovaries (theca lutein cysts).",
+    "key_findings": "Absent fetus with diffusely enlarged uterus filled by vesicular, echogenic tissue\nBilateral theca lutein cysts (multiloculated enlarged ovaries) from β-hCG stimulation\nMarkedly elevated β-hCG, often with hyperemesis and early pre-eclampsia\nIncreased vascularity on Doppler",
+    "learning_points": "A partial mole is triploid (69,XXX or 69,XXY: two paternal and one maternal set), contains fetal tissue, and shows a thickened cystic placenta with an abnormal fetus.\nComplete moles carry a risk of gestational trophoblastic neoplasia of around 15 to 20% (partial moles about 1 to 5%). Treatment is suction curettage with serial β-hCG follow-up. Chest imaging is used to look for lung metastases if the β-hCG fails to fall.\nInvasive mole and choriocarcinoma are the malignant sequelae.",
+    "differential_diagnosis": "Partial hydatidiform mole\nMissed or incomplete miscarriage with hydropic degeneration\nTwin pregnancy with a complete mole and a coexisting normal fetus\nDegenerating fibroid\nPlacental mesenchymal dysplasia",
+    "images": [
+      "/uploads/cases/spotter-case-23-1-complete-hydatidiform-mole.jpg"
+    ]
+  },
+  {
+    "case_num": 24,
+    "title": "Caroli disease",
+    "system_slug": "hepatobiliary-pancreatic-imaging",
+    "modality": "MRI (MRCP)",
+    "difficulty": "medium",
+    "clinical_info": "16-year-old with recurrent right upper quadrant pain, fever and jaundice",
+    "question_text": "What is the \"central dot sign,\" and what structure does it represent?\nWhat results when combined with congenital hepatic fibrosis, and what associated renal condition is seen?",
+    "correct_answer": "1) It represents portal vein radicles (with hepatic artery branches) surrounded by, and partially engulfed within, the dilated intrahepatic bile ducts.\n2) Combined with congenital hepatic fibrosis, the condition is termed Caroli syndrome, frequently associated with autosomal recessive polycystic kidney disease. | Portal vein radicle within dilated bile duct, Caroli syndrome, ARPKD | Central dot sign, Caroli syndrome | Caroli disease | Caroli syndrome",
+    "explanation": "The MRCP shows multiple saccular and cystic dilatations of the intrahepatic bile ducts that communicate with the biliary tree. Their \"beaded\" appearance is characteristic.\nCaroli disease is a congenital communicating cystic dilatation of the segmental intrahepatic bile ducts (a Todani type V choledochal cyst). Bile stasis predisposes to stones, sludge, recurrent cholangitis and liver abscesses, which explain the fever, right upper quadrant pain and jaundice.\nOn contrast-enhanced CT, MRI or ultrasound, the portal vein radicle with its accompanying hepatic artery is seen as an enhancing dot within the dilated duct, the central dot sign.",
+    "key_findings": "Multiple saccular dilatations of intrahepatic bile ducts communicating with the biliary tree\nCentral dot sign: enhancing portal radicle within a dilated duct\nIntraductal stones or sludge and signs of cholangitis\nAssociated renal tubular ectasia or cysts",
+    "learning_points": "Caroli disease is autosomal recessive (PKHD1 gene). Caroli syndrome (Caroli disease with congenital hepatic fibrosis) presents with portal hypertension, and is typically associated with autosomal recessive polycystic kidney disease or medullary sponge kidney-like tubular ectasia.\nThe lifetime risk of cholangiocarcinoma is increased (about 7%).",
+    "differential_diagnosis": "Polycystic liver disease: cysts do not communicate with the biliary tree and show no central dot sign\nRecurrent pyogenic (oriental) cholangitis: dilated extrahepatic ducts with stones\nPrimary sclerosing cholangitis: strictures with beading, but not saccular dilatation\nBiliary hamartomas (von Meyenburg complexes)\nMultiple hepatic abscesses",
+    "images": [
+      "/uploads/cases/spotter-case-24-1-caroli-disease.jpg"
+    ]
+  },
+  {
+    "case_num": 25,
+    "title": "Focal nodular hyperplasia (FNH)",
+    "system_slug": "hepatobiliary-pancreatic-imaging",
+    "modality": "CT",
+    "difficulty": "medium",
+    "clinical_info": "32-year-old asymptomatic woman with an incidental liver lesion",
+    "question_text": "What are the characteristics of the central scar on MRI?\nWhat scintigraphic tests help in diagnosis?",
+    "correct_answer": "1) T2-hyperintense central scar (fibrolamellar HCC: T2-hypointense scar).\n2) Tc-99m sulfur colloid is taken up by the normal Kupffer cells within the lesion, and HIDA (hepatobiliary scintigraphy) is excreted by hepatocytes. | T2-hyperintense central scar, Tc-99m sulfur colloid / HIDA | T2 hyperintense scar, Sulfur colloid | Focal nodular hyperplasia | FNH",
+    "explanation": "Multiphase CT shows a well-defined lesion that enhances intensely and homogeneously in the arterial phase, except for a central scar, and becomes isodense to the surrounding liver in the portal venous and delayed phases. The central scar enhances on delayed images.\nFNH is a hyperplastic response to a pre-existing arterial malformation, and is composed of normal hepatocytes, Kupffer cells and bile ductules in abnormal arrangement with a central fibrous scar.",
+    "key_findings": "Arterial hyperenhancement that becomes isodense on portal and delayed phases\nCentral stellate scar, T2-hyperintense on MRI, with delayed enhancement\nNo capsule, haemorrhage, necrosis or calcification\nHepatobiliary-phase MRI agents (gadoxetate/gadobenate): iso- to hyperintense lesion, in contrast to adenoma",
+    "learning_points": "FNH has no malignant potential and generally requires no treatment, so the key role of imaging is to confirm the diagnosis and avoid biopsy or surgery.\nMany FNH lesions show normal or increased sulfur colloid uptake because they contain Kupffer cells (adenomas and metastases usually do not), and HIDA shows uptake with delayed excretion.\nTypical patient: woman of reproductive age.",
+    "differential_diagnosis": "Hepatic adenoma: fat or haemorrhage, no scar, hypointense on hepatobiliary phase\nFibrolamellar hepatocellular carcinoma: large, calcification, T2-hypointense scar, young adult\nHepatocellular carcinoma (in a cirrhotic liver, with washout)\nHypervascular metastasis\nHaemangioma: peripheral nodular discontinuous enhancement",
+    "images": [
+      "/uploads/cases/spotter-case-25-1-focal-nodular-hyperplasia-fnh.jpg",
+      "/uploads/cases/spotter-case-25-2-focal-nodular-hyperplasia-fnh.jpg"
+    ]
+  },
+  {
+    "case_num": 26,
+    "title": "Thyroglossal duct cyst",
+    "system_slug": "head-and-neck-radiology",
+    "modality": "Ultrasound",
+    "difficulty": "easy",
+    "clinical_info": "6-year-old girl with painless neck swelling moving with deglutition",
+    "question_text": "What developmental tract does this lesion arise from, and what is its most common location relative to the hyoid?\nWhy must normal thyroid tissue be confirmed before surgical excision?",
+    "correct_answer": "1) Origin: remnant of the thyroglossal duct tracking from the foramen caecum to the normal thyroid position; most commonly midline or paramedian, infrahyoid or at the hyoid level.\n2) It may harbour ectopic thyroid tissue or, rarely, papillary carcinoma. A normally located thyroid must be confirmed, as the cyst may be the patient's only functioning thyroid tissue. | Thyroglossal duct, Infrahyoid midline, Confirm normal thyroid / ectopic thyroid | Thyroglossal duct cyst",
+    "explanation": "Ultrasound of the neck shows a well-defined, anechoic or hypoechoic cystic lesion in the midline at the level of the hyoid bone, with posterior acoustic enhancement. Internal echoes or a thick wall suggest infection.\nThe thyroglossal duct is the embryologic tract along which the thyroid descends from the foramen caecum to the lower neck. Persistence of part of the tract gives a cyst that moves upward on swallowing and on tongue protrusion because it is attached to the hyoid via the tract.",
+    "key_findings": "Midline cystic neck mass at or just below the hyoid, embedded in the strap muscles when infrahyoid\nMay show a tract extending toward the hyoid\nSolid mural nodule or calcification raises the possibility of papillary carcinoma\nUltrasound should confirm a normal thyroid gland in its usual location",
+    "learning_points": "The Sistrunk procedure removes the cyst together with the central portion of the hyoid bone and the tract up to the foramen caecum, which minimises recurrence.\nThe commonest malignancy arising in a thyroglossal duct cyst is papillary thyroid carcinoma (under 1% of cysts).\nInfection is common and may mimic an abscess.",
+    "differential_diagnosis": "Dermoid or epidermoid cyst (submental or midline)\nLymph node or reactive adenopathy\nLingual or ectopic thyroid\nBranchial cleft cyst (lateral neck)\nLymphatic malformation, laryngocele or thymic cyst",
+    "images": [
+      "/uploads/cases/spotter-case-26-1-thyroglossal-duct-cyst.jpg"
+    ]
+  },
+  {
+    "case_num": 27,
+    "title": "Hilar cholangiocarcinoma (Klatskin tumour)",
+    "system_slug": "hepatobiliary-pancreatic-imaging",
+    "modality": "Fluoroscopy (cholangiography)",
+    "difficulty": "medium",
+    "clinical_info": "70-year-old man with progressive painless jaundice and pale stools",
+    "question_text": "What classification describes tumour extent relative to the biliary confluence, and why does it matter for surgery?\nWhat are the different growth patterns of this lesion?",
+    "correct_answer": "1) The Bismuth-Corlette classification describes ductal involvement at the confluence, directly informing resectability and the extent of hepatic resection.\n2) Mass-forming; periductal-infiltrating; intraductal-growing. | Bismuth-Corlette classification; Mass-forming, periductal-infiltrating, intraductal-growing | Bismuth-Corlette | Klatskin tumour | Hilar cholangiocarcinoma",
+    "explanation": "The cholangiogram shows dilated intrahepatic ducts with a stricture at the hilum and a failure of the right and left hepatic ducts to communicate at the confluence, with abrupt cut-off of contrast.\nHilar cholangiocarcinoma arises at or near the confluence of the right and left hepatic ducts. Obstructive jaundice with pale stools and dark urine in an older man is the typical presentation.\nThe Bismuth-Corlette types are: I, tumour below the confluence (the right and left ducts still communicate); II, involving the confluence with no communication; IIIa, extending into the right hepatic duct; IIIb, extending into the left hepatic duct; IV, extending into both or multifocal.",
+    "key_findings": "Hilar duct stricture with proximal dilatation and non-union of the right and left hepatic ducts\nPeriductal thickening or infiltrating mass at the hilum\nLobar atrophy with contralateral hypertrophy\nPortal vein or hepatic artery encasement and nodal metastases affect resectability",
+    "learning_points": "Risk factors include primary sclerosing cholangitis, liver flukes (Opisthorchis, Clonorchis), choledochal cysts and hepatolithiasis. CA 19-9 is raised but not specific.\nThe periductal-infiltrating type is the commonest morphology of hilar tumours and is often hard to see on cross-sectional imaging, so MRCP combined with contrast MRI or CT is used for staging.\nUnresectable disease includes bilateral secondary biliary radicle involvement, bilateral vascular involvement and distant metastases.",
+    "differential_diagnosis": "Dominant stricture in primary sclerosing cholangitis\nIgG4-related sclerosing cholangitis\nMirizzi syndrome\nGallbladder carcinoma invading the hilum\nMetastatic periportal nodes",
+    "images": [
+      "/uploads/cases/spotter-case-27-1-hilar-cholangiocarcinoma-klatskin-tu.jpg"
+    ]
+  },
+  {
+    "case_num": 28,
+    "title": "Hydroxyapatite deposition disease (calcific tendinitis)",
+    "system_slug": "musculoskeletal-radiology",
+    "modality": "Radiograph",
+    "difficulty": "hard",
+    "clinical_info": "30-year-old with shoulder pain",
+    "question_text": "What is the most common site of this lesion?\nWhat treatment procedure involves ultrasound-guided lavage?",
+    "correct_answer": "1) Supraspinatus tendon\n2) Barbotage | Supraspinatus tendon, Barbotage | Supraspinatus, Barbotage | Calcific tendinitis | Hydroxyapatite deposition disease | HADD",
+    "explanation": "The shoulder radiograph (internal rotation view) shows calcific deposits in the soft tissues adjacent to the greater tuberosity, in keeping with calcific tendinitis of the rotator cuff.\nHydroxyapatite deposition disease (HADD) is deposition of calcium hydroxyapatite crystals in tendons, most commonly in the supraspinatus about 1 to 2 cm proximal to its insertion (the critical zone). The condition passes through formative, resorptive and post-calcific stages. The resorptive phase is the most painful, and the deposit then looks fluffy and ill-defined and may rupture into the subacromial-subdeltoid bursa.",
+    "key_findings": "Dense, homogeneous or fluffy calcification in the rotator cuff tendon, usually above the humeral head\nInternal and external rotation views help to localise the deposit\nUltrasound shows hyperechoic foci with or without shadowing and hyperaemia in the resorptive phase\nMRI: low signal on all sequences with surrounding oedema",
+    "learning_points": "Barbotage is ultrasound-guided needle lavage that breaks up and aspirates the calcific deposit, usually with a corticosteroid injection. Other treatments are NSAIDs, physiotherapy, extracorporeal shock wave therapy and arthroscopic removal.\nThe condition is self-limiting in most patients, and typically occurs between 30 and 50 years of age, with a female predominance.\nThe resorptive phase can mimic infection or a tumour, so clinical correlation is important.",
+    "differential_diagnosis": "Calcific tendinitis of other tendons (infraspinatus, subscapularis)\nCalcified loose body or ossicle\nCalcium pyrophosphate deposition disease\nSeptic arthritis or osteomyelitis (when ill-defined in the resorptive phase)\nMyositis ossificans or tumoral calcinosis",
+    "images": [
+      "/uploads/cases/spotter-case-28-1-hydroxyapatite-deposition-disease-ca.jpg"
+    ]
+  },
+  {
+    "case_num": 29,
+    "title": "Fibroadenoma",
+    "system_slug": "breast-imaging",
+    "modality": "Mammography",
+    "difficulty": "easy",
+    "clinical_info": "30-year-old woman with painless breast lumps",
+    "question_text": "What characteristic calcification is depicted?\nName characteristic ultrasound features when the lesion is non-calcified.",
+    "correct_answer": "1) Popcorn calcifications\n2) Wider than tall (oval); hypoechoic; macrolobulations; posterior acoustic enhancement. | Popcorn calcifications; Oval wider-than-tall hypoechoic macrolobulated | Popcorn calcification | Fibroadenoma",
+    "explanation": "The mammogram shows several coarse, dense, \"popcorn\" calcifications within the breast, typical of involuting (degenerating) fibroadenomas.\nA fibroadenoma is the commonest benign breast tumour in young women. On ultrasound a non-calcified fibroadenoma is an oval, circumscribed, hypoechoic mass with its long axis parallel to the skin (wider than tall), a few gentle macrolobulations, a thin echogenic capsule, and posterior acoustic enhancement.",
+    "key_findings": "Coarse (popcorn) calcifications within a circumscribed mass on mammography\nUltrasound: oval, wider-than-tall, circumscribed, hypoechoic mass with macrolobulations and posterior enhancement\nOften multiple and bilateral",
+    "learning_points": "A typical mammographic or ultrasound fibroadenoma is classified as BI-RADS 2 or 3 according to the findings, and may be followed rather than biopsied if features are classic and the patient is young.\nRapid growth, large size (over 5 cm) or irregular features should raise the possibility of a phyllodes tumour, and biopsy is then needed.\nPopcorn calcification is coarse, large and stable; fine pleomorphic or linear branching calcification suggests malignancy.",
+    "differential_diagnosis": "Phyllodes tumour (rapid growth, larger, cystic clefts)\nSimple or complicated cyst\nIntraductal papilloma\nFat necrosis or calcified oil cyst\nMalignant calcification (fine, pleomorphic, linear branching)",
+    "images": [
+      "/uploads/cases/spotter-case-29-1-fibroadenoma.jpg"
+    ]
+  },
+  {
+    "case_num": 30,
+    "title": "Vertebra plana (Langerhans cell histiocytosis)",
+    "system_slug": "musculoskeletal-radiology",
+    "modality": "Radiograph",
+    "difficulty": "hard",
+    "clinical_info": "8-year-old with back pain",
+    "question_text": "What is the most common cause of this appearance in children?\nName the triad of skull defects, exophthalmos and diabetes insipidus seen in multisystemic involvement.",
+    "correct_answer": "1) Eosinophilic granuloma / Langerhans cell histiocytosis (LCH)\n2) Hand-Schüller-Christian disease | Langerhans cell histiocytosis / Eosinophilic granuloma, Hand-Schuller-Christian disease | Eosinophilic granuloma, Hand-Schuller-Christian | Langerhans cell histiocytosis | LCH | Vertebra plana",
+    "explanation": "The lateral radiograph shows near-complete collapse of a vertebral body into a thin wafer (\"coin on edge\"), with preservation of the adjacent intervertebral disc spaces and posterior elements.\nVertebra plana in a child with back pain is most commonly caused by the solitary (unifocal) form of LCH, formerly eosinophilic granuloma. The disc spaces are normally preserved, which helps to separate it from infection. The collapsed vertebra often re-expands partly over time.",
+    "key_findings": "Uniform flattening of one vertebral body (vertebra plana) with normal adjacent discs\nPossible small associated soft tissue mass without cord compression\nLytic lesions in the skull, mandible and long bones in multifocal disease",
+    "learning_points": "LCH is classified as single-system (unifocal or multifocal) or multisystem. Hand-Schüller-Christian disease is the chronic multifocal form with the triad of skull defects (lytic \"geographic skull\"), exophthalmos and diabetes insipidus. Letterer-Siwe disease is the acute disseminated form of infancy with visceral involvement.\nMost spinal LCH is managed conservatively, with steroid injection or chemotherapy in selected cases.",
+    "differential_diagnosis": "Ewing sarcoma\nLeukaemia or lymphoma\nOsteomyelitis or discitis (the disc is involved)\nMetastasis (e.g. neuroblastoma)\nTraumatic compression fracture or metabolic bone disease (osteogenesis imperfecta, Gaucher)",
+    "images": [
+      "/uploads/cases/spotter-case-30-1-vertebra-plana-langerhans-cell-histi.jpg"
+    ]
+  },
+  {
+    "case_num": 31,
+    "title": "Diffuse axonal injury",
+    "system_slug": "neuroradiology",
+    "modality": "MRI (SWI)",
+    "difficulty": "medium",
+    "clinical_info": "History of motor vehicle accident with normal CT",
+    "question_text": "What MRI sequence has the highest sensitivity for this pathology?\nHow is this pathology graded?",
+    "correct_answer": "1) Gradient-echo / susceptibility-weighted sequences are the most sensitive for detection of microbleeds.\n2) Grade I: microhaemorrhages limited to the grey-white matter junction. Grade II: Grade I plus corpus callosum. Grade III: Grade I and II plus brainstem. | SWI / GRE, Adams grading (grey-white, corpus callosum, brainstem) | Susceptibility-weighted imaging | SWI | Diffuse axonal injury | DAI",
+    "explanation": "SWI shows multiple small foci of signal loss (microhaemorrhages) at the grey-white matter junctions, consistent with shear injury, even though the initial CT was normal.\nDiffuse axonal injury (DAI) results from rotational acceleration-deceleration forces that shear axons at interfaces between tissues of different density. Typical locations are the grey-white junction (parasagittal frontal and temporal lobes), the corpus callosum (especially the splenium) and the dorsolateral brainstem. Many lesions are non-haemorrhagic and are only seen on DWI or FLAIR.",
+    "key_findings": "Multiple small haemorrhagic foci at the grey-white junction, corpus callosum, and brainstem\nNon-haemorrhagic lesions: restricted diffusion and T2/FLAIR hyperintensity\nCT is frequently normal or shows only small petechial haemorrhages",
+    "learning_points": "The number and location of lesions correlate with the clinical outcome, and brainstem involvement (grade III) carries a poor prognosis.\nSWI is more sensitive than T2*-gradient echo, and sensitivity improves with field strength. DWI should be added for non-haemorrhagic lesions.",
+    "differential_diagnosis": "Cerebral amyloid angiopathy and hypertensive microbleeds (typical distribution and age)\nCavernous malformations (multiple, sometimes familial)\nFat embolism (starfield pattern on DWI)\nHaemorrhagic metastases (e.g. melanoma) or septic emboli\nHypoxic-ischaemic injury",
+    "images": [
+      "/uploads/cases/spotter-case-31-1-diffuse-axonal-injury.jpg"
+    ]
+  },
+  {
+    "case_num": 32,
+    "title": "Inferior vena cava (IVC) filter placement",
+    "system_slug": "vascular-radiology",
+    "modality": "Fluoroscopy (venography)",
+    "difficulty": "hard",
+    "clinical_info": "68-year-old man with acute femoral vein thrombosis",
+    "question_text": "What is the primary indication for this device?\nWhat complication is associated with prolonged indwelling time of a retrievable device left beyond the recommended window?",
+    "correct_answer": "1) Indicated for PE prevention in patients with venous thromboembolism who have an absolute contraindication to anticoagulation.\n2) Prolonged dwell time increases risk of tilting, fracture, migration and caval penetration, and increases difficulty of percutaneous retrieval. | Contraindication to anticoagulation in VTE, Tilting / fracture / migration / caval penetration | IVC filter | Inferior vena cava filter",
+    "explanation": "The cavogram shows a conical filter with several legs deployed in the infrarenal IVC, with the apex of the filter directed cranially, positioned to trap emboli travelling from the lower limb veins towards the lungs.\nIVC filters are used in patients with acute proximal deep vein thrombosis or pulmonary embolism in whom anticoagulation is contraindicated, has failed or has caused a serious complication. They do not treat the thrombosis itself and should be retrieved as soon as the contraindication has resolved.",
+    "key_findings": "Filter deployed in the infrarenal IVC with its apex cranial\nCheck for tilt (over 15°), strut fracture, caval penetration and filter thrombus\nContrast venography is performed before placement to define IVC size and renal vein levels",
+    "learning_points": "Retrievable filters should be removed early (regulatory guidance suggests within about 1 to 2 months once the PE risk has passed). Long dwell times increase complications such as caval wall penetration, strut fracture with embolisation, IVC thrombosis and post-thrombotic syndrome.\nProphylactic placement in patients without VTE has limited evidence.",
+    "differential_diagnosis": "Other filter types and appearances (Greenfield, Günther Tulip, Celect, OptEase)\nCaval thrombosis around the filter\nFilter migration or fracture with fragment embolisation",
+    "images": [
+      "/uploads/cases/spotter-case-32-1-inferior-vena-cava-ivc-filter-placem.jpg"
+    ]
+  },
+  {
+    "case_num": 33,
+    "title": "Vein of Galen malformation",
+    "system_slug": "neuroradiology",
+    "modality": "MRI",
+    "difficulty": "hard",
+    "clinical_info": "Child with developmental delay",
+    "question_text": "As per Lasjaunias classification, what are the two types?\nWhat is the common clinical manifestation when it presents in a neonate?",
+    "correct_answer": "1) Choroidal and mural\n2) High-output cardiac failure | Choroidal and mural, High-output cardiac failure | Choroidal and mural | Vein of Galen malformation",
+    "explanation": "The sagittal T2-weighted MRI shows a markedly dilated, flow-void-containing midline venous pouch behind the third ventricle above the tectal plate, which is the aneurysmal vein of Galen malformation, together with ventricular dilatation (hydrocephalus).\nA vein of Galen malformation is an arteriovenous shunt draining into the embryonic median prosencephalic vein of Markowski, which dilates because of the high flow. It is not a true malformation of the vein of Galen itself.\nIn a neonate the massive shunt causes high-output cardiac failure. In infants it causes hydrocephalus and macrocrania with prominent scalp veins, and in older children developmental delay, headaches, or haemorrhage.",
+    "key_findings": "Dilated midline venous pouch with flow voids posterior to the third ventricle\nDilated feeding arteries (choroidal, quadrigeminal, anterior cerebral branches)\nHydrocephalus; parenchymal atrophy or calcification from chronic venous hypertension",
+    "learning_points": "The Lasjaunias classification divides vein of Galen malformations into the choroidal type, with multiple feeders converging on the venous pouch (usually presenting in the neonate with heart failure), and the mural type, with one or a few direct fistulae into the wall of the pouch (presenting in infancy or childhood).\nTreatment is staged transarterial endovascular embolisation, usually timed by cardiac status and age, and the Bicêtre score guides neonatal management.",
+    "differential_diagnosis": "Dural sinus malformations\nArteriovenous malformation draining into the vein of Galen (galenic drainage)\nPineal or arachnoid cyst\nPineal region tumour",
+    "images": [
+      "/uploads/cases/spotter-case-33-1-vein-of-galen-malformation.jpg"
+    ]
+  },
+  {
+    "case_num": 34,
+    "title": "Endobronchial intubation",
+    "system_slug": "cardiothoracic-radiology",
+    "modality": "Radiograph",
+    "difficulty": "easy",
+    "clinical_info": "60-year-old under intensive care",
+    "question_text": "What is the cause of white-out of the left hemithorax?\nWhat radiograph landmarks can be used in this scenario?",
+    "correct_answer": "1) Left lung atelectasis (collapse), due to the endotracheal tube lying in the right main bronchus\n2) Clavicular heads and carina | Left lung collapse / atelectasis from right mainstem intubation, Carina and clavicular heads | Right main bronchus intubation, Left lung collapse | Endobronchial intubation",
+    "explanation": "The portable chest radiograph shows the tip of the endotracheal tube below the carina in the right main bronchus, with opacification of the whole left hemithorax from lung collapse and volume loss, while the right lung is hyperinflated.\nThe right main bronchus is wider, shorter and more vertical than the left, so a tube advanced too far usually enters it. The left lung is then not ventilated, and it collapses, giving a white-out with ipsilateral shift of the mediastinum.",
+    "key_findings": "Endotracheal tube tip below the carina or in the right main bronchus\nComplete opacification of the left hemithorax with mediastinal shift toward the collapsed side\nHyperinflation of the right lung (risk of right pneumothorax)",
+    "learning_points": "The correct tip position is about 5 cm above the carina (range 3 to 7 cm), roughly at the level of the clavicular heads, with the neck in neutral position. Neck flexion moves the tip down by about 2 cm, and extension moves it up.\nEvery ICU film should also check the nasogastric tube, central lines, and for pneumothorax.",
+    "differential_diagnosis": "Massive pleural effusion (opaque hemithorax with contralateral shift)\nPneumonectomy or lung agenesis (ipsilateral shift)\nLobar pneumonia or mucus plug causing collapse\nLarge central tumour with lung collapse",
+    "images": [
+      "/uploads/cases/spotter-case-34-1-endobronchial-intubation.jpg"
+    ]
+  },
+  {
+    "case_num": 35,
+    "title": "Sporadic Creutzfeldt-Jakob disease",
+    "system_slug": "neuroradiology",
+    "modality": "MRI (DWI)",
+    "difficulty": "hard",
+    "clinical_info": "58-year-old woman with progressive altered sensorium and startle myoclonus over 4 weeks",
+    "question_text": "What is the most sensitive imaging sequence, and what other tests support the diagnosis?\nWhat key differential must be excluded given overlapping cortical DWI changes?",
+    "correct_answer": "1) DWI is most sensitive (cortical ribboning and basal ganglia restricted diffusion). Supporting tests: CSF 14-3-3 protein, CSF or olfactory mucosa real-time quaking-induced conversion (RT-QuIC) seeding assays, and CSF tau.\n2) The differential includes hypoxic-ischaemic injury, post-ictal change, and mitochondrial encephalopathy (e.g. MELAS); rapid progression and symmetry favour CJD. | DWI, CSF RT-QuIC / 14-3-3, Hypoxic-ischaemic / post-ictal / MELAS | Sporadic Creutzfeldt-Jakob disease | Creutzfeldt-Jakob disease | sCJD | CJD",
+    "explanation": "DWI shows restricted diffusion in the cerebral cortex (cortical ribboning) and in the caudate nuclei and putamina, with corresponding low ADC values.\nSporadic CJD is a prion disease with rapidly progressive dementia, myoclonus, ataxia and visual or cerebellar signs, usually with a fatal course in months. The characteristic imaging changes are cortical and deep grey nuclei diffusion restriction, and these may be seen before EEG and CSF changes.",
+    "key_findings": "Cortical ribboning on DWI, often asymmetric\nRestricted diffusion in the caudate and putamen\nFLAIR hyperintensity in the same regions, no enhancement and no significant mass effect\nVariant CJD: pulvinar sign (thalamic hyperintensity)",
+    "learning_points": "Diagnostic criteria incorporate MRI, EEG (periodic sharp wave complexes) and CSF assays. RT-QuIC has a very high specificity.\nSubacute presentation of rapidly progressive dementia should prompt MRI with DWI to evaluate for prion disease and autoimmune or infectious mimics.",
+    "differential_diagnosis": "Hypoxic-ischaemic encephalopathy\nPost-ictal change (usually transient and reversible)\nMELAS and other mitochondrial disease (lesions crossing vascular territories)\nAutoimmune or viral encephalitis\nHypoglycaemia, carbon monoxide poisoning or Wernicke encephalopathy",
+    "images": [
+      "/uploads/cases/spotter-case-35-1-sporadic-creutzfeldt-jakob-disease.jpg"
+    ]
+  },
+  {
+    "case_num": 36,
+    "title": "Pneumothorax",
+    "system_slug": "cardiothoracic-radiology",
+    "modality": "Radiograph and ultrasound",
+    "difficulty": "easy",
+    "clinical_info": "24-year-old man with sudden-onset chest pain",
+    "question_text": "What imaging features are seen on ultrasound?\nWhat radiographic finding would indicate a life-threatening tension variant?",
+    "correct_answer": "1) Loss of pleural sliding (barcode sign on M-mode); absent B-lines; lung point (transition between air-filled and normal pleura).\n2) Contralateral mediastinal shift, ipsilateral hemidiaphragm flattening or inversion, and widened rib spaces. | Absent lung sliding / barcode sign / lung point, Contralateral mediastinal shift | Barcode sign, Tension pneumothorax | Pneumothorax",
+    "explanation": "The chest radiograph shows a visible visceral pleural line with an absence of lung markings beyond it, in keeping with pneumothorax. The M-mode ultrasound tracing shows the \"barcode\" (stratosphere) sign, with horizontal lines throughout, instead of the normal \"seashore\" sign, indicating absent pleural sliding.\nPrimary spontaneous pneumothorax typically affects tall, thin young men and results from rupture of apical subpleural blebs.",
+    "key_findings": "Visceral pleural line separated from the chest wall with no peripheral lung markings\nUltrasound: absent lung sliding, absent B-lines, lung point (pathognomonic)\nTension: contralateral mediastinal shift, flattening or inversion of the ipsilateral hemidiaphragm, wide intercostal spaces",
+    "learning_points": "Tension pneumothorax is a clinical diagnosis requiring immediate decompression. Radiographic signs should not delay treatment.\nUltrasound is more sensitive than a supine chest radiograph. A deep sulcus sign is seen on supine films.\nCT can identify blebs or underlying lung disease, and is used in recurrent cases.",
+    "differential_diagnosis": "Skin fold (the line extends beyond the thorax and lung markings are visible beyond it)\nGiant bulla or cystic lung disease\nMedial border of the scapula\nSwyer-James syndrome or lobar emphysema",
+    "images": [
+      "/uploads/cases/spotter-case-36-1-pneumothorax.jpg",
+      "/uploads/cases/spotter-case-36-2-pneumothorax.jpg"
+    ]
+  },
+  {
+    "case_num": 37,
+    "title": "Sigmoid volvulus",
+    "system_slug": "gastrointestinal-radiology",
+    "modality": "Radiograph",
+    "difficulty": "easy",
+    "clinical_info": "78-year-old with chronic constipation and progressive abdominal distension",
+    "question_text": "What sign is shown?\nWhat is first-line management if there is no ischaemia or perforation?",
+    "correct_answer": "1) The \"coffee bean\" sign reflects the two apposed walls of the twisted, dilated loop; a tapered \"bird's beak\" at the torsion site is best seen on contrast enema or CT.\n2) Endoscopic detorsion (with rectal tube) is first-line. Definitive sigmoid resection is often still needed to prevent recurrence. | Coffee bean sign, Endoscopic detorsion | Coffee bean sign | Sigmoid volvulus",
+    "explanation": "The abdominal radiograph shows a massively distended, gas-filled sigmoid loop rising out of the pelvis toward the upper abdomen, shaped like an inverted U or coffee bean with the cleft formed by the apposed medial walls of the loop.\nSigmoid volvulus is a closed-loop obstruction occurring when the sigmoid colon twists on its mesentery. It affects elderly, institutionalised or neuropsychiatric patients with chronic constipation, and in endemic regions Chagas disease.",
+    "key_findings": "Dilated inverted-U loop without haustra (coffee bean sign)\nLoop apex projecting to the right upper quadrant or beyond the transverse colon\nCT: whirl sign of the mesentery and a tapered bird's beak at the point of torsion\nLook for ischaemia (wall thickening, pneumatosis, free fluid) or perforation",
+    "learning_points": "Flexible sigmoidoscopic detorsion with rectal tube placement is first-line if there is no gangrene or perforation. Recurrence is common (up to about half), and elective sigmoid resection is recommended in fit patients.\nEmergency surgery is required for ischaemia or perforation.",
+    "differential_diagnosis": "Caecal volvulus (coffee bean in the left upper quadrant, small bowel dilatation)\nMegacolon or toxic colitis\nColonic pseudo-obstruction (Ogilvie syndrome)\nObstructing sigmoid carcinoma",
+    "images": [
+      "/uploads/cases/spotter-case-37-1-sigmoid-volvulus.jpg"
+    ]
+  },
+  {
+    "case_num": 38,
+    "title": "Pulmonary alveolar proteinosis",
+    "system_slug": "cardiothoracic-radiology",
+    "modality": "CT",
+    "difficulty": "medium",
+    "clinical_info": "30-year-old man with mild cough",
+    "question_text": "What is the sign and its pathophysiological basis here?\nWhat diagnostic and therapeutic procedure confirms and treats this condition?",
+    "correct_answer": "1) Crazy-paving: surfactant accumulation within alveoli combined with thickened interlobular septa.\n2) Bronchoalveolar lavage is both diagnostic (milky, PAS-positive fluid) and the mainstay of treatment (whole-lung lavage). GM-CSF therapy is used in autoimmune PAP. | Crazy-paving, Bronchoalveolar lavage / whole-lung lavage | Crazy paving pattern, Whole lung lavage | Pulmonary alveolar proteinosis | PAP",
+    "explanation": "HRCT shows bilateral ground-glass opacities with superimposed smooth interlobular septal thickening and intralobular lines in a polygonal \"crazy-paving\" pattern, with sharply demarcated normal lobules (geographic distribution).\nPulmonary alveolar proteinosis (PAP) is due to impaired clearance of surfactant from the alveoli, most commonly from autoantibodies against GM-CSF (autoimmune PAP). Patients may have only mild symptoms despite extensive radiological abnormality.",
+    "key_findings": "Crazy-paving pattern: ground-glass opacity with septal and intralobular thickening\nGeographic distribution with sharp borders to normal lung\nClinical-radiological dissociation (mild symptoms, extensive CT changes)",
+    "learning_points": "Causes: autoimmune (about 90%), secondary (haematological malignancy, dust or chemical inhalation, infection), and congenital (surfactant gene mutations).\nComplications include secondary infection (Nocardia, mycobacteria and fungi).\nCrazy-paving is non-specific, and the context matters.",
+    "differential_diagnosis": "Pulmonary oedema\nViral pneumonia (e.g. COVID-19) or Pneumocystis pneumonia\nAlveolar haemorrhage\nLipoid pneumonia\nInvasive mucinous adenocarcinoma, sarcoidosis or NSIP",
+    "images": [
+      "/uploads/cases/spotter-case-38-1-pulmonary-alveolar-proteinosis.jpg"
+    ]
+  },
+  {
+    "case_num": 39,
+    "title": "Testicular epidermoid cyst",
+    "system_slug": "genitourinary-radiology",
+    "modality": "Ultrasound",
+    "difficulty": "medium",
+    "clinical_info": "Right testicular swelling",
+    "question_text": "What is the other name of this lesion?\nWhat is the most common primary tumour of the testes?",
+    "correct_answer": "1) Keratocyst\n2) Seminoma | Keratocyst, Seminoma | Testicular epidermoid cyst | Epidermoid cyst",
+    "explanation": "Ultrasound of the right testicle shows a well-circumscribed round intratesticular mass with concentric alternating hypoechoic and hyperechoic rings, the \"onion-ring\" or target appearance, caused by lamellated keratin.\nAn epidermoid cyst is a benign germ cell lesion lined by keratinising squamous epithelium and filled with keratin debris. It lacks internal vascularity on Doppler, which helps to distinguish it from solid tumours.",
+    "key_findings": "Round, well-defined intratesticular mass with onion-ring (laminated) pattern\nEchogenic calcified rim in some cases\nNo internal vascularity on colour Doppler\nNormal tumour markers",
+    "learning_points": "Epidermoid cysts account for roughly 1 to 2% of testicular masses. Testis-sparing enucleation is possible when imaging is typical and tumour markers (AFP, β-hCG, LDH) are normal.\nSeminoma is the commonest primary testicular tumour overall: a homogeneous, hypoechoic, vascular mass in men aged 30 to 40.",
+    "differential_diagnosis": "Teratoma (heterogeneous, cystic and calcified)\nSeminoma or mixed germ cell tumour\nAbscess or haematoma\nBurned-out germ cell tumour with scar\nSimple cyst or tunica albuginea cyst",
+    "images": [
+      "/uploads/cases/spotter-case-39-1-testicular-epidermoid-cyst.jpg"
+    ]
+  },
+  {
+    "case_num": 40,
+    "title": "Hydatid cyst",
+    "system_slug": "hepatobiliary-pancreatic-imaging",
+    "modality": "CT",
+    "difficulty": "medium",
+    "clinical_info": "6-year-old with abdominal pain and distension",
+    "question_text": "What mechanism results in the water-lily sign?\nWhat is the characteristic difference between such a cyst when it occurs in the liver versus the lung?",
+    "correct_answer": "1) The inner endocyst separates from the outer pericyst and appears as a free-floating membrane within the cyst.\n2) Hepatic cysts frequently calcify, whereas pulmonary cysts rarely calcify. | Detachment of endocyst from pericyst, Liver cysts calcify whereas lung cysts rarely calcify | Water-lily sign | Hydatid cyst | Echinococcal cyst",
+    "explanation": "CT shows a large, well-defined, low-attenuation cystic mass in the liver containing multiple smaller peripheral daughter cysts, giving a \"cyst within a cyst\" or rosette appearance.\nHydatid disease is caused by the tapeworm Echinococcus granulosus. The liver (about 70%) and lung (about 20%) are the commonest sites. The cyst has an outer pericyst (host reaction), a laminated membrane and an inner germinal layer (endocyst). Detachment of the endocyst from the pericyst gives the floating membrane (water-lily or camalote sign) and is a sign of cyst degeneration or rupture.",
+    "key_findings": "Large unilocular or multilocular hepatic cyst with daughter cysts\nWall calcification (commonly in the liver) and floating membranes (water-lily sign)\nComplications: rupture into the biliary tree (cholangitis), peritoneum (anaphylaxis) or infection",
+    "learning_points": "The WHO-IWGE ultrasound classification (CE1 to CE5) stages the cyst and guides treatment.\nTreatment options: albendazole, PAIR (puncture, aspiration, injection, re-aspiration), and surgery for complicated cysts.\nEchinococcus multilocularis causes an infiltrative, tumour-like lesion.",
+    "differential_diagnosis": "Simple hepatic cyst\nPyogenic or amoebic liver abscess\nCystic metastases or biliary cystadenoma\nMesenchymal hamartoma or undifferentiated embryonal sarcoma (paediatric)\nCholedochal cyst",
+    "images": [
+      "/uploads/cases/spotter-case-40-1-hydatid-cyst.jpg"
+    ]
+  },
+  {
+    "case_num": 41,
+    "title": "Pentalogy of Cantrell",
+    "system_slug": "obstetric-fetal-imaging",
+    "modality": "MRI",
+    "difficulty": "hard",
+    "clinical_info": "Fetal MRI",
+    "question_text": "What is the most commonly associated chromosomal abnormality?\nName the features of the pentalogy of Cantrell.",
+    "correct_answer": "1) Trisomy 18\n2) Omphalocele; diaphragmatic defect; cardiovascular abnormalities (ASD/VSD/left ventricular diverticulum); ectopia cordis; pericardial defect or sternal cleft. | Trisomy 18; Omphalocele, diaphragmatic defect, sternal cleft, pericardial defect, cardiac anomalies / ectopia cordis | Trisomy 18, Pentalogy of Cantrell | Pentalogy of Cantrell",
+    "explanation": "Fetal T2-weighted MRI shows a ventral midline defect with herniation of abdominal contents into a sac (omphalocele), together with features of a thoracoabdominal wall defect.\nPentalogy of Cantrell is a rare midline defect due to failure of development of the ventral mesoderm. The classic components are an upper midline abdominal wall defect (omphalocele), a defect of the lower sternum, a deficiency of the anterior diaphragm, a defect of the diaphragmatic pericardium, and intracardiac anomalies, and it may include ectopia cordis.",
+    "key_findings": "Supraumbilical omphalocele with extrusion of abdominal organs\nAnterior diaphragmatic and pericardial defects with lower sternal cleft\nCardiac anomalies (ASD, VSD, left ventricular diverticulum); ectopia cordis in severe cases",
+    "learning_points": "Prenatal diagnosis is possible with ultrasound in the first trimester, and fetal MRI helps to define the extent of the defect and lung volume. Karyotyping is recommended because of the association with trisomy 18.\nPrognosis depends mainly on the cardiac anomalies and on the associated chromosomal abnormalities, and is poor when ectopia cordis is present.",
+    "differential_diagnosis": "Isolated omphalocele (look for Beckwith-Wiedemann syndrome)\nGastroschisis (no sac, defect to the right of the cord)\nBody stalk anomaly or limb-body wall complex\nOEIS complex\nIsolated ectopia cordis",
+    "images": [
+      "/uploads/cases/spotter-case-41-1-pentalogy-of-cantrell.jpg"
+    ]
+  },
+  {
+    "case_num": 42,
+    "title": "Neuroblastoma (orbital metastasis)",
+    "system_slug": "head-and-neck-radiology",
+    "modality": "MRI",
+    "difficulty": "hard",
+    "clinical_info": "6-year-old child with left proptosis",
+    "question_text": "What is the characteristic signal on T2-weighted image?\nThis lesion is associated with a syndrome characterised by rapid, involuntary conjugate fast eye movements. What is the syndrome?",
+    "correct_answer": "1) Intermediate signal on T2-weighted images\n2) Opsoclonus-myoclonus syndrome | Intermediate T2 signal, Opsoclonus-myoclonus syndrome | Opsoclonus-myoclonus syndrome | Neuroblastoma orbital metastasis | Metastatic neuroblastoma",
+    "explanation": "Post-contrast MRI shows an enhancing soft tissue mass in the left orbit and adjacent lateral orbital wall/greater wing of the sphenoid, causing proptosis, in a young child. This is the typical appearance of orbital metastasis from neuroblastoma.\nNeuroblastoma is the commonest extracranial solid tumour of childhood and arises in the adrenal gland or sympathetic chain. Orbital and skull metastases cause proptosis and periorbital ecchymosis (raccoon eyes). The tumour is highly cellular, so it shows intermediate T2 signal and restricted diffusion.\nA paraneoplastic syndrome, opsoclonus-myoclonus (\"dancing eyes, dancing feet\"), occurs in a minority.",
+    "key_findings": "Enhancing orbital or skull-base mass with sphenoid wing involvement\nIntermediate T2 signal, restricted diffusion\nLook for the primary tumour in the adrenal gland or retroperitoneum (calcified mass), and MIBG-avid metastases",
+    "learning_points": "Urinary catecholamine metabolites (VMA and HVA) are raised, and MIBG scintigraphy or PET assesses extent of disease.\nOrbital metastasis is a feature of stage 4 (metastatic) disease in children under 5 years, and the bilateral involvement is common.",
+    "differential_diagnosis": "Orbital rhabdomyosarcoma\nLeukaemic deposit (chloroma)\nEwing sarcoma, lymphoma or Langerhans cell histiocytosis\nOrbital cellulitis or subperiosteal abscess\nLymphatic malformation or capillary haemangioma",
+    "images": [
+      "/uploads/cases/spotter-case-42-1-neuroblastoma-orbital-metastasis.jpg"
+    ]
+  },
+  {
+    "case_num": 43,
+    "title": "Wolman disease",
+    "system_slug": "gastrointestinal-radiology",
+    "modality": "CT",
+    "difficulty": "hard",
+    "clinical_info": "Failure to thrive",
+    "question_text": "What deficiency causes this condition?\nWhat are the other abdominal findings that may be present?",
+    "correct_answer": "1) Lysosomal acid lipase deficiency\n2) Hepatosplenomegaly and lymphadenopathy | Lysosomal acid lipase deficiency, Hepatosplenomegaly and lymphadenopathy | Lysosomal acid lipase deficiency | Wolman disease",
+    "explanation": "CT of the abdomen in an infant shows enlarged adrenal glands with bilateral punctate or diffuse calcification, together with hepatosplenomegaly and a low-attenuation liver (steatosis).\nWolman disease is the infantile, severe form of lysosomal acid lipase deficiency (LIPA gene, autosomal recessive). Cholesteryl esters and triglycerides accumulate in lysosomes of the liver, spleen, adrenals, gut and bone marrow, leading to vomiting, diarrhoea, malabsorption and failure to thrive within the first weeks or months of life.",
+    "key_findings": "Bilateral enlarged adrenal glands that retain their shape and show calcification\nHepatosplenomegaly with low-attenuation liver\nLymphadenopathy\nThickened bowel wall with malabsorption",
+    "learning_points": "The disease is fatal in infancy if untreated. Enzyme replacement therapy (sebelipase alfa) and haematopoietic stem cell transplantation have improved survival.\nCholesteryl ester storage disease is the milder, later-onset form of lysosomal acid lipase deficiency, but adrenal calcification is much less common.",
+    "differential_diagnosis": "Old neonatal adrenal haemorrhage\nNeuroblastoma\nAdrenal tuberculosis or other granulomatous infection\nCongenital cytomegalovirus infection\nAdrenocortical tumour",
+    "images": [
+      "/uploads/cases/spotter-case-43-1-wolman-disease.jpg"
+    ]
+  },
+  {
+    "case_num": 44,
+    "title": "Os trigonum syndrome (posterior ankle impingement)",
+    "system_slug": "musculoskeletal-radiology",
+    "modality": "MRI",
+    "difficulty": "hard",
+    "clinical_info": "Ankle pain",
+    "question_text": "What tendon is usually impinged?\nWhat is the nomenclature of an elongated lateral tubercle of the posterior process of the talus?",
+    "correct_answer": "1) Flexor hallucis longus\n2) Stieda process | Flexor hallucis longus, Stieda process | FHL, Stieda process | Os trigonum syndrome | Posterior ankle impingement",
+    "explanation": "The sagittal fat-suppressed MRI of the ankle shows an os trigonum, an accessory ossicle posterior to the talus, with surrounding marrow and soft tissue oedema and fluid around the flexor hallucis longus tendon.\nPosterior ankle impingement occurs with repeated or forced plantarflexion, as in ballet dancers and footballers. The os trigonum (or a prominent Stieda process, which is an elongated lateral tubercle of the posterior talar process) is compressed between the posterior tibial margin and the calcaneus (\"nutcracker\" mechanism), and the adjacent flexor hallucis longus tendon becomes inflamed.",
+    "key_findings": "Os trigonum or elongated Stieda process\nBone marrow oedema at the synchondrosis or posterior talus\nFlexor hallucis longus tenosynovitis, posterior capsular thickening and soft tissue oedema",
+    "learning_points": "An os trigonum is present in roughly 10 to 25% of people and is usually asymptomatic. Symptoms appear with repeated plantarflexion.\nA fracture of the Stieda process is called a Shepherd fracture.",
+    "differential_diagnosis": "Shepherd fracture of the lateral tubercle\nFlexor hallucis longus tendinopathy without impingement\nAchilles tendinopathy or retrocalcaneal bursitis\nPosterior malleolar (Volkmann) fracture\nOsteochondral lesion of the talus",
+    "images": [
+      "/uploads/cases/spotter-case-44-1-os-trigonum-syndrome-posterior-ankle.jpg"
+    ]
+  },
+  {
+    "case_num": 45,
+    "title": "Developmental venous anomaly",
+    "system_slug": "neuroradiology",
+    "modality": "MRI (SWI)",
+    "difficulty": "hard",
+    "clinical_info": "35-year-old with headache",
+    "question_text": "What is the name of the sign shown?\nWhat is the characteristic finding on angiography?",
+    "correct_answer": "1) Medusa head sign (caput medusae)\n2) A collection of dilated medullary veins converging into an enlarged transcortical or subependymal collector vein, seen only in the venous phase. | Medusa head sign (caput medusae), Collector vein in venous phase | Medusa head sign | Caput medusae | Developmental venous anomaly | DVA",
+    "explanation": "SWI shows a radial array of small linear hypointense veins converging on a larger draining vein in the cerebellum, the Medusa head (caput medusae) appearance of a developmental venous anomaly (DVA).\nA DVA is an anatomical variant of venous drainage in which numerous small medullary veins converge on a single large collector vein that drains into a dural sinus or an ependymal vein. The brain tissue between the veins is normal, and the vein is a functioning part of normal drainage.",
+    "key_findings": "Radial dilated medullary veins converging on a collector vein (caput medusae)\nAngiography: visible only in the venous phase, with normal arterial and capillary phases\nNo arteriovenous shunting or nidus",
+    "learning_points": "DVA is the most common cerebral vascular malformation and is usually an incidental finding. It should not be resected, as this can cause venous infarction.\nDVAs are associated with cavernous malformations in a proportion of patients, and the cavernoma (not the DVA) is the usual cause of haemorrhage.",
+    "differential_diagnosis": "Arteriovenous malformation (arterial feeders, nidus, early venous drainage)\nCavernous malformation (popcorn lesion with haemosiderin)\nCapillary telangiectasia (brush-like enhancement on SWI)\nDural arteriovenous fistula\nSturge-Weber pial angiomatosis",
+    "images": [
+      "/uploads/cases/spotter-case-45-1-developmental-venous-anomaly.jpg"
+    ]
+  },
+  {
+    "case_num": 46,
+    "title": "Thyroid eye disease (Graves orbitopathy)",
+    "system_slug": "head-and-neck-radiology",
+    "modality": "MRI",
+    "difficulty": "easy",
+    "clinical_info": "40-year-old with proptosis",
+    "question_text": "What is the typical order of extraocular muscle involvement?\nWhat is the aetiology of the 'Coca-Cola bottle sign'?",
+    "correct_answer": "1) Inferior > medial > superior > lateral rectus\n2) Thyroid orbitopathy: the anterior tendon is typically spared with swelling of the muscle belly. | Inferior > medial > superior > lateral rectus (I'M SLow), Thyroid orbitopathy tendon sparing | IMSLow, Thyroid eye disease | Thyroid eye disease | Graves orbitopathy",
+    "explanation": "The coronal T1-weighted MRI shows enlarged extraocular muscle bellies in both orbits with proptosis, typical of thyroid eye disease (Graves orbitopathy).\nInflammation and glycosaminoglycan deposition cause fusiform enlargement of the muscle belly with sparing of the tendinous insertion, and this gives the muscle a \"Coca-Cola bottle\" shape on axial images.",
+    "key_findings": "Bilateral, usually symmetric, fusiform enlargement of the muscle bellies with tendon sparing\nProptosis and increased orbital fat\nCrowding of the muscles at the orbital apex with optic nerve compression is the sight-threatening complication",
+    "learning_points": "The mnemonic \"I'M SLow\" gives the order: inferior, medial, superior, lateral rectus.\nActive (oedematous) disease is hyperintense on T2/STIR, and chronic disease is fibrotic. Imaging also assesses apical crowding to determine risk to vision, and decompression is the surgical option.\nGraves disease is the commonest cause, though patients may be euthyroid or hypothyroid.",
+    "differential_diagnosis": "Idiopathic orbital inflammation (pseudotumour): tendon involvement, usually unilateral and painful\nIgG4-related disease\nLymphoma or metastasis\nCarotid-cavernous fistula (dilated superior ophthalmic vein)\nOrbital myositis",
+    "images": [
+      "/uploads/cases/spotter-case-46-1-thyroid-eye-disease-graves-orbitopat.jpg"
+    ]
+  },
+  {
+    "case_num": 47,
+    "title": "Superior mesenteric artery (SMA) syndrome",
+    "system_slug": "gastrointestinal-radiology",
+    "modality": "CT",
+    "difficulty": "easy",
+    "clinical_info": "25-year-old woman with continuous vomiting",
+    "question_text": "What part of the duodenum is compressed?\nWhat angle is measured for diagnosis?",
+    "correct_answer": "1) D3 (third part of the duodenum)\n2) Aorto-mesenteric angle, normally > 25 degrees | Third part of duodenum (D3), Aorto-mesenteric angle | D3, Aortomesenteric angle | SMA syndrome | Superior mesenteric artery syndrome | Wilkie syndrome",
+    "explanation": "The sagittal CT shows a markedly narrowed aorto-mesenteric angle, with compression of the third part of the duodenum between the superior mesenteric artery and the aorta, and the axial image shows a dilated, fluid-filled stomach and proximal duodenum.\nThe third part of the duodenum crosses between the aorta and the SMA, cushioned by a retroperitoneal fat pad. Weight loss and loss of this fat pad narrow the aorto-mesenteric angle (normally 25 to 60 degrees) and distance (normally 10 to 28 mm), and obstruct the duodenum, causing postprandial pain and bilious vomiting.",
+    "key_findings": "Aorto-mesenteric angle below about 25 degrees (and distance below about 8 mm)\nAbrupt cut-off of D3 with dilated stomach and D1-D2\nLoss of the retroperitoneal fat plane",
+    "learning_points": "The syndrome is also called Wilkie syndrome. Risk factors include rapid weight loss, anorexia nervosa, burns, prolonged bed rest, and scoliosis correction surgery.\nManagement is conservative (nutrition, positioning), and surgical duodenojejunostomy is for refractory cases.",
+    "differential_diagnosis": "Nutcracker syndrome (left renal vein compression)\nAnnular pancreas or duodenal web\nDuodenal or pancreatic head tumour\nIntestinal malrotation with Ladd bands\nAdhesions",
+    "images": [
+      "/uploads/cases/spotter-case-47-1-superior-mesenteric-artery-sma-syndr.jpg",
+      "/uploads/cases/spotter-case-47-2-superior-mesenteric-artery-sma-syndr.jpg"
+    ]
+  },
+  {
+    "case_num": 48,
+    "title": "Multiple myeloma",
+    "system_slug": "musculoskeletal-radiology",
+    "modality": "Radiograph",
+    "difficulty": "medium",
+    "clinical_info": "50-year-old man with bone pain",
+    "question_text": "What are the 4 clinically defining events in this condition?\nWhat is the most common site of involvement?",
+    "correct_answer": "1) CRAB: hypercalcaemia, renal failure, anaemia, bone disease\n2) Vertebrae | CRAB (hypercalcaemia, renal failure, anaemia, bone lesions), Vertebrae | CRAB, Spine / Vertebrae | Multiple myeloma",
+    "explanation": "The skull radiograph shows multiple well-defined, \"punched-out\" lytic lesions of varying size scattered through the calvarium, without sclerotic margins, which is the classical appearance of myeloma (\"raindrop\" or \"pepper-pot\" skull).\nMultiple myeloma is a clonal plasma cell malignancy. Osteoclast activation by tumour cells produces purely lytic lesions with little or no new bone formation, so bone scans are often cold. The spine is the most commonly affected site, followed by the skull, ribs, pelvis and proximal long bones.",
+    "key_findings": "Multiple punched-out lytic lesions in the skull, spine, pelvis and ribs\nDiffuse osteopenia and vertebral compression fractures\nSoft tissue masses from plasmacytomas",
+    "learning_points": "Whole-body low-dose CT has replaced the skeletal survey, and MRI is used for marrow infiltration and for cord compression. Diagnostic criteria require clonal bone marrow plasma cells or a plasmacytoma with a myeloma-defining event (CRAB, or biomarkers such as 60% or more marrow plasma cells).\nA solitary plasmacytoma may precede systemic disease.",
+    "differential_diagnosis": "Lytic metastases (kidney, thyroid, breast, lung)\nHyperparathyroidism: brown tumours and salt-and-pepper skull\nNormal arachnoid granulations and venous lakes\nLangerhans cell histiocytosis (children)\nPaget disease (lytic phase)",
+    "images": [
+      "/uploads/cases/spotter-case-48-1-multiple-myeloma.jpg"
+    ]
+  },
+  {
+    "case_num": 49,
+    "title": "Congenital diaphragmatic hernia",
+    "system_slug": "cardiothoracic-radiology",
+    "modality": "Radiograph",
+    "difficulty": "easy",
+    "clinical_info": "Neonate with respiratory distress",
+    "question_text": "What are the two types of this pathology?\nWhat parameter is used antenatally for prognosis?",
+    "correct_answer": "1) Morgagni and Bochdalek\n2) Lung-to-head ratio (LHR) | Bochdalek and Morgagni, Lung-to-head ratio (LHR) | Morgagni and Bochdalek, LHR | Congenital diaphragmatic hernia | CDH",
+    "explanation": "The neonatal chest radiograph shows multiple gas-filled loops of bowel in the left hemithorax with shift of the mediastinum to the right, and a relative paucity of bowel gas in the abdomen.\nCongenital diaphragmatic hernia (CDH) is a defect in the diaphragm allowing abdominal contents to enter the chest. The Bochdalek hernia (posterolateral, mostly on the left, about 85 to 90%) is the commonest type; the Morgagni hernia is anteromedial and retrosternal, usually on the right.\nThe compressed developing lung results in pulmonary hypoplasia and pulmonary hypertension, which is the cause of morbidity.",
+    "key_findings": "Bowel loops in the hemithorax, mediastinal shift to the opposite side\nNasogastric tube coiled in the chest and paucity of abdominal gas\nIpsilateral lung hypoplasia and hyperinflation of the contralateral lung",
+    "learning_points": "The observed-to-expected lung-to-head ratio (o/e LHR) and the position of the liver (\"liver up\") are the main antenatal prognostic indicators, and fetal MRI total lung volume is also used. Severe cases may be considered for fetoscopic endoluminal tracheal occlusion.\nPostnatal management starts with stabilisation, ventilation and treatment of pulmonary hypertension, and surgical repair is done later.",
+    "differential_diagnosis": "Congenital pulmonary airway malformation\nCongenital lobar emphysema\nBronchogenic cyst\nDiaphragmatic eventration\nPneumatocele or pneumothorax",
+    "images": [
+      "/uploads/cases/spotter-case-49-1-congenital-diaphragmatic-hernia.jpg"
+    ]
+  },
+  {
+    "case_num": 50,
+    "title": "Pulmonary chondroma",
+    "system_slug": "cardiothoracic-radiology",
+    "modality": "CT",
+    "difficulty": "easy",
+    "clinical_info": "Incidentally detected nodule on radiograph",
+    "question_text": "How is this lesion differentiated from a hamartoma?\nWhat syndrome can this condition be associated with?",
+    "correct_answer": "1) Hamartomas will demonstrate fat; a chondroma contains cartilaginous calcification but no fat.\n2) Carney triad: gastric stromal tumours; extra-adrenal paragangliomas; pulmonary chondromas. | Hamartoma contains fat whereas chondroma has no fat, Carney triad | Carney triad | Pulmonary chondroma",
+    "explanation": "CT shows a well-circumscribed lobulated nodule in the left lung with coarse, popcorn-type calcification and no macroscopic fat, in keeping with a pulmonary chondroma.\nPulmonary chondromas are rare benign cartilaginous tumours. In Carney triad (young women, usually non-hereditary) they occur together with gastric GIST and extra-adrenal paraganglioma, and the triad may be incomplete.",
+    "key_findings": "Smooth, well-defined nodule with chondroid (popcorn) calcification\nNo fat attenuation (differs from hamartoma)\nLook for gastric wall mass and paragangliomas in a young woman",
+    "learning_points": "Pulmonary hamartoma is the commonest benign lung tumour and may also show popcorn calcification, but shows fat on CT.\nA related dyad, the Carney-Stratakis syndrome (GIST and paraganglioma), is familial and associated with succinate dehydrogenase mutations.",
+    "differential_diagnosis": "Pulmonary hamartoma (fat with or without calcification)\nGranuloma (dense, central or diffuse calcification)\nCarcinoid tumour\nMetastasis from chondrosarcoma or osteosarcoma\nCalcified lung carcinoma",
+    "images": [
+      "/uploads/cases/spotter-case-50-1-pulmonary-chondroma.jpg"
+    ]
+  },
+  {
+    "case_num": 51,
+    "title": "Amyotrophic lateral sclerosis",
+    "system_slug": "neuroradiology",
+    "modality": "MRI",
+    "difficulty": "hard",
+    "clinical_info": "Asymmetric ascending spastic quadriparesis with dysphonia",
+    "question_text": "Name the sign demonstrated in the first image.\nWhat is the pathological basis of this disease?",
+    "correct_answer": "1) Motor band sign\n2) Loss of upper motor neurons (Betz cells) and anterior horn cells | Motor band sign, Loss of upper motor neurons (Betz cells) and anterior horn cells | Motor band sign | Amyotrophic lateral sclerosis | ALS",
+    "explanation": "The susceptibility-weighted/T2*-weighted image shows a thin band of low signal along the precentral gyrus (the motor cortex), the \"motor band sign\", which is thought to reflect iron deposition and microglial activation in the degenerating motor cortex.\nALS is a neurodegenerative disease with progressive degeneration of both upper motor neurons (corticospinal tract) and lower motor neurons (anterior horn cells and bulbar nuclei), giving spasticity, hyperreflexia, wasting, fasciculations and bulbar signs such as dysphonia.",
+    "key_findings": "Motor band sign: hypointense precentral cortex on SWI/T2*\nT2/FLAIR hyperintensity along the corticospinal tract (internal capsule, brainstem)\nPrecentral gyrus atrophy; MRI of the brain and cervical spine mainly serves to exclude mimics",
+    "learning_points": "ALS is a clinical diagnosis (El Escorial and Awaji criteria), supported by electromyography. MRI is used to exclude structural mimics such as cervical spondylotic myelopathy.\nThe motor band sign is not specific, and may also be seen in healthy older people.",
+    "differential_diagnosis": "Cervical spondylotic myelopathy\nMultiple sclerosis or other demyelinating disease\nPrimary lateral sclerosis, hereditary spastic paraparesis\nMultifocal motor neuropathy, Kennedy disease, post-polio syndrome\nSyringomyelia or Hirayama disease",
+    "images": [
+      "/uploads/cases/spotter-case-51-1-amyotrophic-lateral-sclerosis.jpg",
+      "/uploads/cases/spotter-case-51-2-amyotrophic-lateral-sclerosis.jpg"
+    ]
+  },
+  {
+    "case_num": 52,
+    "title": "CLIPPERS",
+    "system_slug": "neuroradiology",
+    "modality": "MRI",
+    "difficulty": "hard",
+    "clinical_info": "Bilateral facial numbness",
+    "question_text": "What lymphocytes are primarily involved in this pathology?\nWhat is the treatment?",
+    "correct_answer": "1) T cells (CD4)\n2) Steroids | CD4 T cells, Steroids | T lymphocytes, Corticosteroids | CLIPPERS",
+    "explanation": "Contrast-enhanced axial T1-weighted MRI shows multiple small, punctate and curvilinear enhancing foci (\"salt-and-pepper\" pattern) in the pons and cerebellum, with no significant mass effect.\nCLIPPERS (chronic lymphocytic inflammation with pontine perivascular enhancement responsive to steroids) is an inflammatory CNS disorder with perivascular infiltration of mainly CD4+ T lymphocytes. Patients present with gait ataxia, diplopia, dysarthria and facial paraesthesia or numbness, and improve dramatically with corticosteroids.",
+    "key_findings": "Punctate enhancing foci (less than 3 mm) in the pons, extending to the cerebellum, middle cerebral peduncles and sometimes the spinal cord, decreasing in size and number away from the pons\nNo restricted diffusion or significant mass effect\nMarked improvement of enhancement with steroids",
+    "learning_points": "CLIPPERS is a diagnosis of exclusion, and brain biopsy is often needed to exclude CNS lymphoma, which can also respond transiently to steroids.\nRelapse on steroid withdrawal is common, and a long taper or steroid-sparing agents are used.",
+    "differential_diagnosis": "Primary CNS lymphoma or lymphomatoid granulomatosis\nNeurosarcoidosis\nVasculitis or Behçet disease\nMultiple sclerosis\nErdheim-Chester disease or other histiocytosis",
+    "images": [
+      "/uploads/cases/spotter-case-52-1-clippers.jpg"
+    ]
+  },
+  {
+    "case_num": 53,
+    "title": "Diffuse astrocytoma",
+    "system_slug": "neuroradiology",
+    "modality": "MRI",
+    "difficulty": "hard",
+    "clinical_info": "Syncopal episodes",
+    "question_text": "What characteristic sign is denoted?\nWhat does the above sign indicate?",
+    "correct_answer": "1) T2/FLAIR mismatch sign: homogeneous T2 hyperintensity with partial or near-complete FLAIR suppression.\n2) High probability of the lesion being IDH-mutant and 1p/19q non-codeleted. | T2-FLAIR mismatch sign, IDH-mutant 1p/19q non-codeleted astrocytoma | T2/FLAIR mismatch sign | IDH-mutant astrocytoma | Diffuse astrocytoma",
+    "explanation": "The multiparametric MRI shows a non-enhancing left temporal lobe mass that is homogeneously hyperintense on T2 but relatively suppressed on FLAIR, apart from a thin hyperintense rim. This is the T2/FLAIR mismatch sign.\nThe T2/FLAIR mismatch sign is highly specific for IDH-mutant astrocytoma (1p/19q non-codeleted), the molecular subtype to which a diffuse astrocytoma belongs. Microcystic change is thought to explain the mismatch, and its sensitivity is low, but the specificity is nearly 100%.",
+    "key_findings": "T2-hyperintense mass with relative FLAIR hypointensity and a thin rim\nNo or minimal enhancement, no restricted diffusion, little mass effect\nTemporal lobe location with seizure or syncope as the presenting event",
+    "learning_points": "According to the WHO 2021 classification, astrocytoma is IDH-mutant (grades 2 to 4), and oligodendroglioma is IDH-mutant with 1p/19q codeletion (calcification, cortical involvement, and no mismatch sign).\nMaximal safe resection is the aim, followed by molecular grading and adjuvant therapy as required.",
+    "differential_diagnosis": "Oligodendroglioma (calcified, heterogeneous)\nGlioblastoma, IDH-wildtype\nDysembryoplastic neuroepithelial tumour or ganglioglioma\nPilocytic astrocytoma (cyst with enhancing nodule, children)\nLimbic encephalitis",
+    "images": [
+      "/uploads/cases/spotter-case-53-1-diffuse-astrocytoma.jpg",
+      "/uploads/cases/spotter-case-53-2-diffuse-astrocytoma.jpg",
+      "/uploads/cases/spotter-case-53-3-diffuse-astrocytoma.jpg",
+      "/uploads/cases/spotter-case-53-4-diffuse-astrocytoma.jpg"
+    ]
+  },
+  {
+    "case_num": 54,
+    "title": "Pituitary stalk interruption syndrome",
+    "system_slug": "neuroradiology",
+    "modality": "MRI",
+    "difficulty": "hard",
+    "clinical_info": "Short stature, delayed milestones and low growth hormone",
+    "question_text": "Combination of hyperprolactinaemia and hypothyroidism results in what syndrome?\nHow is this condition different from ectopic posterior pituitary?",
+    "correct_answer": "1) Pickardt syndrome\n2) Pituitary stalk interruption syndrome also shows a hypoplastic anterior pituitary (with a thin or absent stalk), in addition to the ectopic posterior pituitary. | Pickardt syndrome, Hypoplastic anterior pituitary with thin/absent stalk | Pickardt syndrome | Pituitary stalk interruption syndrome | PSIS",
+    "explanation": "The sagittal T1-weighted MRI shows a small anterior pituitary, a thin or non-visualised pituitary stalk, and an ectopic T1-hyperintense posterior pituitary at the median eminence.\nPituitary stalk interruption syndrome (PSIS) comprises a thin or absent pituitary stalk, an ectopic (or absent) posterior pituitary bright spot, and a hypoplastic or aplastic anterior pituitary. Without the stalk, hypothalamic releasing hormones cannot reach the anterior pituitary, causing growth hormone deficiency and later deficiency of other hormones, while the loss of dopamine inhibition may cause hyperprolactinaemia.",
+    "key_findings": "Thin, interrupted or absent pituitary stalk\nEctopic posterior pituitary (T1 bright spot at the median eminence)\nHypoplastic anterior pituitary (small, flattened gland)\nThin-section sagittal and coronal T1 are needed",
+    "learning_points": "PSIS is associated with perinatal insults (breech delivery, hypoxia) and with gene mutations (HESX1, LHX4, OTX2, SOX3). Midline anomalies and extrapituitary malformations are common.\nPituitary function must be monitored for evolving deficiencies. Neonates can present with hypoglycaemia and prolonged jaundice.",
+    "differential_diagnosis": "Isolated growth hormone deficiency with a normal MRI\nSepto-optic dysplasia\nCraniopharyngioma or Rathke cleft cyst\nLangerhans cell histiocytosis or germinoma (thickened stalk)\nHypophysitis",
+    "images": [
+      "/uploads/cases/spotter-case-54-1-pituitary-stalk-interruption-syndrom.jpg"
+    ]
+  },
+  {
+    "case_num": 55,
+    "title": "Hypertrophic olivary degeneration",
+    "system_slug": "neuroradiology",
+    "modality": "MRI",
+    "difficulty": "hard",
+    "clinical_info": "Sudden-onset palatal myoclonus",
+    "question_text": "The enlargement of what anatomic structure results in this appearance?\nWhat is the pathophysiology of this appearance?",
+    "correct_answer": "1) Inferior olivary nucleus\n2) Trans-synaptic degeneration caused by a brainstem or cerebellar lesion interrupting the triangle of Guillain and Mollaret (the dentato-rubro-olivary pathway), resulting in hypertrophy of the inferior olivary nucleus. | Inferior olivary nucleus, Trans-synaptic degeneration of Guillain-Mollaret triangle | Inferior olivary nucleus, Guillain-Mollaret triangle | Hypertrophic olivary degeneration | HOD",
+    "explanation": "Axial T2-weighted MRI of the medulla shows enlarged and T2-hyperintense inferior olivary nucleus, without enhancement, in a patient with palatal myoclonus.\nHypertrophic olivary degeneration is a form of trans-synaptic degeneration that follows a lesion (haemorrhage, infarct, trauma, surgery or tumour) in the Guillain-Mollaret triangle. The triangle connects the dentate nucleus (via the superior cerebellar peduncle) to the contralateral red nucleus, then the central tegmental tract to the ipsilateral inferior olive, and back to the contralateral cerebellum via the inferior cerebellar peduncle.",
+    "key_findings": "Enlarged, T2-hyperintense inferior olive on the side of the lesion in the pathway (ipsilateral central tegmental tract or contralateral dentate nucleus)\nNo contrast enhancement and no restricted diffusion\nEvidence of the primary lesion (old haemorrhage, cavernoma, infarct, surgery)",
+    "learning_points": "The MRI evolves over time: T2 hyperintensity appears at about 1 month, hypertrophy at about 6 months, and later the hypertrophy resolves while the hyperintensity persists and the olive finally atrophies.\nClinical presentation is typically with palatal myoclonus (palatal tremor), often months after the insult, and sometimes ocular myoclonus or ataxia.",
+    "differential_diagnosis": "Medullary infarct or demyelination\nBrainstem tumour or metastasis\nBrainstem encephalitis\nWernicke encephalopathy or Leigh disease",
+    "images": [
+      "/uploads/cases/spotter-case-55-1-hypertrophic-olivary-degeneration.jpg"
+    ]
+  }
+]

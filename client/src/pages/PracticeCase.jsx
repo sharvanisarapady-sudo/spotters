@@ -12,7 +12,7 @@ function Section({ title, content, badge }) {
     <div className="rounded-2xl border border-gray-200 bg-white p-6">
       <h2 className="font-display font-semibold text-sm tracking-wide uppercase text-navy-950">{title}</h2>
       {badge && (
-        <p className="mt-3 inline-block rounded-lg bg-spotter-blue/10 border border-spotter-blue/20 px-3 py-1.5 font-display font-semibold text-sm text-spotter-blue">
+        <p className="mt-3 inline-block rounded-lg bg-spotter-blue/10 border border-spotter-blue/20 px-3 py-1.5 font-display font-semibold text-sm text-spotter-blue whitespace-pre-line">
           {badge}
         </p>
       )}

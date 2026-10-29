@@ -9,8 +9,8 @@ router.use(requireAuth, requireRole('admin'));
 
 const text = (f, max) => body(f).optional({ nullable: true }).isString().isLength({ max }).withMessage(`${f} is too long.`);
 const caseBody = [
-  text('title', 255), text('modality', 50), text('clinical_info', 20000), text('question_text', 20000),
-  text('correct_answer', 255), text('explanation', 20000), text('key_findings', 20000),
+  text('title', 255), text('modality', 80), text('clinical_info', 20000), text('question_text', 20000),
+  text('correct_answer', 5000), text('explanation', 20000), text('key_findings', 20000),
   text('learning_points', 20000), text('differential_diagnosis', 20000),
   body('system_id').optional().isInt({ min: 1 }).withMessage('Invalid system.'),
   body('difficulty').optional({ nullable: true }).isIn(['easy', 'medium', 'hard']).withMessage('Invalid difficulty.'),
