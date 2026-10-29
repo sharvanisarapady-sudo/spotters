@@ -3,7 +3,7 @@ import DashboardLayout from '../layouts/DashboardLayout';
 import { adminService } from '../services/adminService';
 
 const MAX_BYTES = 10 * 1024 * 1024;
-const ALLOWED = ['image/jpeg', 'image/png', 'image/webp'];
+const ALLOWED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 const STATUSES = ['draft', 'pending_review', 'approved', 'published'];
 
 const errMsg = (err, fallback) => err.response?.data?.message || fallback;
@@ -591,16 +591,19 @@ function CaseEditor({ caseId, onChanged }) {
         <ul className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {detail.images.map((img, i) => (
             <li key={img.id} className="relative rounded-lg overflow-hidden bg-navy-950 aspect-square">
-              <span className="absolute inset-0 flex items-center justify-center text-[10px] text-white/30">Image unavailable</span>
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-2 text-center">
+                <span className="text-[11px] font-medium text-amber-300">File missing on server</span>
+                <span className="mt-1 text-[10px] text-white/50">Delete &amp; re-upload scan to save in cloud DB</span>
+              </div>
               <img
                 src={img.image_url}
                 alt={`Case image ${i + 1}`}
-                className="relative w-full h-full object-cover"
+                className="relative w-full h-full object-cover bg-navy-950"
                 onError={(ev) => { ev.currentTarget.style.display = 'none'; }}
               />
               <button
                 onClick={() => remove(img)}
-                className="absolute top-1.5 right-1.5 rounded bg-black/60 px-2 py-0.5 text-[11px] text-white hover:bg-red-600"
+                className="absolute top-1.5 right-1.5 rounded bg-black/70 px-2 py-0.5 text-[11px] text-white hover:bg-red-600"
                 aria-label={`Delete image ${i + 1}`}
               >
                 Delete

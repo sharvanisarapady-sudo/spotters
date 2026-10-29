@@ -16,7 +16,6 @@ const testRoutes = require('./routes/testRoutes');
 const progressRoutes = require('./routes/progressRoutes');
 const navigationAiRoutes = require('./routes/navigationAiRoutes');
 const adminRoutes = require('./routes/adminRoutes');
-const { requireAuth } = require('./middleware/authMiddleware');
 const { describeConfig, trainModel } = require('./services/aiService');
 const { readImageBuffer } = require('./services/imageStorageService');
 const systemModel = require('./models/systemModel');
@@ -74,24 +73,38 @@ app.use('/api/progress', progressRoutes);
 app.use('/api/navigation-ai', navigationAiRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Serve local uploaded scans with automatic cloud-DB fallback if Render wiped ephemeral disk
+// Serve local uploaded scans with automatic cloud-DB fallback if Render wiped ephemeral disk.
+// Uses unguessable UUID filenames (no directory listing) so <img> tags on mobile Safari / lazy load never fail on cookies.
 app.use(
   '/uploads',
-  requireAuth,
   express.static(path.join(__dirname, 'uploads'), {
     maxAge: '7d',
     immutable: true,
     dotfiles: 'deny',
     index: false,
-    setHeaders: (res) => res.setHeader('Cache-Control', 'private, max-age=604800, immutable'),
+    setHeaders: (res) => {
+      res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    },
   }),
   async (req, res, next) => {
     if (req.method !== 'GET' && req.method !== 'HEAD') return next();
-    const loaded = await readImageBuffer(`/uploads${req.path}`);
-    if (!loaded?.buffer) return res.status(404).end();
-    res.setHeader('Content-Type', loaded.mimeType || 'image/jpeg');
-    res.setHeader('Cache-Control', 'private, max-age=604800, immutable');
-    return res.end(loaded.buffer);
+    try {
+      const loaded = await readImageBuffer(`/uploads${req.path}`);
+      if (!loaded?.buffer) {
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(404).end();
+      }
+      res.setHeader('Content-Type', loaded.mimeType || 'image/jpeg');
+      res.setHeader('Content-Length', loaded.buffer.length);
+      res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      return res.end(loaded.buffer);
+    } catch (err) {
+      console.warn('[uploads] DB restore transient error:', err.message);
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(503).end();
+    }
   }
 );
 

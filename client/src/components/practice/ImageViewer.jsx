@@ -4,19 +4,26 @@ import { IconCrosshair, IconZoomIn, IconZoomOut, IconReset, IconExpand } from '.
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 4;
 const ZOOM_STEP = 0.5;
+const MAX_AUTO_RETRIES = 2;
+
+function withRetryParam(url, attempt) {
+  if (!url || !attempt) return url;
+  const sep = url.includes('?') ? '&' : '?';
+  return `${url}${sep}retry=${attempt}`;
+}
 
 /**
- * The Practice case image viewer. Architecture supports multiple
- * images per case (via `images`) with thumbnail navigation; when
- * no images exist yet, shows the required "Radiology Image"
- * placeholder instead of inventing any content.
+ * The Practice / Test / AI Mentor case image viewer.
+ * Supports multi-slice stacks, auto-retry on transient cloud wake-ups,
+ * cache-busted manual retry, zoom, and fullscreen.
  */
 export default function ImageViewer({ images = [] }) {
   const containerRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [zoom, setZoom] = useState(MIN_ZOOM);
   const [, setIsFullscreen] = useState(false);
-  const [failed, setFailed] = useState({}); // image ids that could not be loaded
+  const [failed, setFailed] = useState({}); // image ids that exhausted auto-retries
+  const [retries, setRetries] = useState({}); // image id -> retry count
 
   // New case / new image set: forget previous selection and load failures.
   const imageKey = images.map((i) => i.id).join(',');
@@ -24,6 +31,7 @@ export default function ImageViewer({ images = [] }) {
     setActiveIndex(0);
     setZoom(MIN_ZOOM);
     setFailed({});
+    setRetries({});
   }, [imageKey]);
 
   const hasImages = images.length > 0;
@@ -40,14 +48,13 @@ export default function ImageViewer({ images = [] }) {
     }
   }, [activeIndex, count, images]);
 
-  // MRI/CT-style stack scrolling: mouse wheel moves through slices. Needs a native
-  // listener (not React's onWheel) so we can stop the page itself from scrolling.
+  // MRI/CT-style stack scrolling: mouse wheel moves through slices.
   useEffect(() => {
     const el = containerRef.current;
     if (!el || count < 2) return undefined;
-    let acc = 0; // trackpads fire many tiny events; one slice per ~50px of scroll
+    let acc = 0;
     const onWheel = (e) => {
-      if (e.ctrlKey) return; // leave pinch / ctrl+wheel browser zoom alone
+      if (e.ctrlKey) return;
       e.preventDefault();
       acc += e.deltaY;
       if (Math.abs(acc) < 50) return;
@@ -65,7 +72,25 @@ export default function ImageViewer({ images = [] }) {
     e.preventDefault();
     setActiveIndex((i) => Math.min(count - 1, Math.max(0, i + dir)));
   };
+
   const activeImage = hasImages ? images[activeIndex] : null;
+
+  const handleImageError = (imgId) => {
+    const currentAttempt = retries[imgId] || 0;
+    if (currentAttempt < MAX_AUTO_RETRIES) {
+      const nextAttempt = currentAttempt + 1;
+      setTimeout(() => {
+        setRetries((r) => ({ ...r, [imgId]: nextAttempt }));
+      }, 900 * nextAttempt);
+    } else {
+      setFailed((f) => ({ ...f, [imgId]: true }));
+    }
+  };
+
+  const manualRetry = (imgId) => {
+    setFailed((f) => ({ ...f, [imgId]: false }));
+    setRetries((r) => ({ ...r, [imgId]: (r[imgId] || 0) + 1 }));
+  };
 
   const zoomIn = () => setZoom((z) => Math.min(MAX_ZOOM, z + ZOOM_STEP));
   const zoomOut = () => setZoom((z) => Math.max(MIN_ZOOM, z - ZOOM_STEP));
@@ -82,8 +107,7 @@ export default function ImageViewer({ images = [] }) {
         setIsFullscreen(false);
       }
     } catch {
-      // Fullscreen API unavailable in this browser — controls remain
-      // fully usable without it.
+      // Fullscreen API unavailable in this browser
     }
   };
 
@@ -141,22 +165,27 @@ export default function ImageViewer({ images = [] }) {
       >
         {hasImages ? (
           failed[activeImage.id] ? (
-            <div className="flex flex-col items-center gap-3 px-6 text-center text-white/40" role="alert">
-              <IconCrosshair className="w-12 h-12" />
-              <span className="text-sm">This image could not be loaded.</span>
+            <div className="flex flex-col items-center gap-3 px-6 text-center text-white/50" role="alert">
+              <IconCrosshair className="w-12 h-12 text-white/30" />
+              <span className="text-sm">This scan image is unavailable.</span>
+              <span className="text-xs text-white/35 max-w-xs">
+                If this case was uploaded before cloud image backup was enabled, re-upload its image in Content &amp; Blocks.
+              </span>
               <button
-                onClick={() => setFailed((f) => ({ ...f, [activeImage.id]: false }))}
-                className="text-xs rounded-md border border-white/20 px-3 py-1 text-white/70 hover:text-white hover:border-white/50"
+                type="button"
+                onClick={() => manualRetry(activeImage.id)}
+                className="text-xs rounded-md border border-white/20 px-3 py-1 text-white/80 hover:text-white hover:border-white/50"
               >
-                Retry
+                Retry Loading Image
               </button>
             </div>
           ) : (
             <img
-              src={activeImage.image_url}
+              key={`${activeImage.id}-${retries[activeImage.id] || 0}`}
+              src={withRetryParam(activeImage.image_url, retries[activeImage.id] || 0)}
               alt="Radiology case"
               decoding="async"
-              onError={() => setFailed((f) => ({ ...f, [activeImage.id]: true }))}
+              onError={() => handleImageError(activeImage.id)}
               className="max-w-full max-h-full object-contain transition-transform duration-200 ease-out select-none"
               style={{ transform: `scale(${zoom})` }}
               draggable={false}
@@ -170,7 +199,7 @@ export default function ImageViewer({ images = [] }) {
         )}
       </div>
 
-      {/* Slice slider (stack scrolling; same as wheel / arrow keys) */}
+      {/* Slice slider */}
       {count > 1 && (
         <div className="px-4 py-2 border-t border-white/10">
           <input
@@ -185,7 +214,7 @@ export default function ImageViewer({ images = [] }) {
         </div>
       )}
 
-      {/* Thumbnails / Slice selector (only when there's more than one image) */}
+      {/* Thumbnails / Slice selector */}
       {images.length > 1 && (
         <div className="flex gap-2 px-4 py-3 border-t border-white/10 overflow-x-auto">
           {images.length <= 6
@@ -205,11 +234,11 @@ export default function ImageViewer({ images = [] }) {
                     <span className="w-full h-full flex items-center justify-center bg-white/5 text-white/30 text-[10px]">N/A</span>
                   ) : (
                     <img
-                      src={img.image_url}
+                      src={withRetryParam(img.image_url, retries[img.id] || 0)}
                       alt=""
                       loading="lazy"
                       decoding="async"
-                      onError={() => setFailed((f) => ({ ...f, [img.id]: true }))}
+                      onError={() => handleImageError(img.id)}
                       className="w-full h-full object-cover"
                     />
                   )}

@@ -5,6 +5,40 @@ import Disclaimer from '../components/Disclaimer';
 import { navigationAiService } from '../services/navigationAiService';
 import { IconCrosshair, IconMic, IconSpark } from '../components/icons';
 
+function AiCaseThumb({ thumbnailUrl }) {
+  const [retry, setRetry] = useState(0);
+  const [failed, setFailed] = useState(false);
+
+  if (!thumbnailUrl || failed) {
+    return (
+      <div className="flex flex-col items-center gap-2 text-white/20">
+        <IconCrosshair className="w-8 h-8" />
+        <span className="font-mono text-[10px] tracking-widest uppercase">Radiology Image</span>
+      </div>
+    );
+  }
+
+  const src = retry > 0 ? `${thumbnailUrl}${thumbnailUrl.includes('?') ? '&' : '?'}retry=${retry}` : thumbnailUrl;
+
+  return (
+    <img
+      key={retry}
+      src={src}
+      alt=""
+      loading="lazy"
+      decoding="async"
+      onError={() => {
+        if (retry < 1) {
+          setTimeout(() => setRetry(1), 900);
+        } else {
+          setFailed(true);
+        }
+      }}
+      className="w-full h-full object-cover"
+    />
+  );
+}
+
 export default function NavigationAI() {
   const [cases, setCases] = useState([]);
   const [modelStatus, setModelStatus] = useState(null);
@@ -92,20 +126,7 @@ export default function NavigationAI() {
                   className="group rounded-2xl border border-gray-200 bg-white overflow-hidden hover:border-spotter-blue/40 hover:shadow-lg hover:shadow-spotter-blue/5 transition"
                 >
                   <div className="aspect-video bg-navy-950 flex items-center justify-center">
-                    {c.thumbnail_url ? (
-                      <img
-                        src={c.thumbnail_url}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center gap-2 text-white/20">
-                        <IconCrosshair className="w-8 h-8" />
-                        <span className="font-mono text-[10px] tracking-widest uppercase">Radiology Image</span>
-                      </div>
-                    )}
+                    <AiCaseThumb thumbnailUrl={c.thumbnail_url} />
                   </div>
                   <div className="p-4">
                     <h3 className="font-medium text-navy-950 text-sm truncate">

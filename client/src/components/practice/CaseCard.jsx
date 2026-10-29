@@ -10,15 +10,38 @@ const difficultyStyles = {
 };
 
 export default function CaseCard({ caseItem, systemSlug }) {
+  const [retryCount, setRetryCount] = useState(0);
   const [thumbFailed, setThumbFailed] = useState(false);
+
+  const thumbSrc =
+    caseItem.thumbnail_url && retryCount > 0
+      ? `${caseItem.thumbnail_url}${caseItem.thumbnail_url.includes('?') ? '&' : '?'}retry=${retryCount}`
+      : caseItem.thumbnail_url;
+
+  const handleThumbError = () => {
+    if (retryCount < 1) {
+      setTimeout(() => setRetryCount(1), 900);
+    } else {
+      setThumbFailed(true);
+    }
+  };
+
   return (
     <Link
       to={`/practice/${systemSlug}/${caseItem.id}`}
       className="group rounded-2xl border border-gray-200 bg-white overflow-hidden hover:border-spotter-blue/40 hover:shadow-lg hover:shadow-spotter-blue/5 transition"
     >
       <div className="relative aspect-video bg-navy-950 flex items-center justify-center">
-        {caseItem.thumbnail_url && !thumbFailed ? (
-          <img src={caseItem.thumbnail_url} alt="" onError={() => setThumbFailed(true)} className="w-full h-full object-cover" />
+        {thumbSrc && !thumbFailed ? (
+          <img
+            key={retryCount}
+            src={thumbSrc}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            onError={handleThumbError}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <div className="flex flex-col items-center gap-2 text-white/20">
             <IconCrosshair className="w-8 h-8" />

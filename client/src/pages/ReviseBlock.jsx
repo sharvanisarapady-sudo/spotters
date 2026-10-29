@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../layouts/DashboardLayout';
+import ImageViewer from '../components/practice/ImageViewer';
 import { progressService } from '../services/progressService';
 import { IconBack } from '../components/icons';
 
@@ -8,7 +9,6 @@ export default function ReviseBlock() {
   const [cases, setCases] = useState([]);
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
-  const [sliceIndex, setSliceIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -23,7 +23,6 @@ export default function ReviseBlock() {
   // Reset per-card state whenever the active case changes
   useEffect(() => {
     setRevealed(false);
-    setSliceIndex(0);
   }, [index]);
 
   const current = cases[index] ?? null;
@@ -99,35 +98,7 @@ export default function ReviseBlock() {
         {!loading && !error && current && (
           <div className="mt-8 space-y-6">
             {/* Image viewer */}
-            {images.length > 0 && (
-              <div className="rounded-2xl border border-gray-200 bg-black overflow-hidden">
-                <img
-                  src={images[sliceIndex]?.image_url}
-                  alt={`${current.title} — image ${sliceIndex + 1}`}
-                  className="w-full object-contain max-h-[480px]"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                  }}
-                />
-
-                {/* Slice scrubber */}
-                {images.length > 1 && (
-                  <div className="bg-gray-900 px-4 py-3 flex items-center gap-3">
-                    <span className="font-mono text-xs text-gray-400 shrink-0">
-                      {sliceIndex + 1}/{images.length}
-                    </span>
-                    <input
-                      type="range"
-                      min={0}
-                      max={images.length - 1}
-                      value={sliceIndex}
-                      onChange={(e) => setSliceIndex(Number(e.target.value))}
-                      className="flex-1 accent-amber-400"
-                    />
-                  </div>
-                )}
-              </div>
-            )}
+            {images.length > 0 && <ImageViewer images={images} />}
 
             {/* Case info */}
             <div className="rounded-2xl border border-gray-200 bg-white p-6">

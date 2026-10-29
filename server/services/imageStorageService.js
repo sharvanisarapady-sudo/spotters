@@ -2,8 +2,10 @@
  * Local + Cloud-DB backed image storage for case images.
  *
  * Files live in server/uploads/cases/ for fast disk serving AND are backed up
- * in `stored_files` in MySQL/TiDB so ephemeral cloud hosts (like Render Free)
- * never lose uploaded medical images across restarts or deployments.
+ * in `stored_files` in MySQL/TiDB (chunked at 2.5 MB per row so even 10 MB
+ * scans stay well under TiDB Serverless's 6 MB single-row limit).
+ * Ephemeral cloud hosts (like Render Free) never lose uploaded medical images
+ * across restarts or deployments.
  */
 const fs = require('fs');
 const path = require('path');
@@ -13,6 +15,7 @@ const { pool } = require('../config/db');
 const UPLOAD_DIR = path.resolve(__dirname, '..', 'uploads', 'cases');
 const URL_PREFIX = '/uploads/cases/';
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB
+const CHUNK_BYTES = Math.floor(2.5 * 1024 * 1024); // 2.5 MB per DB row (safe for TiDB 6 MB row limit)
 
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
@@ -60,8 +63,16 @@ async function sniffFile(filePath) {
 
 /** Resolves a stored URL to an absolute path, or null if it is not a safe local upload. */
 function urlToPath(imageUrl) {
-  if (typeof imageUrl !== 'string' || !imageUrl.startsWith(URL_PREFIX)) return null;
-  const name = imageUrl.slice(URL_PREFIX.length);
+  if (typeof imageUrl !== 'string') return null;
+  const cleanUrl = imageUrl.split('?')[0];
+  let decoded = cleanUrl;
+  try {
+    decoded = decodeURIComponent(cleanUrl);
+  } catch {
+    decoded = cleanUrl;
+  }
+  if (!decoded.startsWith(URL_PREFIX)) return null;
+  const name = decoded.slice(URL_PREFIX.length);
   if (!/^[A-Za-z0-9._-]+$/.test(name) || name.startsWith('.')) return null;
   const abs = path.resolve(UPLOAD_DIR, name);
   return abs.startsWith(UPLOAD_DIR + path.sep) ? abs : null;
@@ -74,13 +85,41 @@ async function removePaths(paths) {
   );
 }
 
-/** Best-effort delete of a stored local image by URL; external URLs are left alone. */
+/** Best-effort delete of a stored local image by URL (including all DB backup chunks). */
 async function removeByUrl(imageUrl) {
   const abs = urlToPath(imageUrl);
   if (abs) {
     await removePaths([abs]);
     const filename = path.basename(abs);
-    pool.query('DELETE FROM stored_files WHERE filename = ?', [filename]).catch(() => {});
+    pool
+      .query('DELETE FROM stored_files WHERE filename = ? OR filename LIKE ?', [filename, `${filename}#%`])
+      .catch(() => {});
+  }
+}
+
+async function persistBufferToDb(filename, mime, buf) {
+  await ensureStoredFilesTable();
+  const totalChunks = Math.max(1, Math.ceil(buf.length / CHUNK_BYTES));
+
+  for (let c = 0; c < totalChunks; c += 1) {
+    const slice = buf.subarray(c * CHUNK_BYTES, (c + 1) * CHUNK_BYTES);
+    const key = c === 0 ? filename : `${filename}#${c}`;
+    const storedMime = c === 0 && totalChunks > 1 ? `${mime};chunks=${totalChunks}` : mime;
+
+    let saved = false;
+    for (let attempt = 0; attempt < 2 && !saved; attempt += 1) {
+      try {
+        await pool.query(
+          `INSERT INTO stored_files (filename, mime_type, file_data) VALUES (?, ?, ?)
+           ON DUPLICATE KEY UPDATE file_data = VALUES(file_data), mime_type = VALUES(mime_type)`,
+          [key, storedMime, slice]
+        );
+        saved = true;
+      } catch (err) {
+        if (attempt === 1) throw err;
+        await new Promise((r) => setTimeout(r, 400));
+      }
+    }
   }
 }
 
@@ -93,35 +132,60 @@ async function readImageBuffer(imageUrl) {
 
   try {
     const buf = await fs.promises.readFile(abs);
-    const type = sniffImageType(buf) || { mime: 'image/jpeg', ext: 'jpg' };
-    return { buffer: buf, mimeType: type.mime, filePath: abs };
+    if (buf.length > 0) {
+      const type = sniffImageType(buf) || { mime: 'image/jpeg', ext: 'jpg' };
+      return { buffer: buf, mimeType: type.mime, filePath: abs };
+    }
   } catch {
-    // Not on local disk (e.g. Render ephemeral container restart) — try restoring from DB
+    // Not on local disk (e.g. Render ephemeral container restart) — restore from DB
   }
 
-  try {
-    await ensureStoredFilesTable();
-    const filename = path.basename(abs);
-    const [rows] = await pool.query(
-      'SELECT mime_type, file_data FROM stored_files WHERE filename = ? LIMIT 1',
-      [filename]
-    );
-    if (rows[0] && rows[0].file_data) {
-      const buf = Buffer.isBuffer(rows[0].file_data)
-        ? rows[0].file_data
-        : Buffer.from(rows[0].file_data);
-      await fs.promises.writeFile(abs, buf).catch(() => {});
-      return { buffer: buf, mimeType: rows[0].mime_type || 'image/jpeg', filePath: abs };
-    }
-  } catch (err) {
-    console.warn('[storage] DB image restore warning:', err.message);
+  await ensureStoredFilesTable();
+  const filename = path.basename(abs);
+  const [rows] = await pool.query(
+    'SELECT mime_type, file_data FROM stored_files WHERE filename = ? LIMIT 1',
+    [filename]
+  );
+  if (!rows[0] || !rows[0].file_data) {
+    return null;
   }
-  return null;
+
+  const rawMime = rows[0].mime_type || 'image/jpeg';
+  const [cleanMime, chunkMeta] = rawMime.split(';chunks=');
+  const totalChunks = chunkMeta ? Number(chunkMeta) : 1;
+
+  const chunks = [
+    Buffer.isBuffer(rows[0].file_data) ? rows[0].file_data : Buffer.from(rows[0].file_data),
+  ];
+
+  if (totalChunks > 1) {
+    const partKeys = Array.from({ length: totalChunks - 1 }, (_, i) => `${filename}#${i + 1}`);
+    const [partRows] = await pool.query(
+      `SELECT filename, file_data FROM stored_files WHERE filename IN (${partKeys.map(() => '?').join(',')})`,
+      partKeys
+    );
+    const partMap = new Map(
+      partRows.map((r) => [
+        r.filename,
+        Buffer.isBuffer(r.file_data) ? r.file_data : Buffer.from(r.file_data),
+      ])
+    );
+    for (const k of partKeys) {
+      const partBuf = partMap.get(k);
+      if (!partBuf) return null;
+      chunks.push(partBuf);
+    }
+  }
+
+  const fullBuffer = chunks.length === 1 ? chunks[0] : Buffer.concat(chunks);
+  // Cache back to local container disk so subsequent requests are served in <1ms
+  await fs.promises.writeFile(abs, fullBuffer).catch(() => {});
+  return { buffer: fullBuffer, mimeType: cleanMime || 'image/jpeg', filePath: abs };
 }
 
 /**
  * Validates freshly uploaded temp files (multer disk files), moves them to
- * their final content-derived names, and persists a copy in `stored_files` for durability.
+ * their final content-derived names, and persists a chunked copy in `stored_files`.
  */
 async function finalizeUploads(files) {
   const tempPaths = files.map((f) => f.path);
@@ -135,8 +199,6 @@ async function finalizeUploads(files) {
       types.push(type);
     }
 
-    await ensureStoredFilesTable();
-
     const urls = [];
     for (let i = 0; i < files.length; i += 1) {
       const name = `${crypto.randomUUID()}.${types[i].ext}`;
@@ -145,14 +207,10 @@ async function finalizeUploads(files) {
       finalPaths.push(dest);
       urls.push(URL_PREFIX + name);
 
-      // Persist in DB so cloud container restarts never wipe the image
+      // Persist in DB (chunked) so cloud container restarts never wipe the image
       try {
         const buf = await fs.promises.readFile(dest);
-        await pool.query(
-          `INSERT INTO stored_files (filename, mime_type, file_data) VALUES (?, ?, ?)
-           ON DUPLICATE KEY UPDATE file_data = VALUES(file_data), mime_type = VALUES(mime_type)`,
-          [name, types[i].mime, buf]
-        );
+        await persistBufferToDb(name, types[i].mime, buf);
       } catch (dbErr) {
         console.warn('[storage] Could not persist backup blob in DB:', dbErr.message);
       }
