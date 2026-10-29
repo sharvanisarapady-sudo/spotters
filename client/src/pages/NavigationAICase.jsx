@@ -396,7 +396,20 @@ export default function NavigationAICase() {
                 </div>
 
                 {a.notice && (
-                  <p className="mt-4 text-xs text-gray-500 border-l-2 border-spotter-blue/40 pl-3">
+                  <p
+                    className={`mt-4 text-xs border-l-2 pl-3 ${
+                      a.fallback
+                        ? 'text-amber-800 border-amber-400 bg-amber-50 py-2 pr-3 rounded-r'
+                        : 'text-gray-500 border-spotter-blue/40'
+                    }`}
+                  >
+                    <span className="font-medium">
+                      {a.fallback
+                        ? 'AI unavailable — showing stored case feedback. '
+                        : a.mode === 'demo'
+                        ? 'Demo mode. '
+                        : ''}
+                    </span>
                     {a.notice}
                   </p>
                 )}

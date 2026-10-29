@@ -56,14 +56,14 @@ async function geminiFeedbackProvider(input) {
         adjusted = {
           verdict: 'correct',
           partial: false,
-          headline: 'Correct Diagnosis — AI Case Mentor Verified',
-          matchLabel: 'Accepted as clinically equivalent (AI Vision + Case Mentor)',
+          headline: 'Correct Diagnosis (AI-Checked)',
+          matchLabel: 'Accepted as equivalent to the recorded diagnosis (AI-checked)',
         };
       } else if (j.verdict === 'partial') {
         adjusted = {
           partial: true,
-          headline: 'Partially Correct — Right Track, Needs Specific Diagnosis',
-          matchLabel: 'Clinically related, needs higher specificity',
+          headline: 'Partially Correct',
+          matchLabel: 'Close: partly correct, but not specific enough',
         };
       }
     } catch {
@@ -76,7 +76,7 @@ async function geminiFeedbackProvider(input) {
   const fb = await geminiProvider.generateFeedback({
     caseData: input.caseData,
     studentAnswer: input.studentAnswer,
-    verdict: mergedBase.partial ? 'partially correct (close differential or finding)' : mergedBase.verdict,
+    verdict: mergedBase.partial ? 'partially correct (right track, not specific enough)' : mergedBase.verdict,
     apiKey: input.apiKey,
     model: input.model || 'gemini-2.5-flash',
   });
@@ -187,7 +187,7 @@ async function analyzeAnswer({ caseData, studentAnswer }) {
   } catch (err) {
     console.error(`[ai] external provider "${provider.name}" failed (${err.kind || err.message}); using trained case mentor`);
     const trained = await trainedCaseMentorProvider(input);
-    return { ...trained, fallback: false };
+    return { ...trained, fallback: true };
   }
 }
 
