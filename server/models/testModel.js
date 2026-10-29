@@ -1,5 +1,6 @@
 const { pool } = require('../config/db');
 const caseAdminModel = require('./caseAdminModel');
+const cache = require('../utils/cache');
 
 function shuffleArray(items) {
   const arr = [...items];
@@ -11,28 +12,32 @@ function shuffleArray(items) {
 }
 
 const testModel = {
-  /** All blocks with a live count of attached questions. */
+  /** All blocks with a live count of attached questions (cached in RAM for instant loading). */
   async listBlocks() {
-    await caseAdminModel.ensureSynced();
-    const [rows] = await pool.query(
-      `SELECT t.id, t.block_number, t.title, t.block_type, t.system_id,
-              t.total_questions, t.seconds_per_question, t.is_active,
-              s.name AS system_name, s.slug AS system_slug, s.display_order AS system_order,
-              COUNT(tq.id) AS question_count
-       FROM tests t
-       LEFT JOIN systems s ON s.id = t.system_id
-       LEFT JOIN test_questions tq ON tq.test_id = t.id
-       GROUP BY t.id, t.block_number, t.title, t.block_type, t.system_id,
+    return cache.getOrSet('tests:listBlocks', 120000, async () => {
+      await caseAdminModel.ensureSynced();
+      const [rows] = await pool.query(
+        `SELECT t.id, t.block_number, t.title, t.block_type, t.system_id,
                 t.total_questions, t.seconds_per_question, t.is_active,
-                s.name, s.slug, s.display_order
-       ORDER BY t.block_type ASC, COALESCE(s.display_order, t.block_number) ASC`
-    );
-    return rows;
+                s.name AS system_name, s.slug AS system_slug, s.display_order AS system_order,
+                COUNT(tq.id) AS question_count
+         FROM tests t
+         LEFT JOIN systems s ON s.id = t.system_id
+         LEFT JOIN test_questions tq ON tq.test_id = t.id
+         GROUP BY t.id, t.block_number, t.title, t.block_type, t.system_id,
+                  t.total_questions, t.seconds_per_question, t.is_active,
+                  s.name, s.slug, s.display_order
+         ORDER BY t.block_type ASC, COALESCE(s.display_order, t.block_number) ASC`
+      );
+      return rows;
+    });
   },
 
   async getBlockById(testId) {
-    const [rows] = await pool.query('SELECT * FROM tests WHERE id = ? LIMIT 1', [testId]);
-    return rows[0] || null;
+    return cache.getOrSet(`tests:block:${testId}`, 120000, async () => {
+      const [rows] = await pool.query('SELECT * FROM tests WHERE id = ? LIMIT 1', [testId]);
+      return rows[0] || null;
+    });
   },
 
   async getQuestionCount(testId) {
@@ -41,65 +46,63 @@ const testModel = {
   },
 
   /**
-   * Questions for an active attempt — safe fields only. Never includes
-   * correct_answer, explanation, key_findings, learning_points, or
-   * differential_diagnosis; those stay server-side until results.
+   * Questions for an active attempt — safe fields only. Cached per block and freshly shuffled per attempt.
    */
   async getQuestionsForAttempt(testId) {
-    const [rows] = await pool.query(
-      `SELECT tq.id AS test_question_id, tq.question_order, pc.id AS case_id,
-              pc.title, pc.modality, pc.difficulty, pc.clinical_info, pc.question_text
-       FROM test_questions tq
-       JOIN practice_cases pc ON pc.id = tq.case_id
-       WHERE tq.test_id = ?
-       ORDER BY tq.question_order ASC`,
-      [testId]
-    );
-
-    if (rows.length > 0) {
-      const caseIds = rows.map((q) => q.case_id);
-      const [allImages] = await pool.query(
-        `SELECT id, case_id, image_url, display_order
-         FROM case_images
-         WHERE case_id IN (${caseIds.map(() => '?').join(',')})
-         ORDER BY display_order ASC`,
-        caseIds
+    const baseQuestions = await cache.getOrSet(`tests:questions:${testId}`, 120000, async () => {
+      const [rows] = await pool.query(
+        `SELECT tq.id AS test_question_id, tq.question_order, pc.id AS case_id,
+                pc.title, pc.modality, pc.difficulty, pc.clinical_info, pc.question_text
+         FROM test_questions tq
+         JOIN practice_cases pc ON pc.id = tq.case_id
+         WHERE tq.test_id = ?
+         ORDER BY tq.question_order ASC`,
+        [testId]
       );
-      const imgByCase = new Map();
-      for (const img of allImages) {
-        if (!imgByCase.has(img.case_id)) imgByCase.set(img.case_id, []);
-        imgByCase.get(img.case_id).push(img);
+
+      if (rows.length > 0) {
+        const caseIds = rows.map((q) => q.case_id);
+        const [allImages] = await pool.query(
+          `SELECT id, case_id, image_url, display_order
+           FROM case_images
+           WHERE case_id IN (${caseIds.map(() => '?').join(',')})
+           ORDER BY display_order ASC`,
+          caseIds
+        );
+        const imgByCase = new Map();
+        for (const img of allImages) {
+          if (!imgByCase.has(img.case_id)) imgByCase.set(img.case_id, []);
+          imgByCase.get(img.case_id).push(img);
+        }
+        for (const q of rows) {
+          q.images = imgByCase.get(q.case_id) || [];
+        }
       }
-      for (const q of rows) {
-        q.images = imgByCase.get(q.case_id) || [];
-      }
-    }
-    return shuffleArray(rows);
+      return rows;
+    });
+
+    return shuffleArray(baseQuestions);
   },
 
-  /** Case_id + correct_answer for one test_question, used only for server-side grading. */
+  /** Case_id + correct_answer for one test_question, cached for instant grading. */
   async getGradingInfo(testQuestionId, testId) {
-    const [rows] = await pool.query(
-      `SELECT tq.case_id, tq.test_id, pc.correct_answer
-       FROM test_questions tq
-       JOIN practice_cases pc ON pc.id = tq.case_id
-       WHERE tq.id = ? AND tq.test_id = ?
-       LIMIT 1`,
-      [testQuestionId, testId]
-    );
-    return rows[0] || null;
+    const info = await this.getGradingInfoById(testQuestionId);
+    if (!info || Number(info.test_id) !== Number(testId)) return null;
+    return info;
   },
 
   async getGradingInfoById(testQuestionId) {
-    const [rows] = await pool.query(
-      `SELECT tq.case_id, tq.test_id, pc.correct_answer
-       FROM test_questions tq
-       JOIN practice_cases pc ON pc.id = tq.case_id
-       WHERE tq.id = ?
-       LIMIT 1`,
-      [testQuestionId]
-    );
-    return rows[0] || null;
+    return cache.getOrSet(`grading:q:${testQuestionId}`, 180000, async () => {
+      const [rows] = await pool.query(
+        `SELECT tq.case_id, tq.test_id, pc.correct_answer
+         FROM test_questions tq
+         JOIN practice_cases pc ON pc.id = tq.case_id
+         WHERE tq.id = ?
+         LIMIT 1`,
+        [testQuestionId]
+      );
+      return rows[0] || null;
+    });
   },
 
   async abandonInProgress(userId, testId) {

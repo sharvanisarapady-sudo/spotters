@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -26,6 +27,14 @@ function Protected({ children }) {
 }
 
 export default function App() {
+  // Keep cloud container warm while any browser tab has Spotters open (prevents Render 15-min idle sleep)
+  useEffect(() => {
+    const id = setInterval(() => {
+      fetch('/api/health', { credentials: 'include' }).catch(() => {});
+    }, 4 * 60 * 1000);
+    return () => clearInterval(id);
+  }, []);
+
   return (
     <AuthProvider>
       <Routes>

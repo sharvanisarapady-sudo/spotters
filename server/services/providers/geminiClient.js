@@ -87,17 +87,21 @@ async function attempt({ apiKey, model, body, deadlineMs }) {
   }
 }
 
-/** Sends one message; retries once on transient failures if the time budget allows. */
-async function createMessage({ apiKey, model, system, user, maxOutputTokens = 2048 }) {
+/** Sends one message (optionally multimodal with `imagePart`); retries once on transient failures. */
+async function createMessage({ apiKey, model, system, user, imagePart = null, maxOutputTokens = 2048 }) {
   if (!apiKey) throw new ProviderError('config', 'AI_API_KEY is not set');
   if (!model) throw new ProviderError('config', 'AI_MODEL is not set');
   if (!MODEL_PATTERN.test(model)) throw new ProviderError('config', 'AI_MODEL has an invalid format');
 
-  // No temperature/thinking settings on purpose: newer Gemini models ignore or restrict them, and
-  // a generous maxOutputTokens leaves room for any internal "thinking" tokens on 2.5-era models.
+  const userParts = [];
+  if (imagePart && imagePart.mimeType && imagePart.data) {
+    userParts.push({ inlineData: { mimeType: imagePart.mimeType, data: imagePart.data } });
+  }
+  userParts.push({ text: user });
+
   const body = {
     systemInstruction: { parts: [{ text: system }] },
-    contents: [{ role: 'user', parts: [{ text: user }] }],
+    contents: [{ role: 'user', parts: userParts }],
     generationConfig: { maxOutputTokens, responseMimeType: 'application/json' },
   };
   const budget = timeoutMs();

@@ -152,6 +152,12 @@ const CREATE_TABLES = [
     setting_key VARCHAR(64) PRIMARY KEY,
     setting_value VARCHAR(255) NOT NULL
   ) ENGINE=InnoDB`,
+  `CREATE TABLE IF NOT EXISTS stored_files (
+    filename VARCHAR(120) PRIMARY KEY,
+    mime_type VARCHAR(60) NOT NULL,
+    file_data LONGBLOB NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB`,
 ];
 
 const INITIAL_CASES = [
@@ -350,6 +356,14 @@ async function initDb() {
       }
     }
 
+    await pool.query(
+      `CREATE TABLE IF NOT EXISTS stored_files (
+         filename VARCHAR(120) PRIMARY KEY,
+         mime_type VARCHAR(60) NOT NULL,
+         file_data LONGBLOB NOT NULL,
+         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+       ) ENGINE=InnoDB`
+    );
     await caseAdminModel.ensureSynced();
 
     console.log('[db] Schema, seed cases & random test blocks verified');

@@ -1,26 +1,38 @@
 /**
- * Local image storage for case images.
+ * Local + Cloud-DB backed image storage for case images.
  *
- * Files live in server/uploads/cases/ and are served at /uploads/cases/<name>.
- * The database stores only that relative URL (case_images.image_url), so moving
- * to cloud storage later means changing this module and the stored URLs only.
- *
- * Security notes
- *  - File names are generated here (UUID + extension derived from the file's
- *    CONTENT); nothing from the client ever reaches the file system path.
- *  - Type is decided from magic bytes, never from the browser-supplied MIME
- *    type or extension.
- *  - Deletion only touches files that resolve inside UPLOAD_DIR.
+ * Files live in server/uploads/cases/ for fast disk serving AND are backed up
+ * in `stored_files` in MySQL/TiDB so ephemeral cloud hosts (like Render Free)
+ * never lose uploaded medical images across restarts or deployments.
  */
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { pool } = require('../config/db');
 
 const UPLOAD_DIR = path.resolve(__dirname, '..', 'uploads', 'cases');
 const URL_PREFIX = '/uploads/cases/';
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+
+let storedFilesTableReady = false;
+async function ensureStoredFilesTable() {
+  if (storedFilesTableReady) return;
+  try {
+    await pool.query(
+      `CREATE TABLE IF NOT EXISTS stored_files (
+         filename VARCHAR(120) PRIMARY KEY,
+         mime_type VARCHAR(60) NOT NULL,
+         file_data LONGBLOB NOT NULL,
+         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+       ) ENGINE=InnoDB`
+    );
+    storedFilesTableReady = true;
+  } catch (err) {
+    console.warn('[storage] stored_files table warning:', err.message);
+  }
+}
 
 /** Detects JPEG / PNG / WebP from a header buffer. Returns {ext, mime} or null. */
 function sniffImageType(buf) {
@@ -65,15 +77,51 @@ async function removePaths(paths) {
 /** Best-effort delete of a stored local image by URL; external URLs are left alone. */
 async function removeByUrl(imageUrl) {
   const abs = urlToPath(imageUrl);
-  if (abs) await removePaths([abs]);
+  if (abs) {
+    await removePaths([abs]);
+    const filename = path.basename(abs);
+    pool.query('DELETE FROM stored_files WHERE filename = ?', [filename]).catch(() => {});
+  }
 }
 
 /**
- * Validates freshly uploaded temp files (multer disk files) and moves them to
- * their final, content-derived names.
- * All-or-nothing: on any failure every temp/final file from this call is removed.
- * @returns {Promise<string[]>} stored URLs, in the same order as `files`
- * @throws {Error & {status:number}} validation errors (status 400)
+ * Reads an uploaded image buffer + mimeType from local disk cache or restores it from DB if missing.
+ */
+async function readImageBuffer(imageUrl) {
+  const abs = urlToPath(imageUrl);
+  if (!abs) return null;
+
+  try {
+    const buf = await fs.promises.readFile(abs);
+    const type = sniffImageType(buf) || { mime: 'image/jpeg', ext: 'jpg' };
+    return { buffer: buf, mimeType: type.mime, filePath: abs };
+  } catch {
+    // Not on local disk (e.g. Render ephemeral container restart) — try restoring from DB
+  }
+
+  try {
+    await ensureStoredFilesTable();
+    const filename = path.basename(abs);
+    const [rows] = await pool.query(
+      'SELECT mime_type, file_data FROM stored_files WHERE filename = ? LIMIT 1',
+      [filename]
+    );
+    if (rows[0] && rows[0].file_data) {
+      const buf = Buffer.isBuffer(rows[0].file_data)
+        ? rows[0].file_data
+        : Buffer.from(rows[0].file_data);
+      await fs.promises.writeFile(abs, buf).catch(() => {});
+      return { buffer: buf, mimeType: rows[0].mime_type || 'image/jpeg', filePath: abs };
+    }
+  } catch (err) {
+    console.warn('[storage] DB image restore warning:', err.message);
+  }
+  return null;
+}
+
+/**
+ * Validates freshly uploaded temp files (multer disk files), moves them to
+ * their final content-derived names, and persists a copy in `stored_files` for durability.
  */
 async function finalizeUploads(files) {
   const tempPaths = files.map((f) => f.path);
@@ -87,6 +135,8 @@ async function finalizeUploads(files) {
       types.push(type);
     }
 
+    await ensureStoredFilesTable();
+
     const urls = [];
     for (let i = 0; i < files.length; i += 1) {
       const name = `${crypto.randomUUID()}.${types[i].ext}`;
@@ -94,6 +144,18 @@ async function finalizeUploads(files) {
       await fs.promises.rename(files[i].path, dest);
       finalPaths.push(dest);
       urls.push(URL_PREFIX + name);
+
+      // Persist in DB so cloud container restarts never wipe the image
+      try {
+        const buf = await fs.promises.readFile(dest);
+        await pool.query(
+          `INSERT INTO stored_files (filename, mime_type, file_data) VALUES (?, ?, ?)
+           ON DUPLICATE KEY UPDATE file_data = VALUES(file_data), mime_type = VALUES(mime_type)`,
+          [name, types[i].mime, buf]
+        );
+      } catch (dbErr) {
+        console.warn('[storage] Could not persist backup blob in DB:', dbErr.message);
+      }
     }
     return urls;
   } catch (err) {
@@ -108,7 +170,6 @@ function httpError(status, message) {
   return e;
 }
 
-// Original name is used ONLY in an error message, stripped to harmless characters.
 function safeName(file) {
   return String(file.originalname || 'file').replace(/[^\w.\- ]/g, '_').slice(0, 60);
 }
@@ -121,5 +182,6 @@ module.exports = {
   urlToPath,
   removePaths,
   removeByUrl,
+  readImageBuffer,
   finalizeUploads,
 };

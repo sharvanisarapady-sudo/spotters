@@ -6,10 +6,12 @@ const navigationAiController = require('../controllers/navigationAiController');
 const rateLimit = require('../middleware/rateLimit');
 
 const router = express.Router();
-const analyzeLimiter = rateLimit({ windowMs: 60 * 1000, max: 20, message: 'You are submitting too quickly. Please wait a moment.' });
+const analyzeLimiter = rateLimit({ windowMs: 60 * 1000, max: 30, message: 'You are submitting too quickly. Please wait a moment.' });
 
 router.get('/cases', requireAuth, navigationAiController.listCases);
 router.get('/cases/:id', requireAuth, navigationAiController.getCase);
+router.post('/cases/:id/hint', requireAuth, analyzeLimiter, navigationAiController.hint);
+router.post('/cases/:id/followup', requireAuth, analyzeLimiter, navigationAiController.followUp);
 router.post(
   '/cases/:id/analyze',
   requireAuth,

@@ -1,14 +1,23 @@
 const { validationResult } = require('express-validator');
 const navigationAiModel = require('../models/navigationAiModel');
-const { analyzeAnswer } = require('../services/aiService');
+const {
+  analyzeAnswer,
+  getModelStatus,
+  trainModel,
+  generateHint,
+  answerFollowUp,
+} = require('../services/aiService');
 
 async function listCases(req, res) {
   try {
-    const cases = await navigationAiModel.listCases();
-    return res.json({ success: true, cases });
+    const [cases] = await Promise.all([
+      navigationAiModel.listCases(),
+      trainModel(),
+    ]);
+    return res.json({ success: true, cases, modelStatus: getModelStatus() });
   } catch (err) {
     console.error('[navigation-ai] list error:', err.message);
-    return res.status(500).json({ success: false, message: 'Could not load the Navigation AI case library.' });
+    return res.status(500).json({ success: false, message: 'Could not load the AI Case Mentor library.' });
   }
 }
 
@@ -16,9 +25,9 @@ async function getCase(req, res) {
   try {
     const caseData = await navigationAiModel.getCaseForStudent(req.params.id);
     if (!caseData) {
-      return res.status(404).json({ success: false, message: 'This case is not available in Navigation AI.' });
+      return res.status(404).json({ success: false, message: 'This case is not available in AI Case Mentor.' });
     }
-    return res.json({ success: true, case: caseData });
+    return res.json({ success: true, case: caseData, modelStatus: getModelStatus() });
   } catch (err) {
     console.error('[navigation-ai] getCase error:', err.message);
     return res.status(500).json({ success: false, message: 'Could not load this case.' });
@@ -36,18 +45,16 @@ async function analyze(req, res) {
   const inputMethod = req.body.inputMethod === 'voice' ? 'voice' : 'text';
 
   try {
-    const caseData = await navigationAiModel.getCaseForAnalysis(caseId);
+    const [caseData, videos] = await Promise.all([
+      navigationAiModel.getCaseForAnalysis(caseId),
+      navigationAiModel.getVideos(caseId),
+    ]);
     if (!caseData) {
-      return res.status(404).json({ success: false, message: 'This case is not available in Navigation AI.' });
+      return res.status(404).json({ success: false, message: 'This case is not available in AI Case Mentor.' });
     }
 
     const analysis = await analyzeAnswer({ caseData, studentAnswer });
 
-    // Videos are only revealed after an answer has been analyzed — a
-    // video explanation would otherwise give the diagnosis away.
-    const videos = await navigationAiModel.getVideos(caseId);
-
-    // Logging must never block the student from seeing their feedback.
     navigationAiModel
       .logInteraction({
         userId: req.user.id,
@@ -66,4 +73,40 @@ async function analyze(req, res) {
   }
 }
 
-module.exports = { listCases, getCase, analyze };
+async function hint(req, res) {
+  try {
+    const caseData = await navigationAiModel.getCaseForAnalysis(req.params.id);
+    if (!caseData) {
+      return res.status(404).json({ success: false, message: 'Case not found.' });
+    }
+    const result = await generateHint(caseData);
+    return res.json({ success: true, ...result });
+  } catch (err) {
+    console.error('[navigation-ai] hint error:', err.message);
+    return res.status(500).json({ success: false, message: 'Could not generate a hint right now.' });
+  }
+}
+
+async function followUp(req, res) {
+  const question = String(req.body.question || '').trim();
+  if (!question) {
+    return res.status(400).json({ success: false, message: 'Please enter a question for the AI Case Mentor.' });
+  }
+  try {
+    const caseData = await navigationAiModel.getCaseForAnalysis(req.params.id);
+    if (!caseData) {
+      return res.status(404).json({ success: false, message: 'Case not found.' });
+    }
+    const result = await answerFollowUp({
+      caseData,
+      question: question.slice(0, 400),
+      studentAnswer: req.body.studentAnswer ? String(req.body.studentAnswer).slice(0, 400) : '',
+    });
+    return res.json({ success: true, ...result });
+  } catch (err) {
+    console.error('[navigation-ai] followUp error:', err.message);
+    return res.status(500).json({ success: false, message: 'Could not answer your question right now.' });
+  }
+}
+
+module.exports = { listCases, getCase, analyze, hint, followUp };

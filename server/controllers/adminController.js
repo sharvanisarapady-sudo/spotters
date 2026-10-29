@@ -2,6 +2,13 @@ const { validationResult } = require('express-validator');
 const model = require('../models/caseAdminModel');
 const testModel = require('../models/testModel');
 const storage = require('../services/imageStorageService');
+const cache = require('../utils/cache');
+const { trainModel, getModelStatus } = require('../services/medicalCaseTrainer');
+
+function refreshContentAndAi() {
+  cache.invalidateContent();
+  trainModel({ force: true }).catch(() => {});
+}
 
 const wrap = (fn) => async (req, res) => {
   const errors = validationResult(req);
@@ -25,12 +32,14 @@ exports.getCase = wrap(async (req, res) => {
 
 exports.createCase = wrap(async (req, res) => {
   const id = await model.create(req.body, req.user.id);
+  refreshContentAndAi();
   res.status(201).json({ success: true, id });
 });
 
 exports.updateCase = wrap(async (req, res) => {
   if (!(await model.get(req.params.id))) return notFound(res);
   await model.update(req.params.id, req.body);
+  refreshContentAndAi();
   res.json({ success: true });
 });
 
@@ -43,13 +52,17 @@ exports.setStatus = wrap(async (req, res) => {
       return res.status(400).json({ success: false, message: 'A published case needs an answer key and at least one image.' });
     }
   }
-  return (await model.setStatus(req.params.id, status)) ? res.json({ success: true }) : notFound(res);
+  const ok = await model.setStatus(req.params.id, status);
+  if (!ok) return notFound(res);
+  refreshContentAndAi();
+  return res.json({ success: true });
 });
 
 exports.deleteCase = wrap(async (req, res) => {
   const urls = await model.listImageUrlsForCase(req.params.id);
   if (!(await model.remove(req.params.id))) return notFound(res);
   await Promise.all(urls.map((u) => storage.removeByUrl(u))); // rows are gone (cascade); drop the files too
+  refreshContentAndAi();
   return res.json({ success: true });
 });
 
@@ -80,6 +93,7 @@ exports.uploadImages = async (req, res) => {
 
   try {
     const images = await model.addImages(req.params.id, urls);
+    refreshContentAndAi();
     return res.status(201).json({ success: true, images });
   } catch (err) {
     await storage.removePaths(urls.map(storage.urlToPath)); // no orphaned files if the DB insert fails
@@ -139,6 +153,7 @@ exports.shuffleTests = wrap(async (req, res) => {
     reshuffleAll: true,
     questionsPerBlock: req.body.questions_per_block,
   });
+  cache.invalidateContent();
   const data = await model.listBlocksWithQuestions();
   return res.json({
     success: true,
@@ -146,6 +161,17 @@ exports.shuffleTests = wrap(async (req, res) => {
     systemBlocks: data.systemBlocks,
     questionsPerBlock: data.questionsPerBlock,
   });
+});
+
+exports.retrainAi = wrap(async (req, res) => {
+  cache.invalidateContent();
+  const status = await trainModel({ force: true });
+  return res.json({ success: true, modelStatus: status });
+});
+
+exports.getAiStatus = wrap(async (req, res) => {
+  const status = getModelStatus();
+  return res.json({ success: true, modelStatus: status });
 });
 
 exports.createTest = wrap(async (req, res) => {

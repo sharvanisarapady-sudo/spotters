@@ -89,5 +89,11 @@ export const adminService = {
   removeTestQuestion: (testId, questionId) =>
     api.delete(`/admin/tests/${testId}/questions/${questionId}`)
       .then((r) => r.data),
+
+  getAiStatus: () =>
+    api.get('/admin/ai-status').then((r) => r.data),
+
+  retrainAi: () =>
+    api.post('/admin/retrain-ai').then((r) => r.data),
 };
 

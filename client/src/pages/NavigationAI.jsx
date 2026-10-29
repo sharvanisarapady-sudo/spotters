@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 import DashboardLayout from '../layouts/DashboardLayout';
 import Disclaimer from '../components/Disclaimer';
 import { navigationAiService } from '../services/navigationAiService';
-import { IconCrosshair, IconMic } from '../components/icons';
+import { IconCrosshair, IconMic, IconSpark } from '../components/icons';
 
 export default function NavigationAI() {
   const [cases, setCases] = useState([]);
+  const [modelStatus, setModelStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [system, setSystem] = useState('all');
@@ -15,7 +16,11 @@ export default function NavigationAI() {
     let cancelled = false;
     navigationAiService
       .listCases()
-      .then((res) => !cancelled && setCases(res.cases))
+      .then((res) => {
+        if (cancelled) return;
+        setCases(res.cases || []);
+        if (res.modelStatus) setModelStatus(res.modelStatus);
+      })
       .catch(() => !cancelled && setError('Could not load the case library right now.'))
       .finally(() => !cancelled && setLoading(false));
     return () => {
@@ -29,10 +34,22 @@ export default function NavigationAI() {
   return (
     <DashboardLayout>
       <main className="max-w-6xl mx-auto px-6 py-10">
-        <h1 className="font-display font-semibold text-2xl text-navy-950">AI Case Mentor</h1>
-        <p className="mt-1 text-gray-500">
-          Study a case, give your diagnosis by typing or speaking, and get feedback grounded in the case record.
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="font-display font-semibold text-2xl text-navy-950">AI Case Mentor</h1>
+            <p className="mt-1 text-gray-500">
+              Inspect the radiology scan, request visual hints, submit your diagnosis by voice or text, and chat with the AI Case Mentor trained on your uploaded cases.
+            </p>
+          </div>
+          {modelStatus?.ready && (
+            <div className="inline-flex items-center gap-2 rounded-full bg-spotter-blue/10 border border-spotter-blue/20 px-3.5 py-1.5 text-xs font-medium text-spotter-blue">
+              <IconSpark className="w-3.5 h-3.5 shrink-0" />
+              <span>
+                Trained on {modelStatus.trainedCasesCount} Cases &middot; {modelStatus.trainedImagesCount} Scans (v{modelStatus.modelVersion})
+              </span>
+            </div>
+          )}
+        </div>
 
         {error && (
           <div className="mt-6 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">{error}</div>
@@ -76,7 +93,13 @@ export default function NavigationAI() {
                 >
                   <div className="aspect-video bg-navy-950 flex items-center justify-center">
                     {c.thumbnail_url ? (
-                      <img src={c.thumbnail_url} alt="" className="w-full h-full object-cover" />
+                      <img
+                        src={c.thumbnail_url}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <div className="flex flex-col items-center gap-2 text-white/20">
                         <IconCrosshair className="w-8 h-8" />

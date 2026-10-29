@@ -15,9 +15,9 @@ const poolConfig = process.env.DATABASE_URL
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME || 'spotters_db',
       waitForConnections: true,
-      connectionLimit: 12,
-      maxIdle: 6,
-      idleTimeout: 45000,
+      connectionLimit: 10,
+      maxIdle: 5,
+      idleTimeout: 120000,
       connectTimeout: 15000,
       queueLimit: 0,
       enableKeepAlive: true,
@@ -27,6 +27,15 @@ const poolConfig = process.env.DATABASE_URL
     };
 
 const pool = mysql.createPool(poolConfig);
+
+// Prevent idle socket resets from TiDB Cloud Serverless from crashing the Node process
+if (pool.pool && typeof pool.pool.on === 'function') {
+  pool.pool.on('connection', (conn) => {
+    conn.on('error', (err) => {
+      console.warn('[db] Idle connection reset handled safely:', err.code || err.message);
+    });
+  });
+}
 
 const TRANSIENT_CODES = new Set([
   'PROTOCOL_CONNECTION_LOST',
@@ -67,6 +76,11 @@ pool.query = async function retryableQuery(...args) {
   }
   throw lastErr;
 };
+
+// Keep one warm TLS connection open to TiDB Cloud so user requests avoid 700ms TLS handshakes
+setInterval(() => {
+  rawQuery('SELECT 1').catch(() => {});
+}, 30000).unref();
 
 async function testConnection() {
   try {

@@ -38,5 +38,7 @@ router.delete('/tests/:testId', param('testId').isInt({ min: 1 }), c.deleteTest)
 router.post('/tests/:testId/questions/add', param('testId').isInt({ min: 1 }), body('caseId').isInt({ min: 1 }).withMessage('Choose a case.'), c.addTestQuestion);
 router.delete('/tests/:testId/questions/:questionId', param('testId').isInt({ min: 1 }), param('questionId').isInt({ min: 1 }), c.removeTestQuestion);
 router.put('/tests/:testId/questions', param('testId').isInt({ min: 1 }), body('caseIds').isArray({ max: 100 }).withMessage('caseIds must be an array.'), body('caseIds.*').isInt({ min: 1 }), c.setTestQuestions);
+router.get('/ai-status', c.getAiStatus);
+router.post('/retrain-ai', c.retrainAi);
 
 module.exports = router;

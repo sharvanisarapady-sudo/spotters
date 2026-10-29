@@ -979,6 +979,17 @@ export default function AdminCases() {
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [selectedId, setSelectedId] = useState(null);
+  const [aiStatus, setAiStatus] = useState(null);
+  const [retraining, setRetraining] = useState(false);
+
+  const loadAiStatus = useCallback(
+    () =>
+      adminService
+        .getAiStatus()
+        .then((r) => setAiStatus(r.modelStatus))
+        .catch(() => {}),
+    []
+  );
 
   const loadCases = useCallback(
     () =>
@@ -1005,18 +1016,37 @@ export default function AdminCases() {
   useEffect(() => {
     loadCases();
     loadBlocks();
-  }, [loadCases, loadBlocks]);
+    loadAiStatus();
+  }, [loadCases, loadBlocks, loadAiStatus]);
 
   const handleCreated = async (id, msg) => {
     setShowCreateForm(false);
-    setNotice(msg || 'Case created successfully.');
-    await Promise.all([loadCases(), loadBlocks()]);
+    setNotice(msg || 'Case created & AI Mentor automatically retrained!');
+    await Promise.all([loadCases(), loadBlocks(), loadAiStatus()]);
     setSelectedId(id);
   };
 
   const changed = () => {
     loadCases();
     loadBlocks();
+    loadAiStatus();
+  };
+
+  const handleRetrainAi = async () => {
+    setRetraining(true);
+    setError('');
+    setNotice('');
+    try {
+      const res = await adminService.retrainAi();
+      setAiStatus(res.modelStatus);
+      setNotice(
+        `AI Case Mentor Model (v${res.modelStatus.modelVersion}) trained on ${res.modelStatus.trainedCasesCount} published cases & ${res.modelStatus.trainedImagesCount} medical scans!`
+      );
+    } catch (e) {
+      setError(errMsg(e, 'Could not retrain AI model.'));
+    } finally {
+      setRetraining(false);
+    }
   };
 
   const selected = cases?.find((c) => c.id === selectedId);
@@ -1037,17 +1067,34 @@ export default function AdminCases() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="font-display font-semibold text-2xl text-navy-950">Questions, Cases &amp; Test Blocks</h1>
-            <p className="mt-1 text-gray-500">Create your own radiology questions &amp; answers, upload images, and organize test blocks.</p>
+            <p className="mt-1 text-gray-500">
+              Create your own radiology questions &amp; answers, upload images, and organize test blocks. Every published case &amp; scan automatically trains the AI Case Mentor.
+            </p>
+            {aiStatus?.ready && (
+              <p className="mt-1.5 text-xs font-medium text-spotter-blue">
+                AI Case Mentor Model v{aiStatus.modelVersion} active &middot; Trained on {aiStatus.trainedCasesCount} published cases &amp; {aiStatus.trainedImagesCount} medical images ({aiStatus.vocabularySize} clinical terms)
+              </p>
+            )}
           </div>
-          <button
-            onClick={() => {
-              setNotice('');
-              setShowCreateForm((v) => !v);
-            }}
-            className="rounded-lg bg-spotter-blue px-4 py-2.5 text-sm font-medium text-white hover:bg-spotter-blue-dark"
-          >
-            {showCreateForm ? 'Close Form' : '+ Add New Question / Case'}
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={handleRetrainAi}
+              disabled={retraining}
+              className="rounded-lg border border-spotter-blue/30 bg-spotter-blue/5 px-4 py-2.5 text-sm font-medium text-spotter-blue hover:bg-spotter-blue/10 transition disabled:opacity-50"
+            >
+              {retraining ? 'Training on Scans…' : '↻ Retrain AI Mentor'}
+            </button>
+            <button
+              onClick={() => {
+                setNotice('');
+                setShowCreateForm((v) => !v);
+              }}
+              className="rounded-lg bg-spotter-blue px-4 py-2.5 text-sm font-medium text-white hover:bg-spotter-blue-dark"
+            >
+              {showCreateForm ? 'Close Form' : '+ Add New Question / Case'}
+            </button>
+          </div>
         </div>
 
         <div className="mt-4">
