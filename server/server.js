@@ -16,7 +16,7 @@ const testRoutes = require('./routes/testRoutes');
 const progressRoutes = require('./routes/progressRoutes');
 const navigationAiRoutes = require('./routes/navigationAiRoutes');
 const adminRoutes = require('./routes/adminRoutes');
-const { describeConfig, trainModel } = require('./services/aiService');
+const { describeConfig } = require('./services/aiService');
 const { readImageBuffer } = require('./services/imageStorageService');
 const systemModel = require('./models/systemModel');
 const testModel = require('./models/testModel');
@@ -149,12 +149,11 @@ async function start() {
     console.warn('[server] Starting without a confirmed database connection. Check your .env settings.');
   } else {
     await initDb();
-    // Warm up RAM caches and train the Case-Bank & Medical Image AI Mentor model in background
+    // Warm up RAM caches in background
     Promise.all([
       systemModel.findAllWithCaseCounts(),
       testModel.listBlocks(),
-      trainModel({ force: true }),
-    ]).catch((err) => console.warn('[server] Cache/AI warm-up warning:', err.message));
+    ]).catch((err) => console.warn('[server] Cache warm-up warning:', err.message));
   }
 }
 

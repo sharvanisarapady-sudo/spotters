@@ -8,12 +8,11 @@ const {
   answerFollowUp,
 } = require('../services/aiService');
 
+let trained = false;
+
 async function listCases(req, res) {
   try {
-    const [cases] = await Promise.all([
-      navigationAiModel.listCases(),
-      trainModel(),
-    ]);
+    const cases = await navigationAiModel.listCases();
     return res.json({ success: true, cases, modelStatus: getModelStatus() });
   } catch (err) {
     console.error('[navigation-ai] list error:', err.message);
@@ -45,6 +44,11 @@ async function analyze(req, res) {
   const inputMethod = req.body.inputMethod === 'voice' ? 'voice' : 'text';
 
   try {
+    if (!trained) {
+      await trainModel();
+      trained = true;
+    }
+
     const [caseData, videos] = await Promise.all([
       navigationAiModel.getCaseForAnalysis(caseId),
       navigationAiModel.getVideos(caseId),
