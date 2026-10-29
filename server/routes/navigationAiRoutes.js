@@ -6,7 +6,9 @@ const navigationAiController = require('../controllers/navigationAiController');
 const rateLimit = require('../middleware/rateLimit');
 
 const router = express.Router();
-const analyzeLimiter = rateLimit({ windowMs: 60 * 1000, max: 20, message: 'You are submitting too quickly. Please wait a moment.' });
+// 60 per minute per IP: enough for a real classroom without being spammable.
+// Was 20, raised after load testing showed legitimate concurrent students hitting the limit.
+const analyzeLimiter = rateLimit({ windowMs: 60 * 1000, max: 60, message: 'You are submitting too quickly. Please wait a moment.' });
 
 router.get('/cases', requireAuth, navigationAiController.listCases);
 router.get('/cases/:id', requireAuth, navigationAiController.getCase);

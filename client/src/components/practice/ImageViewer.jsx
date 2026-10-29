@@ -27,6 +27,33 @@ export default function ImageViewer({ images = [] }) {
   }, [imageKey]);
 
   const hasImages = images.length > 0;
+  const count = images.length;
+
+  // MRI/CT-style stack scrolling: mouse wheel moves through slices. Needs a native
+  // listener (not React's onWheel) so we can stop the page itself from scrolling.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || count < 2) return undefined;
+    let acc = 0; // trackpads fire many tiny events; one slice per ~50px of scroll
+    const onWheel = (e) => {
+      if (e.ctrlKey) return; // leave pinch / ctrl+wheel browser zoom alone
+      e.preventDefault();
+      acc += e.deltaY;
+      if (Math.abs(acc) < 50) return;
+      const dir = Math.sign(acc);
+      acc = 0;
+      setActiveIndex((i) => Math.min(count - 1, Math.max(0, i + dir)));
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, [count]);
+
+  const onKeyDown = (e) => {
+    const dir = { ArrowUp: -1, ArrowLeft: -1, ArrowDown: 1, ArrowRight: 1 }[e.key];
+    if (!dir || count < 2) return;
+    e.preventDefault();
+    setActiveIndex((i) => Math.min(count - 1, Math.max(0, i + dir)));
+  };
   const activeImage = hasImages ? images[activeIndex] : null;
 
   const zoomIn = () => setZoom((z) => Math.min(MAX_ZOOM, z + ZOOM_STEP));
@@ -54,7 +81,7 @@ export default function ImageViewer({ images = [] }) {
       {/* Toolbar */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
         <span className="font-mono text-[11px] text-white/40 tracking-wide">
-          {hasImages ? `IMAGE ${activeIndex + 1} / ${images.length}` : 'RADIOLOGY IMAGE'}
+          {hasImages ? `${count > 1 ? 'SLICE' : 'IMAGE'} ${activeIndex + 1} / ${count}` : 'RADIOLOGY IMAGE'}
         </span>
         <div className="flex items-center gap-1">
           <button
@@ -97,7 +124,9 @@ export default function ImageViewer({ images = [] }) {
       {/* Viewer surface */}
       <div
         ref={containerRef}
-        className="relative aspect-square md:aspect-[4/3] bg-[#050a1c] overflow-hidden flex items-center justify-center"
+        tabIndex={count > 1 ? 0 : undefined}
+        onKeyDown={onKeyDown}
+        className="relative aspect-square outline-none focus-visible:ring-2 focus-visible:ring-spotter-blue/60 md:aspect-[4/3] bg-[#050a1c] overflow-hidden flex items-center justify-center"
       >
         {hasImages ? (
           failed[activeImage.id] ? (
@@ -128,6 +157,21 @@ export default function ImageViewer({ images = [] }) {
           </div>
         )}
       </div>
+
+      {/* Slice slider (stack scrolling; same as wheel / arrow keys) */}
+      {count > 1 && (
+        <div className="px-4 py-2 border-t border-white/10">
+          <input
+            type="range"
+            min={0}
+            max={count - 1}
+            value={activeIndex}
+            onChange={(e) => setActiveIndex(Number(e.target.value))}
+            aria-label="Scroll through slices"
+            className="w-full accent-spotter-blue"
+          />
+        </div>
+      )}
 
       {/* Thumbnails (only when there's more than one image) */}
       {images.length > 1 && (
